@@ -12,8 +12,8 @@ export interface MenuItem {
   key: string
   /** 菜单显示文本 */
   label: string
-  /** 菜单图标 */
-  icon?: ReactNode
+  /** 菜单图标名称 (lucide-react icon name) */
+  icon?: string
   /** 路由路径 */
   path?: string
   /** 子菜单项 */

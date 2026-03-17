@@ -1,6 +1,13 @@
-import { Avatar, Dropdown, Space, Button } from 'antd'
-import { UserOutlined, LogoutOutlined, SettingOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
-import type { MenuProps } from 'antd'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { User, Settings, LogOut, PanelLeftClose, PanelLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/stores'
 
@@ -12,55 +19,46 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   const { t } = useTranslation()
   const { sidebarCollapsed, toggleSidebar } = useAppStore()
 
-  const userMenuItems: MenuProps['items'] = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: t('layout.profile'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: t('layout.settings'),
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: t('layout.logout'),
-    },
-  ]
-
   return (
-    <div
-      style={{
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 16px',
-        background: '#fff',
-        borderBottom: '1px solid #f0f0f0',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Button
-          type="text"
-          icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={toggleSidebar}
-          style={{ marginRight: 16 }}
-        />
-        <h1 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{title || t('layout.title')}</h1>
+    <div className="flex h-16 items-center justify-between px-4">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          {sidebarCollapsed ? (
+            <PanelLeft className="size-5" />
+          ) : (
+            <PanelLeftClose className="size-5" />
+          )}
+        </Button>
+        <h1 className="text-lg font-semibold">{title || t('layout.title')}</h1>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-          <Space style={{ cursor: 'pointer' }}>
-            <Avatar icon={<UserOutlined />} />
-            <span>管理员</span>
-          </Space>
-        </Dropdown>
+      <div className="flex items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <div className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-accent">
+              <Avatar size="sm">
+                <AvatarFallback>
+                  <User className="size-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm">管理员</span>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={4}>
+            <DropdownMenuItem>
+              <User className="size-4" />
+              {t('layout.profile')}
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="size-4" />
+              {t('layout.settings')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">
+              <LogOut className="size-4" />
+              {t('layout.logout')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

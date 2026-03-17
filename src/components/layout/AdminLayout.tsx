@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Layout } from 'antd'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import Content from './Content'
@@ -28,31 +27,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, menus, children }) => 
   }, [setSidebarCollapsed])
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Layout.Sider
-        collapsible
-        collapsed={sidebarCollapsed}
-        onCollapse={setSidebarCollapsed}
-        trigger={null}
-        style={{
-          overflow: 'hidden',
-          background: '#fff',
-          borderRight: '1px solid #f0f0f0',
-        }}
-        width={200}
-        collapsedWidth={80}
+    <div className="flex min-h-screen">
+      {/* 侧边栏 */}
+      <aside
+        className="flex h-screen flex-col border-r border-border bg-sidebar transition-all duration-200"
+        style={{ width: sidebarCollapsed ? '80px' : '200px' }}
       >
         <Sidebar collapsed={sidebarCollapsed} menus={menus} />
-      </Layout.Sider>
-      <Layout>
-        <Layout.Header style={{ padding: 0, height: 64, background: '#fff' }}>
+      </aside>
+      {/* 主内容区 */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="h-16 border-b border-border bg-white">
           <Header title={title} />
-        </Layout.Header>
-        <Layout.Content>
+        </header>
+        <main className="flex-1">
           <Content>{children}</Content>
-        </Layout.Content>
-      </Layout>
-    </Layout>
+        </main>
+      </div>
+    </div>
   )
 }
 

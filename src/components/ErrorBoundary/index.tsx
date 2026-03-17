@@ -1,5 +1,6 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
-import { Result, Button } from 'antd'
+import { Button } from '@/components/ui/button'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -42,28 +43,26 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       }
 
       return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            padding: '24px',
-          }}
-        >
-          <Result
-            status="error"
-            title="页面出现错误"
-            subTitle="抱歉，页面发生了错误。请尝试刷新页面或返回首页。"
-            extra={[
-              <Button key="retry" type="primary" onClick={this.handleReset}>
+        <div className="flex min-h-screen items-center justify-center p-6">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-lg">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="size-8 text-destructive" />
+            </div>
+            <h2 className="mb-2 text-xl font-semibold">页面出现错误</h2>
+            <p className="mb-6 text-muted-foreground">
+              抱歉，页面发生了错误。请尝试刷新页面或返回首页。
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button onClick={this.handleReset}>
+                <RefreshCw className="size-4" />
                 重试
-              </Button>,
-              <Button key="home" onClick={() => (window.location.href = '/')}>
+              </Button>
+              <Button variant="outline" onClick={() => (window.location.href = '/')}>
+                <Home className="size-4" />
                 返回首页
-              </Button>,
-            ]}
-          />
+              </Button>
+            </div>
+          </div>
         </div>
       )
     }
