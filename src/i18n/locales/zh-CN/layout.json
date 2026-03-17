@@ -1,0 +1,12 @@
+{
+  "title": "Kava Admin",
+  "dashboard": "仪表盘",
+  "system": "系统管理",
+  "userManagement": "用户管理",
+  "toggleSidebar": "折叠菜单",
+  "profile": "个人中心",
+  "settings": "设置",
+  "logout": "退出登录",
+  "welcome": "欢迎来到 Kava Admin",
+  "readyMessage": "后台管理前端项目基础架构已就绪，可以开始业务开发了。"
+}

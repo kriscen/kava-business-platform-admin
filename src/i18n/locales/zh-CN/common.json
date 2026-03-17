@@ -1,0 +1,17 @@
+{
+  "confirm": "确认",
+  "cancel": "取消",
+  "save": "保存",
+  "delete": "删除",
+  "edit": "编辑",
+  "add": "添加",
+  "search": "搜索",
+  "reset": "重置",
+  "submit": "提交",
+  "back": "返回",
+  "loading": "加载中...",
+  "success": "操作成功",
+  "error": "操作失败",
+  "warning": "警告",
+  "info": "提示"
+}

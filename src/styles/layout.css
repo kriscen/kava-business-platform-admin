@@ -1,0 +1,39 @@
+/**
+ * 布局组件样式
+ */
+
+/* Ant Design Layout 覆盖 */
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-sider {
+  background: #fff !important;
+}
+
+.ant-layout-header {
+  background: #fff;
+  padding: 0;
+  height: 64px;
+  line-height: 64px;
+}
+
+/* 侧边栏过渡动画 */
+.ant-layout-sider-children {
+  transition: all 0.2s ease;
+}
+
+/* 菜单项样式 */
+.ant-menu-inline .ant-menu-item,
+.ant-menu-inline .ant-menu-submenu-title {
+  margin-block: 4px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: absolute;
+    z-index: 100;
+    height: 100vh;
+  }
+}
