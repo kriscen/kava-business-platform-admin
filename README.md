@@ -6,7 +6,8 @@
 
 - **框架**: React 19 + TypeScript
 - **构建工具**: Vite 8
-- **UI 组件库**: Ant Design 6
+- **UI 组件库**: shadcn/ui (base-ui/react)
+- **样式**: Tailwind CSS 4
 - **状态管理**: Zustand
 - **HTTP 客户端**: Axios
 - **国际化**: i18next
@@ -27,8 +28,8 @@ pnpm install
 # 本地开发（使用 Mock 数据）
 pnpm dev
 
-# 连接 Dev 服务器
-pnpm dev:dev
+# 连接 Staging 服务器
+pnpm dev:staging
 
 # 模拟生产环境
 pnpm dev:prod
@@ -38,11 +39,11 @@ pnpm dev:prod
 
 | 脚本 | 说明 |
 |------|------|
-| `pnpm dev` | 本地开发（local 模式，Mock 数据） |
-| `pnpm dev:dev` | 连接 Dev 服务器开发 |
+| `pnpm dev` | 本地开发（development 模式，Mock 数据） |
+| `pnpm dev:staging` | 连接 Staging 服务器开发 |
 | `pnpm dev:prod` | 模拟生产环境开发 |
 | `pnpm build` | 构建生产版本 |
-| `pnpm build:dev` | 构建 Dev 版本 |
+| `pnpm build:staging` | 构建 Staging 版本 |
 | `pnpm preview` | 预览构建结果 |
 | `pnpm lint` | 代码检查 |
 | `pnpm lint:fix` | 自动修复代码问题 |
@@ -55,9 +56,9 @@ pnpm dev:prod
 
 | 环境 | 文件 | 说明 |
 |------|------|------|
-| local | `.env.local` | 本地开发，使用 Mock 数据 |
-| dev | `.env.development` | 开发服务器环境 |
-| prod | `.env.production` | 生产环境 |
+| development | `.env.development` | 本地开发，使用 Mock 数据 |
+| staging | `.env.staging` | 开发服务器环境 |
+| production | `.env.production` | 生产环境 |
 
 ## 项目结构
 

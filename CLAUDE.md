@@ -4,75 +4,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **kava-business-platform-admin**, an early-stage project using Claude Code + Speckit + Trae with the GLM-5 model. The project uses a structured specification-driven development workflow.
+**kava-business-platform-admin** - 企业级后台管理平台前端项目，使用 Claude Code + Speckit + Trae 工作流开发。
 
-## Speckit Workflow Commands
+## Tech Stack
 
-The project uses a specification-first development workflow. Execute commands in this order:
+- React 19 + TypeScript
+- Vite 8 + Tailwind CSS 4
+- shadcn/ui (base-ui/react primitives)
+- Zustand (state management, persisted with localStorage)
+- Axios (HTTP client with interceptors)
+- i18next (internationalization, currently zh-CN)
+- vite-plugin-mock (local mock data)
 
-1. **`/speckit.specify "<feature description>"`** - Create a feature specification from natural language description. Creates a new branch and `spec.md` in `specs/<feature-name>/`.
+## Commands
 
-2. **`/speckit.clarify`** - Identify ambiguities in the current spec and ask up to 5 targeted clarification questions. Run before planning.
+```bash
+pnpm dev              # 本地开发 (development 模式, 启用 Mock)
+pnpm dev:staging      # 连接开发服务器
+pnpm dev:prod         # 模拟生产环境
+pnpm build            # 生产构建
+pnpm build:staging    # staging 构建
+pnpm lint             # ESLint 检查
+pnpm lint:fix         # 自动修复 lint 问题
+pnpm format           # Prettier 格式化
+pnpm type-check       # TypeScript 类型检查
+```
 
-3. **`/speckit.plan`** - Generate technical implementation plan. Creates `plan.md`, `data-model.md`, `contracts/`, and `research.md` in the feature directory.
+## Environment Configuration
 
-4. **`/speckit.tasks`** - Generate dependency-ordered tasks from the plan. Creates `tasks.md` organized by user story priority (P1, P2, P3...).
+| 文件 | 模式 | 用途 |
+|------|------|------|
+| `.env` | - | 公共变量 (VITE_APP_TITLE) |
+| `.env.development` | development | 本地开发 (Mock 启用) |
+| `.env.staging` | staging | 开发服务器 |
+| `.env.production` | production | 生产环境 |
 
-5. **`/speckit.implement`** - Execute all tasks defined in `tasks.md`. Validates checklists before implementation.
+变量命名规范: `VITE_[分类]_[属性]` (如 `VITE_API_BASE_URL`, `VITE_ENABLE_MOCK`)
 
-Additional commands:
-- **`/speckit.analyze`** - Cross-document consistency analysis (run after tasks generation, before implementation)
-- **`/speckit.checklist`** - Generate requirement quality checklists for validation
-- **`/speckit.constitution`** - Create or update project charter in `.specify/memory/constitution.md`
-- **`/speckit.taskstoissues`** - Convert tasks to GitHub issues
+**注意**: 不要使用 `local` 作为模式名，Vite 8 禁止。
+
+## Architecture
+
+### Path Alias
+- `@/` → `src/`
+
+### Core Structure
+```
+src/
+├── api/           # Axios 实例 + 拦截器
+├── components/
+│   ├── layout/    # AdminLayout, Sidebar, Header, Content
+│   └── ui/        # shadcn/ui 组件
+├── i18n/          # i18next 配置 + 语言包
+├── stores/        # Zustand stores (useAppStore)
+├── types/         # TypeScript 类型定义
+└── utils/         # 工具函数 (errorHandler)
+mock/              # vite-plugin-mock 模拟数据
+```
+
+### Key Patterns
+
+**API 请求**: `src/api/request.ts` 导出 `request.get/post/put/delete`，返回类型 `ApiResponse<T>`
+
+**状态管理**: Zustand store 使用 `devtools` + `persist` 中间件，自动持久化到 localStorage
+
+**布局**: `AdminLayout` 组合 `Sidebar` + `Header` + `Content`，响应式自动折叠侧边栏 (<768px)
+
+**Mock**: `VITE_ENABLE_MOCK=true` 时加载 `mock/` 目录下的模拟接口
+
+## Speckit Workflow
+
+规范驱动开发流程:
+
+1. `/speckit.specify "<feature>"` - 创建功能规范
+2. `/speckit.clarify` - 澄清需求
+3. `/speckit.plan` - 生成技术方案
+4. `/speckit.tasks` - 生成任务列表
+5. `/speckit.implement` - 执行实现
 
 ## Available Skills
 
-- **`/simple`** - Invoke before creative/architectural work. A brainstorming process for fast decision-making. Do NOT write code until user approves a direction.
-- **`/frontend-design`** - Create production-grade frontend interfaces with high design quality.
-- **`/web-design-guidelines`** - Review UI code for accessibility and best practices compliance.
-
-## Project Structure
-
-```
-.
-├── .claude/           # Claude Code configuration
-│   ├── commands/      # Speckit slash commands (speckit.*.md)
-│   ├── skills/        # Symlinks to .agents/skills/
-│   └── settings.json  # Claude settings
-├── .agents/           # Shared skills across AI tools
-│   └── skills/        # frontend-design, simple, web-design-guidelines
-├── .specify/          # Speckit configuration
-│   ├── memory/        # constitution.md (project charter)
-│   ├── scripts/bash/  # Setup and context scripts
-│   └── templates/     # spec, plan, tasks, checklist templates
-├── .trae/             # Trae configuration (symlinks to .agents/skills/)
-└── specs/             # Feature specifications (created by /speckit.specify)
-```
-
-## Key Scripts
-
-- `.specify/scripts/bash/create-new-feature.sh` - Creates feature branch and initializes spec file
-- `.specify/scripts/bash/check-prerequisites.sh` - Validates feature context and returns paths
-- `.specify/scripts/bash/setup-plan.sh` - Sets up planning environment
-- `.specify/scripts/bash/update-agent-context.sh` - Updates agent-specific context files
-
-## Spec File Locations
-
-When creating features, files are organized in `specs/<feature-name>/`:
-- `spec.md` - Feature specification (user stories, requirements, success criteria)
-- `plan.md` - Technical implementation plan
-- `tasks.md` - Dependency-ordered implementation tasks
-- `data-model.md` - Entity definitions (if applicable)
-- `contracts/` - API specifications (if applicable)
-- `research.md` - Technical decisions and rationale
-- `checklists/` - Requirement quality checklists
-
-## Specification Guidelines
-
-From the speckit templates:
-- **Focus on WHAT and WHY**, avoid implementation details (HOW)
-- User stories must be independently testable (P1, P2, P3 priority)
-- Success criteria must be measurable and technology-agnostic
-- Maximum 3 `[需要澄清]` markers per spec - make informed guesses with documented assumptions
-- Run `/speckit.clarify` to resolve ambiguities before `/speckit.plan`
+- `/simple` - 创意/架构工作前的头脑风暴
+- `/frontend-design` - 创建高质量前端界面
+- `/web-design-guidelines` - UI 代码审查 (可访问性/最佳实践)
