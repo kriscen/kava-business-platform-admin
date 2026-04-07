@@ -1,0 +1,42 @@
+schema: spec-driven
+
+# Project context — shown to AI when creating artifacts
+context: |
+  Tech stack: TypeScript, React, Vite, Node.js
+  We use conventional commits
+  Project type: Admin platform
+
+# Per-artifact rules
+rules:
+  # Proposal rules — captures "why" and "what"
+  # Must include: Intent, Scope, Approach, Non-goals
+  proposal:
+    - Title format: "Proposal: <feature-name>" in H1
+    - Must include Intent, Scope, and Approach sections
+    - Scope must explicitly list Non-goals
+    - Keep proposals focused on a single change
+
+  # Delta specs rules — captures requirements changes
+  # Must use: ADDED / MODIFIED / REMOVED sections with scenarios
+  specs:
+    - Use standard delta format with ## ADDED/## MODIFIED/## REMOVED sections
+    - Each requirement MUST have scenarios with GIVEN/WHEN/THEN format
+    - Modifications must show (Previously: ...) to track history
+    - Removed items should include reason for deprecation
+
+  # Design rules — captures "how" and architecture
+  # Must include: Technical approach, file changes, dependencies
+  design:
+    - Include file/folder structure changes explicitly
+    - List any new dependencies or configuration changes
+    - Document API contracts if applicable
+    - Note any backward compatibility considerations
+
+  # Tasks rules — implementation checklist
+  # Must be actionable, trackable items
+  tasks:
+    - Break tasks into chunks of max 2 hours each
+    - Use hierarchical numbering (1, 1.1, 1.1.1)
+    - Each task must be verifiable (implementable and testable)
+    - Group related tasks under section headers
+    - Tasks must reference design decisions

@@ -2,88 +2,59 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-**kava-business-platform-admin** - 企业级后台管理平台前端项目，使用 Claude Code + Speckit + Trae 工作流开发。
-
 ## Tech Stack
 
-- React 19 + TypeScript
-- Vite 8 + Tailwind CSS 4
-- shadcn/ui (base-ui/react primitives)
-- Zustand (state management, persisted with localStorage)
-- Axios (HTTP client with interceptors)
-- i18next (internationalization, currently zh-CN)
-- vite-plugin-mock (local mock data)
+React 19 + TypeScript, Vite 8, Tailwind CSS 4, shadcn/ui (base-ui/react), Zustand (state), Axios (HTTP), i18next (i18n), React Router DOM 7.
 
 ## Commands
 
 ```bash
-pnpm dev              # 本地开发 (development 模式, 启用 Mock)
-pnpm dev:staging      # 连接开发服务器
-pnpm dev:prod         # 模拟生产环境
-pnpm build            # 生产构建
-pnpm build:staging    # staging 构建
-pnpm lint             # ESLint 检查
-pnpm lint:fix         # 自动修复 lint 问题
-pnpm format           # Prettier 格式化
-pnpm type-check       # TypeScript 类型检查
+pnpm dev          # Local dev with mock data (VITE_ENABLE_MOCK=true)
+pnpm dev:staging  # Connect to staging server
+pnpm dev:prod     # Simulate production
+pnpm build        # Production build (tsc -b && vite build)
+pnpm build:staging
+pnpm lint         # ESLint check
+pnpm lint:fix     # Auto-fix lint issues
+pnpm format       # Prettier format
+pnpm type-check   # TypeScript check without emit
 ```
 
-## Environment Configuration
-
-| 文件 | 模式 | 用途 |
-|------|------|------|
-| `.env` | - | 公共变量 (VITE_APP_TITLE) |
-| `.env.development` | development | 本地开发 (Mock 启用) |
-| `.env.staging` | staging | 开发服务器 |
-| `.env.production` | production | 生产环境 |
-
-变量命名规范: `VITE_[分类]_[属性]` (如 `VITE_API_BASE_URL`, `VITE_ENABLE_MOCK`)
-
-**注意**: 不要使用 `local` 作为模式名，Vite 8 禁止。
+Mock is enabled via `vite-plugin-mock`. Disable by setting `VITE_ENABLE_MOCK=false` in `.env.*`.
 
 ## Architecture
 
-### Path Alias
-- `@/` → `src/`
+**Three environments** controlled by `.env.*` files and Vite mode:
+- `development` — mock data enabled, empty `VITE_API_BASE_URL`
+- `staging` — real API at `https://dev-api.kava-admin.example.com`
+- `production` — real API at `https://api.kava-admin.example.com`
 
-### Core Structure
-```
-src/
-├── api/           # Axios 实例 + 拦截器
-├── components/
-│   ├── layout/    # AdminLayout, Sidebar, Header, Content
-│   └── ui/        # shadcn/ui 组件
-├── i18n/          # i18next 配置 + 语言包
-├── stores/        # Zustand stores (useAppStore)
-├── types/         # TypeScript 类型定义
-└── utils/         # 工具函数 (errorHandler)
-mock/              # vite-plugin-mock 模拟数据
-```
+**API layer** (`src/api/`): Axios instance with interceptors. Response interceptor unwraps `ApiResponse` and rejects on `code !== 0`. HTTP errors (401/403/404/500/etc.) are handled with classification.
 
-### Key Patterns
+**State** (`src/stores/`): Zustand with `persist` and `devtools` middleware. `appStore` manages sidebar, language, theme.
 
-**API 请求**: `src/api/request.ts` 导出 `request.get/post/put/delete`，返回类型 `ApiResponse<T>`
+**Routing** (`src/App.tsx`): React Router v7. Routes wrapped in `AdminLayout` with `ErrorBoundary`.
 
-**状态管理**: Zustand store 使用 `devtools` + `persist` 中间件，自动持久化到 localStorage
+## OpenSpec Workflow
 
-**布局**: `AdminLayout` 组合 `Sidebar` + `Header` + `Content`，响应式自动折叠侧边栏 (<768px)
+This project uses OpenSpec for spec-driven development. Key commands:
+- `/opsx:propose` — create new change with all artifacts
+- `/opsx:new` — start new change, step through artifacts
+- `/opsx:continue` — progress change, create next artifact
+- `/opsx:apply` — implement tasks from a change
+- `/opsx:verify` — validate implementation matches change
+- `/opsx:sync` — sync delta specs to main specs
+- `/opsx:archive` — archive completed change
 
-**Mock**: `VITE_ENABLE_MOCK=true` 时加载 `mock/` 目录下的模拟接口
+Artifact rules from `openspec/config.yaml`:
+- **Proposals**: Must include Intent, Scope (with Non-goals), Approach
+- **Delta Specs**: Use `## ADDED/## MODIFIED/## REMOVED` sections with GIVEN/WHEN/THEN scenarios
+- **Design**: Include file changes, dependencies, API contracts
+- **Tasks**: Max 2-hour chunks, hierarchical numbering, verifiable items
 
-## Speckit Workflow
+## Code Conventions
 
-规范驱动开发流程:
-
-1. `/speckit.specify "<feature>"` - 创建功能规范
-2. `/speckit.clarify` - 澄清需求
-3. `/speckit.plan` - 生成技术方案
-4. `/speckit.tasks` - 生成任务列表
-5. `/speckit.implement` - 执行实现
-
-## Available Skills
-
-- `/simple` - 创意/架构工作前的头脑风暴
-- `/frontend-design` - 创建高质量前端界面
-- `/web-design-guidelines` - UI 代码审查 (可访问性/最佳实践)
+- Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
+- Components via shadcn/ui — check `src/components/ui/` before adding new
+- `@` alias maps to `src/`
+- Build output chunks: `vendor` (react/dom), `utils` (axios/zustand)
