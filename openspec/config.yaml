@@ -1,42 +1,110 @@
-schema: spec-driven
+# OpenSpec 配置文件
+# 规范 artifact 生成规则和工作流
 
-# Project context — shown to AI when creating artifacts
-context: |
-  Tech stack: TypeScript, React, Vite, Node.js
-  We use conventional commits
-  Project type: Admin platform
+version: "1.0"
 
-# Per-artifact rules
-rules:
-  # Proposal rules — captures "why" and "what"
-  # Must include: Intent, Scope, Approach, Non-goals
-  proposal:
-    - Title format: "Proposal: <feature-name>" in H1
-    - Must include Intent, Scope, and Approach sections
-    - Scope must explicitly list Non-goals
-    - Keep proposals focused on a single change
+# 通用 artifact 规则
+artifact:
+  # 文件扩展名
+  extension: ".md"
+  # Frontmatter 格式
+  frontmatter:
+    enabled: true
+    required: true
+    fields:
+      - name
+      - description
+      - type
+      - created
+  # 换行符
+  eol: "\n"
 
-  # Delta specs rules — captures requirements changes
-  # Must use: ADDED / MODIFIED / REMOVED sections with scenarios
-  specs:
-    - Use standard delta format with ## ADDED/## MODIFIED/## REMOVED sections
-    - Each requirement MUST have scenarios with GIVEN/WHEN/THEN format
-    - Modifications must show (Previously: ...) to track history
-    - Removed items should include reason for deprecation
+# Proposal（提案）配置
+# 用于描述变更意图、范围和采取的方法
+proposal:
+  # 模板文件路径
+  template: "openspec/templates/proposal.md"
+  # 输出目录
+  dir: "openspec/changes/{change_id}"
+  # 文件命名模式
+  naming: "{change_id}/proposal.md"
+  # 必需包含的章节
+  required_sections:
+    - name: "Intent"
+      description: "变更意图 - 描述要解决什么问题或实现什么目标"
+    - name: "Scope"
+      description: "范围 - 包含 Goals（目标）和 Non-goals（不在范围内）"
+    - name: "Approach"
+      description: "方法 - 描述实现该变更的具体方案和思路"
+  # 状态流转
+  states:
+    - draft
+    - proposed
+    - accepted
+    - rejected
 
-  # Design rules — captures "how" and architecture
-  # Must include: Technical approach, file changes, dependencies
-  design:
-    - Include file/folder structure changes explicitly
-    - List any new dependencies or configuration changes
-    - Document API contracts if applicable
-    - Note any backward compatibility considerations
+# Design（设计）配置
+# 描述文件变更、依赖和 API 契约
+design:
+  template: "openspec/templates/design.md"
+  dir: "openspec/changes/{change_id}"
+  naming: "{change_id}/design.md"
+  required_sections:
+    - name: "Files"
+      description: "文件变更 - 列出新增、修改、删除的文件"
+    - name: "Dependencies"
+      description: "依赖变更 - 新增或变更的依赖包"
+    - name: "API Contract"
+      description: "API 契约 - 接口请求/响应格式变更"
+    - name: "Data Model"
+      description: "数据模型 - 数据结构变更"
+  # 与 proposal 的关联
+  requires:
+    - proposal
 
-  # Tasks rules — implementation checklist
-  # Must be actionable, trackable items
-  tasks:
-    - Break tasks into chunks of max 2 hours each
-    - Use hierarchical numbering (1, 1.1, 1.1.1)
-    - Each task must be verifiable (implementable and testable)
-    - Group related tasks under section headers
-    - Tasks must reference design decisions
+# Tasks（任务）配置
+# 将变更拆分为可执行的任务块
+tasks:
+  template: "openspec/templates/tasks.md"
+  dir: "openspec/changes/{change_id}"
+  naming: "{change_id}/tasks.md"
+  required_sections:
+    - name: "Task List"
+      description: "任务列表 - 层级编号的任务项"
+  # 任务拆分规则
+  rules:
+    # 单个任务最大时间块（分钟）
+    max_time_block: 120
+    # 任务层级结构
+    hierarchy:
+      level_1: "Feature（功能级任务）"
+      level_2: "Sub-task（子任务）"
+    # 编号格式
+    numbering: "1, 1.1, 1.1.1"
+  # 可验证性要求
+  verifiable:
+    enabled: true
+    requirement: "每个任务必须有明确的完成标准和验证方式"
+  # 与 design 的关联
+  requires:
+    - design
+
+# Change（变更）配置
+# 管理整个变更的生命周期
+change:
+  # ID 生成规则
+  id_format: "{type}-{short_hash}"
+  # 变更类型
+  types:
+    - feat: "新功能"
+    - fix: "缺陷修复"
+    - refactor: "重构"
+    - docs: "文档"
+    - chore: "杂项"
+  # 目录结构
+  structure:
+    dir: "openspec/changes/{change_id}"
+    artifacts:
+      - proposal.md
+      - design.md
+      - tasks.md
