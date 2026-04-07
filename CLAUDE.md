@@ -20,41 +20,58 @@ pnpm format       # Prettier format
 pnpm type-check   # TypeScript check without emit
 ```
 
-Mock is enabled via `vite-plugin-mock`. Disable by setting `VITE_ENABLE_MOCK=false` in `.env.*`.
-
 ## Architecture
 
-**Three environments** controlled by `.env.*` files and Vite mode:
-- `development` — mock data enabled, empty `VITE_API_BASE_URL`
-- `staging` — real API at `https://dev-api.kava-admin.example.com`
-- `production` — real API at `https://api.kava-admin.example.com`
+详细架构说明见 [docs/01-architecture/overview.md](docs/01-architecture/overview.md)：
 
-**API layer** (`src/api/`): Axios instance with interceptors. Response interceptor unwraps `ApiResponse` and rejects on `code !== 0`. HTTP errors (401/403/404/500/etc.) are handled with classification.
-
-**State** (`src/stores/`): Zustand with `persist` and `devtools` middleware. `appStore` manages sidebar, language, theme.
-
-**Routing** (`src/App.tsx`): React Router v7. Routes wrapped in `AdminLayout` with `ErrorBoundary`.
+- 三种环境 (.env.\*)
+- API 层 (Axios + 拦截器)
+- 状态管理 (Zustand)
+- 路由 (React Router v7)
 
 ## OpenSpec Workflow
 
-This project uses OpenSpec for spec-driven development. Key commands:
-- `/opsx:propose` — create new change with all artifacts
-- `/opsx:new` — start new change, step through artifacts
-- `/opsx:continue` — progress change, create next artifact
-- `/opsx:apply` — implement tasks from a change
-- `/opsx:verify` — validate implementation matches change
-- `/opsx:sync` — sync delta specs to main specs
-- `/opsx:archive` — archive completed change
+Spec-driven development 工作流：
 
-Artifact rules from `openspec/config.yaml`:
-- **Proposals**: Must include Intent, Scope (with Non-goals), Approach
-- **Delta Specs**: Use `## ADDED/## MODIFIED/## REMOVED` sections with GIVEN/WHEN/THEN scenarios
-- **Design**: Include file changes, dependencies, API contracts
-- **Tasks**: Max 2-hour chunks, hierarchical numbering, verifiable items
+| 命令             | 说明                                 |
+| ---------------- | ------------------------------------ |
+| `/opsx:propose`  | 创建新 change，生成全部 artifacts    |
+| `/opsx:new`      | 逐步创建 change artifacts            |
+| `/opsx:continue` | 继续当前 change，创建下一个 artifact |
+| `/opsx:apply`    | 实现 change 中的 tasks               |
+| `/opsx:verify`   | 验证实现是否符合 change              |
+| `/opsx:sync`     | 将 delta specs 同步到 main specs     |
+| `/opsx:archive`  | 归档已完成的 change                  |
+
+Artifact 规则 (见 `openspec/config.yaml`)：
+
+- **Proposals**: Intent, Scope (含 Non-goals), Approach
+- **Delta Specs**: `## ADDED/## MODIFIED/## REMOVED` + GIVEN/WHEN/THEN 场景
+- **Design**: 文件变更、依赖、API 契约
+- **Tasks**: 最大 2 小时块，层级编号，可验证
 
 ## Code Conventions
 
+详细规范见 [docs/02-conventions/](docs/02-conventions/)：
+
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
-- Components via shadcn/ui — check `src/components/ui/` before adding new
-- `@` alias maps to `src/`
-- Build output chunks: `vendor` (react/dom), `utils` (axios/zustand)
+- 组件使用 shadcn/ui (检查 `src/components/ui/` 是否已存在)
+- `@` 别名指向 `src/`
+- 构建 chunks: `vendor` (react/dom), `utils` (axios/zustand)
+
+## Docs Structure
+
+```
+docs/
+├── 01-architecture/
+│   ├── overview.md     # 项目架构、技术栈、三种环境
+│   └── boundaries.md   # 模块边界 (API层、状态层、布局层)
+├── 02-conventions/
+│   ├── code-style.md   # 代码风格、组件规范
+│   └── git.md         # Git 提交规范
+├── 03-reference/
+│   ├── api-spec.yaml  # API 规范和响应格式
+│   └── error-codes.md # 错误码参考和错误处理流程
+└── 04-history/
+    └── adr-template.md # 架构决策记录模板
+```
