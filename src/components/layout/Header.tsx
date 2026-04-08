@@ -10,6 +10,7 @@ import {
 import { User, Settings, LogOut, PanelLeftClose, PanelLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/stores'
+import { useAuthStore } from '@/stores/authStore'
 
 interface HeaderProps {
   title?: string
@@ -18,6 +19,11 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const { t } = useTranslation()
   const { sidebarCollapsed, toggleSidebar } = useAppStore()
+  const { userInfo, logout } = useAuthStore()
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <div className="flex h-16 items-center justify-between px-4">
@@ -40,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                   <User className="size-4" />
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm">管理员</span>
+              <span className="text-sm">{userInfo?.username || '管理员'}</span>
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={4}>
@@ -53,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
               {t('layout.settings')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOut className="size-4" />
               {t('layout.logout')}
             </DropdownMenuItem>
