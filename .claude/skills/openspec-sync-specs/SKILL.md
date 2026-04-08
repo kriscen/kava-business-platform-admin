@@ -1,99 +1,103 @@
 ---
 name: openspec-sync-specs
-description: Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.
+description: 将 change 中的 delta specs 同步到 main specs。当用户想在不归档 change 的情况下用 delta spec 的更改更新 main specs 时使用。
 license: MIT
-compatibility: Requires openspec CLI.
+compatibility: 需要 openspec CLI。
 metadata:
   author: openspec
-  version: "1.0"
-  generatedBy: "1.2.0"
+  version: '1.0'
+  generatedBy: '1.2.0'
 ---
 
-Sync delta specs from a change to main specs.
+将 change 中的 delta specs 同步到 main specs。
 
-This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
+这是一个 **agent 驱动** 的操作——我会读取 delta specs 并直接编辑 main specs 来应用更改。这允许智能合并（例如，只添加一个场景而不复制整个需求）。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可选指定 change 名称。如果省略，检查是否能从对话上下文中推断。如果模糊或不明确，你必须提示选择可用的 changes。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **如果没有提供 change 名称，提示选择**
 
-   Run `openspec list --json` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   运行 `openspec list --json` 获取可用的 changes。使用 **AskUserQuestion 工具** 让用户选择。
 
-   Show changes that have delta specs (under `specs/` directory).
+   显示有 delta specs（在 `specs/` 目录下）的 changes。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+   **重要**：不要猜测或自动选择 change。始终让用户选择。
 
-2. **Find delta specs**
+2. **找到 delta specs**
 
-   Look for delta spec files in `openspec/changes/<name>/specs/*/spec.md`.
+   在 `openspec/changes/<name>/specs/*/spec.md` 中查找 delta spec 文件。
 
-   Each delta spec file contains sections like:
-   - `## ADDED Requirements` - New requirements to add
-   - `## MODIFIED Requirements` - Changes to existing requirements
-   - `## REMOVED Requirements` - Requirements to remove
-   - `## RENAMED Requirements` - Requirements to rename (FROM:/TO: format)
+   每个 delta spec 文件包含以下章节：
+   - `## ADDED Requirements` - 要添加的新需求
+   - `## MODIFIED Requirements` - 对现有需求的更改
+   - `## REMOVED Requirements` - 要删除的需求
+   - `## RENAMED Requirements` - 要重命名的需求（FROM:/TO: 格式）
 
-   If no delta specs found, inform user and stop.
+   如果没有找到 delta specs，通知用户并停止。
 
-3. **For each delta spec, apply changes to main specs**
+3. **对于每个 delta spec，将更改应用到 main specs**
 
-   For each capability with a delta spec at `openspec/changes/<name>/specs/<capability>/spec.md`:
+   对于每个在 `openspec/changes/<name>/specs/<capability>/spec.md` 有 delta spec 的 capability：
 
-   a. **Read the delta spec** to understand the intended changes
+   a. **读取 delta spec** 理解预期的更改
 
-   b. **Read the main spec** at `openspec/specs/<capability>/spec.md` (may not exist yet)
+   b. **读取 main spec** 在 `openspec/specs/<capability>/spec.md`（可能还不存在）
 
-   c. **Apply changes intelligently**:
+   c. **智能应用更改**：
 
-      **ADDED Requirements:**
-      - If requirement doesn't exist in main spec → add it
-      - If requirement already exists → update it to match (treat as implicit MODIFIED)
+   **ADDED Requirements：**
+   - 如果需求在 main spec 中不存在 → 添加它
+   - 如果需求已存在 → 更新它以匹配（视为隐式 MODIFIED）
 
-      **MODIFIED Requirements:**
-      - Find the requirement in main spec
-      - Apply the changes - this can be:
-        - Adding new scenarios (don't need to copy existing ones)
-        - Modifying existing scenarios
-        - Changing the requirement description
-      - Preserve scenarios/content not mentioned in the delta
+   **MODIFIED Requirements：**
+   - 在 main spec 中找到该需求
+   - 应用更改——这可以是：
+     - 添加新场景（不需要复制现有场景）
+     - 修改现有场景
+     - 更改需求描述
+   - 保留 delta 中未提及的场景/内容
 
-      **REMOVED Requirements:**
-      - Remove the entire requirement block from main spec
+   **REMOVED Requirements：**
+   - 从 main spec 中删除整个需求块
 
-      **RENAMED Requirements:**
-      - Find the FROM requirement, rename to TO
+   **RENAMED Requirements：**
+   - 找到 FROM 需求，重命名为 TO
 
-   d. **Create new main spec** if capability doesn't exist yet:
-      - Create `openspec/specs/<capability>/spec.md`
-      - Add Purpose section (can be brief, mark as TBD)
-      - Add Requirements section with the ADDED requirements
+   d. **如果 capability 还不存在则创建新的 main spec**：
+   - 创建 `openspec/specs/<capability>/spec.md`
+   - 添加 Purpose 章节（可以简短，标记为 TBD）
+   - 添加带有 ADDED 需求的 Requirements 章节
 
-4. **Show summary**
+4. **显示摘要**
 
-   After applying all changes, summarize:
-   - Which capabilities were updated
-   - What changes were made (requirements added/modified/removed/renamed)
+   应用所有更改后，总结：
+   - 更新了哪些 capabilities
+   - 做了哪些更改（添加/修改/删除/重命名的需求）
 
-**Delta Spec Format Reference**
+**Delta Spec 格式参考**
 
 ```markdown
 ## ADDED Requirements
 
 ### Requirement: New Feature
-The system SHALL do something new.
+
+系统应该做某件新事情。
 
 #### Scenario: Basic case
-- **WHEN** user does X
-- **THEN** system does Y
+
+- **WHEN** 用户做 X
+- **THEN** 系统做 Y
 
 ## MODIFIED Requirements
 
 ### Requirement: Existing Feature
+
 #### Scenario: New scenario to add
-- **WHEN** user does A
-- **THEN** system does B
+
+- **WHEN** 用户做 A
+- **THEN** 系统做 B
 
 ## REMOVED Requirements
 
@@ -105,34 +109,36 @@ The system SHALL do something new.
 - TO: `### Requirement: New Name`
 ```
 
-**Key Principle: Intelligent Merging**
+**关键原则：智能合并**
 
-Unlike programmatic merging, you can apply **partial updates**:
-- To add a scenario, just include that scenario under MODIFIED - don't copy existing scenarios
-- The delta represents *intent*, not a wholesale replacement
-- Use your judgment to merge changes sensibly
+与程序化合并不同，你可以应用**部分更新**：
 
-**Output On Success**
+- 要添加场景，只需在 MODIFIED 下包含该场景——不要复制现有场景
+- Delta 代表的是*意图*，而不是整体替换
+- 使用你的判断来合理合并更改
+
+**成功时的输出**
 
 ```
-## Specs Synced: <change-name>
+## Specs 已同步：<change-name>
 
-Updated main specs:
+更新的 main specs：
 
 **<capability-1>**:
-- Added requirement: "New Feature"
-- Modified requirement: "Existing Feature" (added 1 scenario)
+- 添加的需求："New Feature"
+- 修改的需求："Existing Feature"（添加了 1 个场景）
 
 **<capability-2>**:
-- Created new spec file
-- Added requirement: "Another Feature"
+- 创建了新的 spec 文件
+- 添加的需求："Another Feature"
 
-Main specs are now updated. The change remains active - archive when implementation is complete.
+Main specs 已更新。Change 保持活跃——实现完成后归档。
 ```
 
-**Guardrails**
-- Read both delta and main specs before making changes
-- Preserve existing content not mentioned in delta
-- If something is unclear, ask for clarification
-- Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result
+**护栏**
+
+- 在进行更改前读取 delta 和 main specs
+- 保留 delta 中未提及的现有内容
+- 如果有不清楚的地方，请求澄清
+- 在进行更改时显示你在改什么
+- 操作应该是幂等的——运行两次应该得到相同的结果
