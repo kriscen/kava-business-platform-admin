@@ -11,15 +11,13 @@ import { User, Settings, LogOut, PanelLeftClose, PanelLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/stores'
 import { useAuthStore } from '@/stores/authStore'
+import { usePageTitle } from '@/hooks'
 
-interface HeaderProps {
-  title?: string
-}
-
-const Header: React.FC<HeaderProps> = ({ title }) => {
+const Header: React.FC = () => {
   const { t } = useTranslation()
   const { sidebarCollapsed, toggleSidebar } = useAppStore()
   const { userInfo, logout } = useAuthStore()
+  const pageTitle = usePageTitle()
 
   const handleLogout = () => {
     logout()
@@ -35,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
             <PanelLeftClose className="size-5" />
           )}
         </Button>
-        <h1 className="text-lg font-semibold">{title || t('layout.title')}</h1>
+        <h1 className="text-lg font-semibold">{pageTitle || t('layout.title')}</h1>
       </div>
       <div className="flex items-center">
         <DropdownMenu>

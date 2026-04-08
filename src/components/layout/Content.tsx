@@ -4,27 +4,37 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Home } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useBreadcrumbs } from '@/hooks'
 
 interface ContentProps {
   children: ReactNode
 }
 
 const Content: React.FC<ContentProps> = ({ children }) => {
+  const breadcrumbs = useBreadcrumbs()
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* 面包屑 */}
       <div className="border-b border-border bg-white px-6 py-4">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link to="/" />}>
-                <Home className="size-4" />
-                <span>首页</span>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
+            {breadcrumbs.map((item, index) => (
+              <BreadcrumbItem key={item.path}>
+                {index > 0 && <BreadcrumbSeparator />}
+                <BreadcrumbLink
+                  render={<Link to={item.path} />}
+                  className="inline-flex items-center gap-1"
+                >
+                  {index === 0 && <Home className="size-4" />}
+                  <span>{item.label}</span>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            ))}
           </BreadcrumbList>
         </Breadcrumb>
       </div>

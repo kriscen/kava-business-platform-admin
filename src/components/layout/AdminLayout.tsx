@@ -6,11 +6,10 @@ import { useAppStore } from '@/stores'
 import { useMenuStore } from '@/stores/menuStore'
 
 interface AdminLayoutProps {
-  title?: string
   children?: React.ReactNode
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore()
   const { menus: dynamicMenus, buildMenus } = useMenuStore()
 
@@ -43,7 +42,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
       {/* 主内容区 */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="h-16 border-b border-border bg-white">
-          <Header title={title} />
+          <Header />
         </header>
         <main className="flex-1">
           <Content>{children}</Content>
