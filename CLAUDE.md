@@ -63,15 +63,16 @@ Artifact 规则 (见 `openspec/config.yaml`)：
 
 ```
 docs/
+├── 00-project-map.md        # 文档目录索引
 ├── 01-architecture/
-│   ├── overview.md     # 项目架构、技术栈、三种环境
-│   └── boundaries.md   # 模块边界 (API层、状态层、布局层)
+│   ├── overview.md          # 项目架构、技术栈、三种环境
+│   └── boundaries.md        # 模块边界 (API层、状态层、布局层)
 ├── 02-conventions/
-│   ├── code-style.md   # 代码风格、组件规范
-│   └── git.md         # Git 提交规范
+│   ├── code-style.md        # 代码风格、组件规范
+│   └── git.md              # Git 提交规范
 ├── 03-reference/
-│   ├── api-spec.yaml  # API 规范和响应格式
-│   └── error-codes.md # 错误码参考和错误处理流程
-└── 04-history/
-    └── adr-template.md # 架构决策记录模板
+│   └── error-codes.md      # 错误码参考和错误处理流程
+└── 04-frontend/
+    ├── auth-api.md          # Auth 前端对接 (OAuth2, JWT)
+    └── upms-api.md          # UPMS 前端对接 (用户/角色/菜单等)
 ```
