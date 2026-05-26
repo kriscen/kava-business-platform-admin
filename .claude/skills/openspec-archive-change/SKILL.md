@@ -83,13 +83,34 @@ metadata:
    mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
    ```
 
-6. **显示摘要**
+6. **判断是否需要同步到 docs**
+
+   归档完成后，检查 change 中的修改点是否包含需要同步到 `docs/` 的长期有效信息。
+
+   **分析以下内容：**
+   - 读取归档目录中的 `proposal.md`、`design.md`、`tasks.md` 以及 `specs/` 下的 delta specs
+   - 判断是否涉及以下类型的变更：
+     - 架构变更（新增/修改模块、技术栈变化）→ 可能需要更新 `docs/01-architecture/`
+     - API 契约变更（新增/修改接口）→ 可能需要更新 `docs/04-frontend/`
+     - 错误处理变更 → 可能需要更新 `docs/03-reference/`
+     - 代码规范/约定变更 → 可能需要更新 `docs/02-conventions/`
+   - 检查 `docs/` 目录是否已有相关文档
+
+   **如果有需要同步的内容：**
+   - 列出建议同步的内容和目标文件
+   - 使用 **AskUserQuestion 工具** 让用户确认是否同步
+   - 如果用户确认，使用 Agent（subagent_type: "general-purpose"）执行 docs 更新
+
+   **如果没有需要同步的内容：** 跳过，不显示提示。
+
+7. **显示摘要**
 
    显示归档完成摘要，包括：
    - Change 名称
    - 使用的 schema
    - 归档位置
    - 是否同步了 specs（如果适用）
+   - 是否同步了 docs（如果适用）
    - 关于任何警告的说明（未完成的 artifacts/tasks）
 
 **成功时输出**
@@ -101,6 +122,7 @@ metadata:
 **Schema:** <schema-name>
 **归档位置:** openspec/changes/archive/YYYY-MM-DD-<name>/
 **Specs:** ✓ 已同步到 main specs（或"No delta specs"或"Sync skipped"）
+**Docs:** ✓ 已同步到 docs/（或"无需同步"或"Sync skipped"）
 
 所有 artifacts 完成。所有任务完成。
 ```
@@ -114,3 +136,5 @@ metadata:
 - 显示清晰的摘要
 - 如果请求同步，使用 openspec-sync-specs 方法（agent 驱动）
 - 如果存在 delta specs，始终运行同步评估并在提示前显示合并摘要
+- 归档后始终检查是否需要同步到 docs，但仅在确实有变更时才提示用户
+- docs 同步建议必须具体：明确列出目标文件和更新内容，不要泛泛而谈

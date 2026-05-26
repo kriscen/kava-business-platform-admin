@@ -138,32 +138,55 @@ metadata:
    - 失败：归档期间出错（记录错误）
    - 跳过：用户选择不归档（如果适用）
 
-9. **显示摘要**
+9. **判断是否需要同步到 docs**
 
-   显示最终结果：
+   对每个已归档的 change，检查是否包含需要同步到 `docs/` 的长期有效信息。
 
-   ```
-   ## 批量归档完成
+   **分析以下内容：**
+   - 读取归档目录中的 `proposal.md`、`design.md`、`tasks.md` 以及 `specs/` 下的 delta specs
+   - 判断是否涉及以下类型的变更：
+     - 架构变更（新增/修改模块、技术栈变化）→ 可能需要更新 `docs/01-architecture/`
+     - API 契约变更（新增/修改接口）→ 可能需要更新 `docs/04-frontend/`
+     - 错误处理变更 → 可能需要更新 `docs/03-reference/`
+     - 代码规范/约定变更 → 可能需要更新 `docs/02-conventions/`
+   - 检查 `docs/` 目录是否已有相关文档
 
-   已归档 3 个 changes：
-   - schema-management-cli -> archive/2026-01-19-schema-management-cli/
-   - project-config -> archive/2026-01-19-project-config/
-   - add-oauth -> archive/2026-01-19-add-oauth/
+   **如果有需要同步的内容：**
+   - 汇总所有已归档 changes 的 docs 同步建议
+   - 使用 **AskUserQuestion 工具** 一次性让用户确认是否同步
+   - 如果用户确认，使用 Agent（subagent_type: "general-purpose"）执行 docs 更新
 
-   跳过 1 个 change：
-   - add-verify-skill（用户选择不归档未完成的）
+   **如果没有需要同步的内容：** 跳过，不显示提示。
 
-   Spec 同步摘要：
-   - 4 个 delta specs 同步到 main specs
-   - 1 个冲突解决（auth：按时间顺序应用了两者）
-   ```
+10. **显示摘要**
 
-   如果有任何失败：
+显示最终结果：
 
-   ```
-   失败 1 个 change：
-   - some-change: 归档目录已存在
-   ```
+```
+## 批量归档完成
+
+已归档 3 个 changes：
+- schema-management-cli -> archive/2026-01-19-schema-management-cli/
+- project-config -> archive/2026-01-19-project-config/
+- add-oauth -> archive/2026-01-19-add-oauth/
+
+跳过 1 个 change：
+- add-verify-skill（用户选择不归档未完成的）
+
+Spec 同步摘要：
+- 4 个 delta specs 同步到 main specs
+- 1 个冲突解决（auth：按时间顺序应用了两者）
+
+Docs 同步摘要：
+- 已同步到 docs/（或"无需同步"或"Sync skipped"）
+```
+
+如果有任何失败：
+
+```
+失败 1 个 change：
+- some-change: 归档目录已存在
+```
 
 **冲突解决示例**
 
@@ -212,6 +235,9 @@ metadata:
 Spec 同步摘要：
 - N 个 delta specs 同步到 main specs
 - 无冲突（或：解决了 M 个冲突）
+
+Docs 同步摘要：
+- 已同步到 docs/（或"无需同步"或"Sync skipped"）
 ```
 
 **部分成功时输出**
@@ -250,3 +276,6 @@ Spec 同步摘要：
 - 移动到归档时保留 .openspec.yaml
 - 归档目录目标使用当前日期：YYYY-MM-DD-<name>
 - 如果归档目标存在，该 change 失败但继续其他
+- 归档后始终检查是否需要同步到 docs，但仅在确实有变更时才提示用户
+- docs 同步建议必须具体：明确列出目标文件和更新内容，不要泛泛而谈
+- 对多个 changes 的 docs 同步建议应汇总后一次性确认，不要逐个询问
