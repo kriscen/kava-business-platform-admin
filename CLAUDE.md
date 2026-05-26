@@ -72,7 +72,13 @@ docs/
 │   └── git.md              # Git 提交规范
 ├── 03-reference/
 │   └── error-codes.md      # 错误码参考和错误处理流程
-└── 04-frontend/
-    ├── auth-api.md          # Auth 前端对接 (OAuth2, JWT)
-    └── upms-api.md          # UPMS 前端对接 (用户/角色/菜单等)
+├── 04-frontend/
+│   ├── auth-api.md          # Auth 前端对接 (OAuth2, JWT)
+│   └── upms-api.md          # UPMS 前端对接 (用户/角色/菜单等)
+├── 05-modules/
+│   ├── overview.md          # 模块索引
+│   ├── core/                # 核心模块
+│   └── member/              # 会员模块
+└── 06-product/
+    └── README.md            # 产品设想与规划
 ```
