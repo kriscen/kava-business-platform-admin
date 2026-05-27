@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
-import { request } from '@/api'
 import { mockLogin } from '@/mocks/auth'
 
 /**
@@ -40,7 +39,6 @@ export interface LoginParams {
 export type AuthStore = AuthState & {
   login: (params: LoginParams) => Promise<void>
   logout: () => void
-  refreshAccessToken: () => void
 }
 
 const initialState: AuthState = {
@@ -56,7 +54,7 @@ const initialState: AuthState = {
 export const useAuthStore = create<AuthStore>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         ...initialState,
 
         login: async (params: LoginParams) => {
@@ -92,41 +90,8 @@ export const useAuthStore = create<AuthStore>()(
             accessToken: null,
             refreshToken: null,
           })
-          // 清除 localStorage 中的持久化数据
           localStorage.removeItem('auth-storage')
-          // 跳转到登录页
           window.location.href = '/login'
-        },
-
-        refreshAccessToken: () => {
-          const currentRefreshToken = get().refreshToken
-          if (!currentRefreshToken) {
-            get().logout()
-            return
-          }
-
-          request
-            .post<{
-              access_token: string
-              refresh_token: string
-              expires_in: number
-            }>('/oauth2/token', {
-              grant_type: 'refresh_token',
-              refresh_token: currentRefreshToken,
-            })
-            .then((response) => {
-              const data = response.data
-              if (data) {
-                set({
-                  accessToken: data.access_token,
-                  refreshToken: data.refresh_token,
-                })
-              }
-            })
-            .catch(() => {
-              // 刷新失败，清除登录状态
-              get().logout()
-            })
         },
       }),
       {

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import AdminLayout from '@/components/layout/AdminLayout'
 import LoginPage from '@/pages/LoginPage'
@@ -49,6 +50,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   return (
     <ErrorBoundary>
+      <Toaster position="top-center" richColors />
       <BrowserRouter>
         <Routes>
           {/* 公共路由 - 登录页 */}

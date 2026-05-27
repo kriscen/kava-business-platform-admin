@@ -19,6 +19,13 @@ Kava Admin 是一个基于 React 19 + TypeScript 的后台管理平台。
 ```
 src/
 ├── api/              # Axios 实例和拦截器
+│   ├── auth.ts       # OAuth2 token 端点（raw fetch）
+│   └── modules/      # 按后端资源组织的 API 模块
+│       ├── user.ts   # 用户 CRUD + 分页
+│       ├── role.ts   # 角色 CRUD + 下拉
+│       ├── menu.ts   # 菜单 CRUD + 树
+│       ├── dept.ts   # 部门 CRUD + 树
+│       └── tenant.ts # 租户 CRUD + 启停
 ├── components/       # React 组件
 │   ├── layout/      # 布局组件 (AdminLayout, Sidebar, Header, Content)
 │   └── ui/           # shadcn/ui 基础组件
@@ -28,6 +35,13 @@ src/
 ├── stores/           # Zustand 状态管理
 ├── styles/           # 全局样式
 ├── types/            # TypeScript 类型定义
+│   ├── api.ts       # ApiResponse（对齐后端 JsonResult）
+│   ├── common.ts    # PageQuery, PagingInfo<T> 等通用类型
+│   ├── user.ts      # 用户实体类型
+│   ├── role.ts      # 角色实体类型
+│   ├── menu.ts      # 菜单实体类型
+│   ├── dept.ts      # 部门实体类型
+│   └── tenant.ts    # 租户实体类型
 └── utils/            # 工具函数 (errorHandler 等)
 ```
 
@@ -47,8 +61,10 @@ Mock 通过 `vite-plugin-mock` 启用，可在 `.env.*` 中设置 `VITE_ENABLE_M
 
 Axios 实例 (`request.ts`) 配置 baseURL 和 timeout，拦截器 (`interceptors.ts`) 处理：
 
-- **请求拦截器**：从 localStorage 读取 token，添加 `Authorization: Bearer {token}`
-- **响应拦截器**：业务错误 (`code !== 0`) 和 HTTP 错误 (401/403/404/500/502/503) 统一处理
+- **请求拦截器**：从 authStore 读取 token，添加 `Authorization: Bearer {token}`
+- **响应拦截器**：业务错误 (`code !== '0'`) 时展示 toast 通知并 reject；HTTP 错误 (401/403/404/500/502/503) 分类展示 toast 并 reject
+
+API 调用按后端资源模块组织在 `src/api/modules/` 下，每个模块导出同名 API 对象（如 `userApi`、`roleApi`），提供标准 CRUD 方法。认证端点在 `src/api/auth.ts`，使用 raw fetch 避免拦截器循环。
 
 ## 状态管理 (`src/stores/`)
 

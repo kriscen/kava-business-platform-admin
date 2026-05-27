@@ -6,13 +6,31 @@ Axios 实例封装，统一处理请求/响应。
 
 ### 请求拦截器
 
-- 自动添加 `Authorization: Bearer {token}` (从 localStorage 读取)
+- 自动添加 `Authorization: Bearer {token}` (从 authStore 读取)
 - 可扩展：添加 timestamp、nonce 等防重放参数
 
 ### 响应拦截器
 
-- 业务错误：`code !== 0` 时 reject，返回完整 ApiResponse
-- HTTP 错误：按状态码 (401/403/404/500/502/503) 分类处理并 reject
+- 业务错误：`code !== '0'` 时通过 `toast.error(msg)` 展示通知并 reject
+- HTTP 错误：按状态码 (401/403/404/500/502/503) 分类展示 toast 并 reject
+- Token 刷新：401 时使用 raw fetch（不经 Axios）刷新 token，并发请求排队等待
+
+### API 模块 (`src/api/modules/`)
+
+按后端资源模块组织，每个文件导出同名 API 对象：
+
+- `userApi`、`roleApi`、`menuApi`、`deptApi`、`tenantApi`
+- 标准方法：`getPage`、`getById`、`create`、`update`、`remove`
+- 特殊方法：`getDropdown`（角色/租户）、`getTree`（菜单/部门）、`enable/disable`（租户）
+
+认证端点在 `src/api/auth.ts`（`refreshToken`、`exchangeCode`），使用 raw fetch 避免 401 拦截器循环。
+
+### 类型系统 (`src/types/`)
+
+- `api.ts`：`ApiResponse<T>` — 对齐后端 `JsonResult<T>`（`code: string`、`msg`、`data`）
+- `common.ts`：`PageQuery`、`PagingInfo<T>`、`DropdownItem`、`IdParam` 等通用类型
+- 按实体分文件：`user.ts`、`role.ts`、`menu.ts`、`dept.ts`、`tenant.ts`，各含 Query/Request/Response 类型
+- `index.ts` 统一重新导出，外部通过 `@/types` 引用
 
 ## 状态层 (`src/stores/`)
 
@@ -51,4 +69,4 @@ Zustand store，使用 `persist` + `devtools` 中间件。
 | `promise`    | unhandledrejection |
 | `render`     | ErrorBoundary      |
 | `network`    | Axios 网络错误     |
-| `business`   | API code !== 0     |
+| `business`   | API code !== '0'   |

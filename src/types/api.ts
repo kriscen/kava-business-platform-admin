@@ -17,13 +17,13 @@ export interface RequestConfig {
 }
 
 /**
- * 后端 API 统一响应格式
+ * 后端 API 统一响应格式，对齐后端 JsonResult<T>
  */
 export interface ApiResponse<T = unknown> {
-  /** 业务状态码，0 表示成功 */
-  code: number
+  /** 业务状态码，"0" 表示成功 */
+  code: string
   /** 响应数据 */
   data?: T
   /** 响应消息 */
-  message?: string
+  msg?: string
 }
