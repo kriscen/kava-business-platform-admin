@@ -1,3 +1,17 @@
 {
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Analyze this tool call: $ARGUMENTS\n\nExtract the file_path from tool_input. Check these conditions:\n1. The file path contains \"/docs/\"\n2. The filename is NOT \"00-project-map.md\"\n\nIf BOTH conditions are true, respond with exactly this JSON (no other text):\n{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"A file in the docs/ directory was modified. Run the update-docs-map skill to sync docs/00-project-map.md.\"}}\n\nOtherwise respond with:\n{\"continue\":true}",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
 }
