@@ -4,15 +4,17 @@ Kava Admin 是一个基于 React 19 + TypeScript 的后台管理平台。
 
 ## 技术栈
 
-| 类别     | 技术                         |
-| -------- | ---------------------------- |
-| 框架     | React 19 + TypeScript        |
-| 构建     | Vite 8                       |
-| 样式     | Tailwind CSS 4 + shadcn/ui   |
-| 状态管理 | Zustand (persist + devtools) |
-| HTTP     | Axios (拦截器模式)           |
-| 路由     | React Router DOM 7           |
-| 国际化   | i18next                      |
+| 类别     | 技术                                 |
+| -------- | ------------------------------------ |
+| 框架     | React 19 + TypeScript                |
+| 构建     | Vite 8                               |
+| 样式     | Tailwind CSS 4 + shadcn/ui           |
+| 表格     | @tanstack/react-table + shadcn Table |
+| 表单     | react-hook-form + zod + shadcn Form  |
+| 状态管理 | Zustand (persist + devtools)         |
+| HTTP     | Axios (拦截器模式)                   |
+| 路由     | React Router DOM 7                   |
+| 国际化   | i18next                              |
 
 ## 项目结构
 
@@ -28,7 +30,9 @@ src/
 │       └── tenant.ts # 租户 CRUD + 启停
 ├── components/       # React 组件
 │   ├── layout/      # 布局组件 (Sidebar, Header, Content)
-│   └── ui/           # shadcn/ui 基础组件
+│   ├── ui/           # shadcn/ui 基础组件
+│   ├── data-table.tsx  # 通用 DataTable（服务端分页、列定义、行选择）
+│   └── form-modal.tsx  # 通用 FormModal（新建/编辑切换、loading）
 ├── layouts/          # 页面布局
 │   ├── PlatformLayout.tsx  # 平台管理员后台布局
 │   └── TenantLayout.tsx    # 租户管理员后台布局
