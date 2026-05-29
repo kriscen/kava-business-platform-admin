@@ -17,8 +17,16 @@ function onTokenRefreshed(newToken: string) {
 
 function clearAuthAndRedirect() {
   toast.info('登录已过期，请重新登录')
-  useAuthStore.getState().logout()
-  window.location.href = '/login'
+  const role = useAuthStore.getState().userInfo?.role
+  useAuthStore.setState({
+    isAuthenticated: false,
+    userInfo: null,
+    accessToken: null,
+    refreshToken: null,
+  })
+  localStorage.removeItem('auth-storage')
+  const loginPath = role === 'tenant_admin' ? '/tenant/login' : '/platform/login'
+  window.location.href = loginPath
 }
 
 export const setupInterceptors = (instance: AxiosInstance): void => {
@@ -38,7 +46,7 @@ export const setupInterceptors = (instance: AxiosInstance): void => {
   instance.interceptors.response.use(
     (response) => {
       const data = response.data as ApiResponse
-      if (data.code !== '0') {
+      if (String(data.code) !== '0') {
         toast.error(data.msg || '请求失败')
         return Promise.reject(data)
       }
@@ -53,29 +61,10 @@ export const setupInterceptors = (instance: AxiosInstance): void => {
             if (!isRefreshing) {
               isRefreshing = true
               try {
-                const refreshToken = useAuthStore.getState().refreshToken
-                if (refreshToken) {
-                  const refreshResponse = await fetch('/oauth2/token', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      grant_type: 'refresh_token',
-                      refresh_token: refreshToken,
-                    }),
-                  })
-
-                  if (refreshResponse.ok) {
-                    const result = await refreshResponse.json()
-                    useAuthStore.setState({
-                      accessToken: result.access_token,
-                      refreshToken: result.refresh_token,
-                    })
-                    onTokenRefreshed(result.access_token)
-                  } else {
-                    clearAuthAndRedirect()
-                  }
+                await useAuthStore.getState().refreshAccessToken()
+                const newToken = useAuthStore.getState().accessToken
+                if (newToken) {
+                  onTokenRefreshed(newToken)
                 } else {
                   clearAuthAndRedirect()
                 }

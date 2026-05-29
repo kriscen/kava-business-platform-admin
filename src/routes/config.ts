@@ -14,7 +14,6 @@ export interface RouteConfig {
 
 /**
  * 路由配置
- * 使用 layout namespace 的 i18n key
  */
 export const routeConfig: RouteConfig[] = [
   {
@@ -22,17 +21,41 @@ export const routeConfig: RouteConfig[] = [
     titleKey: 'layout.home',
   },
   {
-    path: '/dashboard',
-    titleKey: 'layout.dashboard',
-  },
-  {
-    path: '/system',
-    titleKey: 'layout.system',
+    path: '/platform',
+    titleKey: 'layout.platform',
     children: [
       {
-        path: '/system/users',
-        titleKey: 'layout.userManagement',
-        parentPath: '/system',
+        path: '/platform/dashboard',
+        titleKey: 'layout.dashboard',
+        parentPath: '/platform',
+      },
+      {
+        path: '/platform/system',
+        titleKey: 'layout.system',
+        parentPath: '/platform',
+        children: [
+          {
+            path: '/platform/system/users',
+            titleKey: 'layout.userManagement',
+            parentPath: '/platform/system',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '/tenant',
+    titleKey: 'layout.tenant',
+    children: [
+      {
+        path: '/tenant/dashboard',
+        titleKey: 'layout.dashboard',
+        parentPath: '/tenant',
+      },
+      {
+        path: '/tenant/profile',
+        titleKey: 'layout.profile',
+        parentPath: '/tenant',
       },
     ],
   },
@@ -63,26 +86,25 @@ export function findRouteConfig(
  * 根据路径查找面包屑配置
  */
 export function getBreadcrumbs(path: string): Array<{ path: string; titleKey: string }> {
-  const breadcrumbs: Array<{ path: string; titleKey: string }> = []
+  const trail: Array<{ path: string; titleKey: string }> = []
 
-  // 遍历一级路由
-  for (const route of routeConfig) {
-    if (path === route.path) {
-      breadcrumbs.push({ path: route.path, titleKey: route.titleKey })
-      return breadcrumbs
-    }
-    if (route.children) {
-      for (const child of route.children) {
-        if (path === child.path) {
-          // 添加父级
-          breadcrumbs.push({ path: route.path, titleKey: route.titleKey })
-          // 添加当前
-          breadcrumbs.push({ path: child.path, titleKey: child.titleKey })
-          return breadcrumbs
-        }
+  function search(
+    routes: RouteConfig[],
+    ancestors: Array<{ path: string; titleKey: string }>
+  ): boolean {
+    for (const route of routes) {
+      const current = [...ancestors, { path: route.path, titleKey: route.titleKey }]
+      if (route.path === path) {
+        trail.push(...current)
+        return true
+      }
+      if (route.children && search(route.children, current)) {
+        return true
       }
     }
+    return false
   }
 
-  return breadcrumbs
+  search(routeConfig, [])
+  return trail
 }

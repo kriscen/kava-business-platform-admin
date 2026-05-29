@@ -27,11 +27,17 @@ src/
 │       ├── dept.ts   # 部门 CRUD + 树
 │       └── tenant.ts # 租户 CRUD + 启停
 ├── components/       # React 组件
-│   ├── layout/      # 布局组件 (AdminLayout, Sidebar, Header, Content)
+│   ├── layout/      # 布局组件 (Sidebar, Header, Content)
 │   └── ui/           # shadcn/ui 基础组件
+├── layouts/          # 页面布局
+│   ├── PlatformLayout.tsx  # 平台管理员后台布局
+│   └── TenantLayout.tsx    # 租户管理员后台布局
 ├── hooks/            # 自定义 React Hooks
 ├── i18n/             # 国际化配置和翻译文件
 ├── lib/              # 工具库 (utils.ts)
+├── pages/
+│   ├── platform/     # 平台管理员页面 (/platform/*)
+│   └── tenant/       # 租户管理员页面 (/tenant/*)
 ├── stores/           # Zustand 状态管理
 ├── styles/           # 全局样式
 ├── types/            # TypeScript 类型定义
@@ -43,6 +49,11 @@ src/
 │   ├── dept.ts      # 部门实体类型
 │   └── tenant.ts    # 租户实体类型
 └── utils/            # 工具函数 (errorHandler 等)
+
+mock/                 # vite-plugin-mock 数据（HTTP 拦截模式）
+├── auth.ts           # 登录/登出/刷新 token
+├── menu.ts           # 角色菜单
+└── ...
 ```
 
 ## 三种环境
@@ -77,7 +88,14 @@ Zustand store，使用 `persist` + `devtools` 中间件：
 
 ## 路由 (`src/App.tsx`)
 
-React Router v7。路由包裹在 `AdminLayout` 中，包含 `ErrorBoundary` 错误边界。
+React Router v7。采用双路由架构，按角色隔离：
+
+- `/platform/*` — 平台管理员后台，使用 `PlatformLayout`
+- `/tenant/*` — 租户管理员后台，使用 `TenantLayout`
+- 各自有独立的登录页（`/platform/login`、`/tenant/login`）
+- 路由守卫检查用户角色，未认证用户重定向到对应登录页
+
+详见 [模块边界](./boundaries.md)
 
 ## 构建产物
 

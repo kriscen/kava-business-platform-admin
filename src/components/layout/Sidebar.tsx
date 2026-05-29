@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Settings, ChevronDown, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Settings, User, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import type { MenuItem } from '@/types'
@@ -34,6 +34,7 @@ const defaultMenus: MenuItem[] = [
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
   Settings,
+  User,
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) => {
@@ -41,9 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) =>
   const [expandedKeys, setExpandedKeys] = useState<string[]>(['system'])
 
   const toggleExpand = (key: string) => {
-    setExpandedKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    )
+    setExpandedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
   }
 
   const renderMenuItem = (item: MenuItem, level = 0) => {

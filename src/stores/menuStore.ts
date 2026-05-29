@@ -2,9 +2,6 @@ import { create } from 'zustand'
 import { useAuthStore, type UserRole } from '@/stores/authStore'
 import type { MenuItem } from '@/types'
 
-/**
- * 菜单配置
- */
 interface MenuConfig {
   key: string
   label: string
@@ -18,19 +15,21 @@ const PLATFORM_MENUS: MenuConfig[] = [
   {
     key: 'dashboard',
     label: '仪表盘',
-    path: '/dashboard',
-    roles: ['platform_admin', 'tenant_admin'],
+    path: '/platform/dashboard',
+    icon: 'LayoutDashboard',
+    roles: ['platform_admin'],
   },
   {
     key: 'system',
     label: '系统管理',
-    path: '/system',
+    path: '/platform/system',
+    icon: 'Settings',
     roles: ['platform_admin'],
     children: [
       {
         key: 'system-users',
         label: '用户管理',
-        path: '/system/users',
+        path: '/platform/system/users',
         roles: ['platform_admin'],
       },
     ],
@@ -41,30 +40,30 @@ const TENANT_MENUS: MenuConfig[] = [
   {
     key: 'dashboard',
     label: '仪表盘',
-    path: '/dashboard',
-    roles: ['platform_admin', 'tenant_admin'],
+    path: '/tenant/dashboard',
+    icon: 'LayoutDashboard',
+    roles: ['tenant_admin'],
+  },
+  {
+    key: 'profile',
+    label: '个人信息',
+    path: '/tenant/profile',
+    icon: 'User',
+    roles: ['tenant_admin'],
   },
 ]
 
-/**
- * 菜单状态
- */
 interface MenuState {
   menus: MenuItem[]
 }
 
-/**
- * 菜单操作
- */
 interface MenuActions {
   buildMenus: () => void
+  getMenuByRole: (role: UserRole) => MenuItem[]
 }
 
 type MenuStore = MenuState & MenuActions
 
-/**
- * 根据角色过滤菜单
- */
 function filterMenusByRole(menus: MenuConfig[], role: UserRole): MenuItem[] {
   return menus
     .filter((menu) => menu.roles.includes(role))
@@ -73,6 +72,7 @@ function filterMenusByRole(menus: MenuConfig[], role: UserRole): MenuItem[] {
         key: menu.key,
         label: menu.label,
         path: menu.path,
+        icon: menu.icon,
       }
       if (menu.children) {
         item.children = filterMenusByRole(menu.children, role)
@@ -92,5 +92,10 @@ export const useMenuStore = create<MenuStore>((set) => ({
     const filteredMenus = filterMenusByRole(allMenus, role)
 
     set({ menus: filteredMenus })
+  },
+
+  getMenuByRole: (role: UserRole) => {
+    const allMenus = role === 'platform_admin' ? PLATFORM_MENUS : TENANT_MENUS
+    return filterMenusByRole(allMenus, role)
   },
 }))

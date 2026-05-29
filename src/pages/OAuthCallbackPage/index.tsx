@@ -68,8 +68,9 @@ const OAuthCallbackPage: React.FC = () => {
           }
           useAuthStore.setState(newState)
 
-          // 跳转到首页
-          navigate('/dashboard')
+          // 根据角色跳转到对应后台
+          const role = useAuthStore.getState().userInfo?.role
+          navigate(role === 'tenant_admin' ? '/tenant/dashboard' : '/platform/dashboard')
         }
       } catch {
         setError('获取 token 失败')
@@ -87,7 +88,7 @@ const OAuthCallbackPage: React.FC = () => {
             <div className="mb-4 text-4xl">{isMock ? '⚠️' : '❌'}</div>
             <h2 className="mb-2 text-lg font-medium text-red-600">{error}</h2>
             <button
-              onClick={() => (window.location.href = '/login')}
+              onClick={() => navigate('/')}
               className="mt-4 rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
             >
               返回登录页

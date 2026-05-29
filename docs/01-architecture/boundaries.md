@@ -48,11 +48,25 @@ Zustand store，使用 `persist` + `devtools` 中间件。
 
 持久化到 localStorage (key: `app-storage`)，仅保存这三个字段。
 
-## 布局层 (`src/components/layout/`)
+### authStore
 
-- **AdminLayout**: 根布局，响应式处理 (< 768px 自动折叠侧边栏)
-- **Sidebar**: 导航菜单，支持折叠/展开
-- **Header**: 顶部栏
+管理认证状态，包括用户信息、token、登录/登出逻辑。登录成功后根据角色跳转到对应后台（`/platform/dashboard` 或 `/tenant/dashboard`）。
+
+### menuStore
+
+管理菜单配置，按角色返回不同菜单项。平台管理员和租户管理员看到不同的侧边栏菜单。
+
+## 布局层
+
+### 页面布局 (`src/layouts/`)
+
+- **PlatformLayout**: 平台管理员后台布局，包含平台侧边栏和头部
+- **TenantLayout**: 租户管理员后台布局，包含租户侧边栏和头部
+
+### 公共组件 (`src/components/layout/`)
+
+- **Sidebar**: 导航菜单，支持折叠/展开，按角色渲染不同菜单项
+- **Header**: 顶部栏，显示用户信息和登出按钮
 - **Content**: 内容区
 
 ## 错误边界 (`src/components/ErrorBoundary/`)
