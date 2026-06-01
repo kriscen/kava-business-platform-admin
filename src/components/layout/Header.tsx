@@ -44,7 +44,7 @@ const Header: React.FC = () => {
                   <User className="size-4" />
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm">{userInfo?.username || '管理员'}</span>
+              <span className="text-sm">{userInfo?.username || t('common.admin')}</span>
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={4}>

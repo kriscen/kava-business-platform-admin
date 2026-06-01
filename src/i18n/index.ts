@@ -1,16 +1,22 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import common from './locales/zh-CN/common.json'
-import layout from './locales/zh-CN/layout.json'
+const zhCNModules = import.meta.glob<{ default: Record<string, string> }>(
+  './locales/zh-CN/*.json',
+  { eager: true }
+)
+
+const translation: Record<string, Record<string, string>> = {}
+
+for (const path of Object.keys(zhCNModules)) {
+  const fileName = path.match(/([^/]+)\.json$/)?.[1]
+  if (fileName) {
+    translation[fileName] = zhCNModules[path].default
+  }
+}
 
 const resources = {
-  'zh-CN': {
-    translation: {
-      common,
-      layout,
-    },
-  },
+  'zh-CN': { translation },
 }
 
 i18n.use(initReactI18next).init({

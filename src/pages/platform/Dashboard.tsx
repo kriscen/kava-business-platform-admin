@@ -1,8 +1,14 @@
-const PlatformDashboard: React.FC = () => (
-  <div className="rounded-lg bg-white p-6">
-    <h2 className="text-lg font-semibold">平台仪表盘</h2>
-    <p className="text-muted-foreground">欢迎使用 Kava Admin 平台管理系统</p>
-  </div>
-)
+import { useTranslation } from 'react-i18next'
+
+const PlatformDashboard: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="rounded-lg bg-white p-6">
+      <h2 className="text-lg font-semibold">{t('dashboard.platformTitle')}</h2>
+      <p className="text-muted-foreground">{t('dashboard.platformWelcome')}</p>
+    </div>
+  )
+}
 
 export default PlatformDashboard

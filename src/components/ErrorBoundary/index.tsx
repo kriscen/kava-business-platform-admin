@@ -1,4 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
+import i18n from '@/i18n'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 
@@ -23,7 +24,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // 输出到控制台，预留监控服务接口
     console.error('ErrorBoundary caught:', {
       error: error.message,
       stack: error.stack,
@@ -48,18 +48,16 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-destructive/10">
               <AlertTriangle className="size-8 text-destructive" />
             </div>
-            <h2 className="mb-2 text-xl font-semibold">页面出现错误</h2>
-            <p className="mb-6 text-muted-foreground">
-              抱歉，页面发生了错误。请尝试刷新页面或返回首页。
-            </p>
+            <h2 className="mb-2 text-xl font-semibold">{i18n.t('errorBoundary.title')}</h2>
+            <p className="mb-6 text-muted-foreground">{i18n.t('errorBoundary.message')}</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button onClick={this.handleReset}>
                 <RefreshCw className="size-4" />
-                重试
+                {i18n.t('common.retry')}
               </Button>
               <Button variant="outline" onClick={() => (window.location.href = '/')}>
                 <Home className="size-4" />
-                返回首页
+                {i18n.t('common.backToHome')}
               </Button>
             </div>
           </div>

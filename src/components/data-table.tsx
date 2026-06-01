@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
+
+import { AlertCircle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
@@ -11,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Pagination,
@@ -59,12 +63,15 @@ export function DataTable<T>({
   onSelectedRowsChange,
   refreshKey,
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
   const [data, setData] = useState<T[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [rowSelection, setRowSelection] = useState({})
+  const [dataVersion, setDataVersion] = useState(0)
 
   const tanstackColumns = useMemo<ColumnDef<T>[]>(
     () => [
@@ -128,16 +135,23 @@ export function DataTable<T>({
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetchData({ pageNo, pageSize }).then((res) => {
-      if (cancelled) return
-      setData(res.records)
-      setTotal(res.total)
-      setLoading(false)
-    })
+    setError(null)
+    fetchData({ pageNo, pageSize })
+      .then((res) => {
+        if (cancelled) return
+        setData(res.records)
+        setTotal(res.total)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setError(t('common.error'))
+        setLoading(false)
+      })
     return () => {
       cancelled = true
     }
-  }, [fetchData, pageNo, pageSize, refreshKey])
+  }, [fetchData, pageNo, pageSize, refreshKey, dataVersion, t])
 
   useEffect(() => {
     onSelectedRowsChange?.(table.getSelectedRowModel().rows.map((r) => r.original))
@@ -177,7 +191,26 @@ export function DataTable<T>({
             ))}
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {error ? (
+              <TableRow>
+                <TableCell colSpan={allColumns.length} className="h-48 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <AlertCircle className="size-10 text-destructive" />
+                    <p className="text-muted-foreground">{error}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setError(null)
+                        setDataVersion((v) => v + 1)
+                      }}
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : loading ? (
               Array.from({ length: pageSize }).map((_, i) => (
                 <TableRow key={i}>
                   {allColumns.map((_, j) => (
@@ -200,7 +233,7 @@ export function DataTable<T>({
             ) : (
               <TableRow>
                 <TableCell colSpan={allColumns.length} className="h-24 text-center">
-                  暂无数据
+                  {t('common.noData')}
                 </TableCell>
               </TableRow>
             )}
@@ -210,7 +243,7 @@ export function DataTable<T>({
       {totalPages > 0 && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>每页</span>
+            <span>{t('common.perPage')}</span>
             <Select
               value={String(pageSize)}
               onValueChange={(v) => {
@@ -229,7 +262,7 @@ export function DataTable<T>({
                 ))}
               </SelectContent>
             </Select>
-            <span>条，共 {total} 条</span>
+            <span>{t('common.totalCount', { count: total })}</span>
           </div>
           <Pagination>
             <PaginationContent>

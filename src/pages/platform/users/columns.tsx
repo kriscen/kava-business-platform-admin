@@ -1,3 +1,4 @@
+import i18n from '@/i18n'
 import type { SysUserListResponse } from '@/types'
 import type { DataTableColumn } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
@@ -13,28 +14,28 @@ export function getUserColumns({
   onDelete,
 }: ColumnsConfig): DataTableColumn<SysUserListResponse>[] {
   return [
-    { key: 'username', title: '用户名' },
-    { key: 'nickname', title: '昵称' },
-    { key: 'phone', title: '手机号' },
-    { key: 'email', title: '邮箱' },
-    { key: 'deptName', title: '部门' },
+    { key: 'username', title: i18n.t('user.username') },
+    { key: 'nickname', title: i18n.t('user.nickname') },
+    { key: 'phone', title: i18n.t('user.phone') },
+    { key: 'email', title: i18n.t('user.email') },
+    { key: 'deptName', title: i18n.t('user.dept') },
     {
       key: 'lockFlag',
-      title: '状态',
+      title: i18n.t('user.status'),
       render: (val) => (
         <Badge variant={val === '0' ? 'default' : 'destructive'}>
-          {val === '0' ? '正常' : '锁定'}
+          {val === '0' ? i18n.t('common.normal') : i18n.t('common.locked')}
         </Badge>
       ),
     },
-    { key: 'gmtCreate', title: '创建时间' },
+    { key: 'gmtCreate', title: i18n.t('user.createTime') },
     {
       key: 'id',
-      title: '操作',
+      title: i18n.t('common.actions'),
       render: (_, row) => (
         <div className="flex gap-1">
           <Button variant="ghost" size="xs" onClick={() => onEdit(row)}>
-            编辑
+            {i18n.t('common.edit')}
           </Button>
           <Button
             variant="ghost"
@@ -42,7 +43,7 @@ export function getUserColumns({
             className="text-destructive"
             onClick={() => onDelete(row)}
           >
-            删除
+            {i18n.t('common.delete')}
           </Button>
         </div>
       ),

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -31,6 +32,8 @@ export function FormModal({
   width = 'sm:max-w-md',
   submitting = false,
 }: FormModalProps) {
+  const { t } = useTranslation()
+
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (submitting) return
@@ -39,22 +42,23 @@ export function FormModal({
     [submitting, onOpenChange]
   )
 
+  const modalTitle =
+    mode === 'create' ? t('common.create', { title }) : t('common.editTitle', { title })
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className={width}>
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? `新增${title}` : `编辑${title}`}</DialogTitle>
-          <DialogDescription className="sr-only">
-            {mode === 'create' ? `新增${title}` : `编辑${title}`}
-          </DialogDescription>
+          <DialogTitle>{modalTitle}</DialogTitle>
+          <DialogDescription className="sr-only">{modalTitle}</DialogDescription>
         </DialogHeader>
         <div className="py-2">{children}</div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-            取消
+            {t('common.cancel')}
           </Button>
           <Button onClick={onConfirm} disabled={submitting}>
-            {submitting ? '提交中...' : '确定'}
+            {submitting ? t('common.submitting') : t('common.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

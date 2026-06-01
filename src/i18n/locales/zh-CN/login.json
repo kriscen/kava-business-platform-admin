@@ -1,0 +1,15 @@
+{
+  "platformSubtitle": "平台管理员登录",
+  "tenantSubtitle": "租户管理员登录",
+  "username": "账号",
+  "usernamePlaceholder": "请输入账号",
+  "password": "密码",
+  "passwordPlaceholder": "请输入密码",
+  "tenantCode": "租户编码",
+  "tenantCodePlaceholder": "请输入租户编码",
+  "login": "登录",
+  "loggingIn": "登录中...",
+  "loginFailed": "登录失败",
+  "mockHint": "Mock 模式：账号 admin，密码 123456",
+  "mockHintTenant": "Mock 模式：账号 tenant，密码 123456，租户编码 DEMO"
+}

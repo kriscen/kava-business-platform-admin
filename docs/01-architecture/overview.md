@@ -31,8 +31,10 @@ src/
 ├── components/       # React 组件
 │   ├── layout/      # 布局组件 (Sidebar, Header, Content)
 │   ├── ui/           # shadcn/ui 基础组件
-│   ├── data-table.tsx  # 通用 DataTable（服务端分页、列定义、行选择）
-│   └── form-modal.tsx  # 通用 FormModal（新建/编辑切换、loading）
+│   ├── data-table.tsx    # 通用 DataTable（服务端分页、列定义、行选择）
+│   ├── form-modal.tsx    # 通用 FormModal（新建/编辑切换、loading）
+│   ├── confirm-dialog.tsx # 通用确认对话框（异步 onConfirm、错误处理）
+│   └── ErrorBoundary/    # 错误边界组件（嵌套式崩溃隔离）
 ├── layouts/          # 页面布局
 │   ├── PlatformLayout.tsx  # 平台管理员后台布局
 │   └── TenantLayout.tsx    # 租户管理员后台布局
@@ -41,7 +43,8 @@ src/
 ├── lib/              # 工具库 (utils.ts)
 ├── pages/
 │   ├── platform/     # 平台管理员页面 (/platform/*)
-│   └── tenant/       # 租户管理员页面 (/tenant/*)
+│   ├── tenant/       # 租户管理员页面 (/tenant/*)
+│   └── NotFound.tsx  # 404 页面（路由通配符 * 匹配）
 ├── stores/           # Zustand 状态管理
 ├── styles/           # 全局样式
 ├── types/            # TypeScript 类型定义
@@ -98,6 +101,9 @@ React Router v7。采用双路由架构，按角色隔离：
 - `/tenant/*` — 租户管理员后台，使用 `TenantLayout`
 - 各自有独立的登录页（`/platform/login`、`/tenant/login`）
 - 路由守卫检查用户角色，未认证用户重定向到对应登录页
+- 页面组件使用 `React.lazy()` 动态导入，配合 `<Suspense fallback={<Spinner />}>` 实现代码分割
+- 通配符路由 `*` 渲染 `NotFound` 页面
+- `Content.tsx` 中 `<Outlet>` 包裹在 `ErrorBoundary` 内，页面级崩溃隔离在内容区域，Header/Sidebar 不受影响
 
 详见 [模块边界](./boundaries.md)
 
@@ -107,6 +113,7 @@ React Router v7。采用双路由架构，按角色隔离：
 
 - `vendor` - React/ReactDOM
 - `utils` - Axios/Zustand
+- 页面级 chunks - 各页面组件通过 `React.lazy()` 生成独立 chunk，按需加载
 
 ## 路径别名
 

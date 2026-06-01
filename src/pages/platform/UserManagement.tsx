@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { SysUserListResponse, SysUserRequest } from '@/types'
 import { userApi } from '@/api/modules/user'
@@ -14,11 +15,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { confirm } from '@/components/confirm-dialog'
 
 import { UserForm, type UserFormValues } from './users/user-form'
 import { getUserColumns } from './users/columns'
 
 export default function PlatformUserManagement() {
+  const { t } = useTranslation()
   const [searchUsername, setSearchUsername] = useState('')
   const [searchPhone, setSearchPhone] = useState('')
   const [searchLockFlag, setSearchLockFlag] = useState('')
@@ -64,28 +67,37 @@ export default function PlatformUserManagement() {
     setModalOpen(true)
   }, [])
 
-  const handleDelete = useCallback(async (row: SysUserListResponse) => {
-    if (!window.confirm(`确定删除用户 "${row.username}" 吗？`)) return
-    try {
-      await userApi.remove([row.id])
-      toast.success('删除成功')
+  const handleDelete = useCallback(
+    async (row: SysUserListResponse) => {
+      const confirmed = await confirm({
+        title: t('user.confirmDelete', { username: row.username }),
+        variant: 'destructive',
+        confirmText: t('common.delete'),
+        onConfirm: async () => {
+          await userApi.remove([row.id])
+        },
+      })
+      if (!confirmed) return
+      toast.success(t('common.deleteSuccess'))
       setDataVersion((v) => v + 1)
-    } catch {
-      toast.error('删除失败')
-    }
-  }, [])
+    },
+    [t]
+  )
 
   const handleBatchDelete = async () => {
     if (!selectedRows.length) return
-    if (!window.confirm(`确定删除选中的 ${selectedRows.length} 个用户吗？`)) return
-    try {
-      await userApi.remove(selectedRows.map((r) => r.id))
-      toast.success('批量删除成功')
-      setSelectedRows([])
-      setDataVersion((v) => v + 1)
-    } catch {
-      toast.error('批量删除失败')
-    }
+    const confirmed = await confirm({
+      title: t('user.confirmBatchDelete', { count: selectedRows.length }),
+      variant: 'destructive',
+      confirmText: t('common.delete'),
+      onConfirm: async () => {
+        await userApi.remove(selectedRows.map((r) => r.id))
+      },
+    })
+    if (!confirmed) return
+    toast.success(t('common.batchDeleteSuccess'))
+    setSelectedRows([])
+    setDataVersion((v) => v + 1)
   }
 
   const handleFormSubmit = async (values: UserFormValues) => {
@@ -102,11 +114,11 @@ export default function PlatformUserManagement() {
       if (modalMode === 'create') {
         data.password = values.password
         await userApi.create(data)
-        toast.success('新增成功')
+        toast.success(t('common.createSuccess'))
       } else {
         data.id = editingUser!.id
         await userApi.update(data)
-        toast.success('编辑成功')
+        toast.success(t('common.editSuccess'))
       }
       setModalOpen(false)
       setDataVersion((v) => v + 1)
@@ -125,36 +137,36 @@ export default function PlatformUserManagement() {
   const searchSlot = (
     <div className="flex flex-wrap items-end gap-3">
       <div className="space-y-1">
-        <span className="text-xs text-muted-foreground">用户名</span>
+        <span className="text-xs text-muted-foreground">{t('user.username')}</span>
         <Input
-          placeholder="搜索用户名"
+          placeholder={t('user.searchUsername')}
           value={searchUsername}
           onChange={(e) => setSearchUsername(e.target.value)}
           className="w-40"
         />
       </div>
       <div className="space-y-1">
-        <span className="text-xs text-muted-foreground">手机号</span>
+        <span className="text-xs text-muted-foreground">{t('user.phone')}</span>
         <Input
-          placeholder="搜索手机号"
+          placeholder={t('user.searchPhone')}
           value={searchPhone}
           onChange={(e) => setSearchPhone(e.target.value)}
           className="w-40"
         />
       </div>
       <div className="space-y-1">
-        <span className="text-xs text-muted-foreground">状态</span>
+        <span className="text-xs text-muted-foreground">{t('user.status')}</span>
         <Select
           value={searchLockFlag}
           onValueChange={(v) => setSearchLockFlag(!v || v === 'all' ? '' : v)}
         >
           <SelectTrigger className="w-32">
-            <SelectValue placeholder="全部" />
+            <SelectValue placeholder={t('common.all')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部</SelectItem>
-            <SelectItem value="0">正常</SelectItem>
-            <SelectItem value="9">锁定</SelectItem>
+            <SelectItem value="all">{t('common.all')}</SelectItem>
+            <SelectItem value="0">{t('common.normal')}</SelectItem>
+            <SelectItem value="9">{t('common.locked')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -163,10 +175,10 @@ export default function PlatformUserManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>新增用户</Button>
+      <Button onClick={handleCreate}>{t('user.addUser')}</Button>
       {selectedRows.length > 0 && (
         <Button variant="destructive" onClick={handleBatchDelete}>
-          批量删除 ({selectedRows.length})
+          {t('user.batchDelete')} ({selectedRows.length})
         </Button>
       )}
     </div>
@@ -175,8 +187,8 @@ export default function PlatformUserManagement() {
   return (
     <div className="space-y-4 p-6">
       <div>
-        <h2 className="text-lg font-semibold">用户管理</h2>
-        <p className="text-sm text-muted-foreground">管理平台用户账号、角色和权限</p>
+        <h2 className="text-lg font-semibold">{t('user.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('user.description')}</p>
       </div>
 
       <DataTable
@@ -192,7 +204,7 @@ export default function PlatformUserManagement() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         mode={modalMode}
-        title="用户"
+        title={t('user.formTitle')}
         submitting={submitting}
         onConfirm={() => formRef.current?.requestSubmit()}
       >

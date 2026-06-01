@@ -1,0 +1,8 @@
+{
+  "mockUnavailable": "OAuth 回调在 Mock 模式下不可用",
+  "authFailed": "授权失败：{{error}}",
+  "noCode": "未收到授权码",
+  "tokenFailed": "获取 token 失败",
+  "backToLogin": "返回登录页",
+  "completingLogin": "正在完成登录"
+}

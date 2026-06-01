@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Settings, User, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import type { MenuItem } from '@/types'
 
@@ -12,25 +13,24 @@ interface SidebarProps {
 const defaultMenus: MenuItem[] = [
   {
     key: 'dashboard',
-    label: '仪表盘',
+    label: 'layout.dashboard',
     icon: 'LayoutDashboard',
     path: '/dashboard',
   },
   {
     key: 'system',
-    label: '系统管理',
+    label: 'layout.system',
     icon: 'Settings',
     children: [
       {
         key: 'users',
-        label: '用户管理',
+        label: 'layout.userManagement',
         path: '/system/users',
       },
     ],
   },
 ]
 
-// 图标映射
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
   Settings,
@@ -38,6 +38,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) => {
+  const { t } = useTranslation()
   const location = useLocation()
   const [expandedKeys, setExpandedKeys] = useState<string[]>(['system'])
 
@@ -64,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) =>
             {Icon && <Icon className="size-4 shrink-0" />}
             {!collapsed && (
               <>
-                <span className="flex-1 text-left">{item.label}</span>
+                <span className="flex-1 text-left">{t(item.label)}</span>
                 {isExpanded ? (
                   <ChevronDown className="size-4" />
                 ) : (
@@ -95,18 +96,16 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) =>
         )}
       >
         {Icon && <Icon className="size-4 shrink-0" />}
-        {!collapsed && <span>{item.label}</span>}
+        {!collapsed && <span>{t(item.label)}</span>}
       </Link>
     )
   }
 
   return (
     <div className="flex h-full flex-col">
-      {/* Logo */}
       <div className="flex h-16 items-center justify-center border-b border-border font-semibold text-primary">
-        {collapsed ? 'KA' : 'Kava Admin'}
+        {collapsed ? 'KA' : t('layout.title')}
       </div>
-      {/* 菜单 */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-2">
         {menus.map((item) => renderMenuItem(item))}
       </nav>

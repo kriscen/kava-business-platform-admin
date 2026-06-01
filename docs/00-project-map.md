@@ -4,24 +4,24 @@
 
 ## 01-architecture/
 
-| 文档                                           | 说明                                              |
-| ---------------------------------------------- | ------------------------------------------------- |
-| [overview.md](01-architecture/overview.md)     | 架构概览：技术栈、项目结构、双路由架构、Mock 系统 |
-| [boundaries.md](01-architecture/boundaries.md) | 模块边界：API 层、状态层、布局层、错误处理        |
+| 文档                                           | 说明                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------- |
+| [overview.md](01-architecture/overview.md)     | 架构概览：技术栈、项目结构、双路由架构、路由懒加载、嵌套 ErrorBoundary |
+| [boundaries.md](01-architecture/boundaries.md) | 模块边界：API 层、状态层、布局层、错误处理、Token 刷新队列             |
 
 ## 02-conventions/
 
-| 文档                                          | 说明                                        |
-| --------------------------------------------- | ------------------------------------------- |
-| [code-style.md](02-conventions/code-style.md) | 代码风格：组件来源、Tailwind 规范、类型定义 |
-| [git.md](02-conventions/git.md)               | Git 规范：Conventional Commits 格式         |
-| [mock-first.md](02-conventions/mock-first.md) | Mock-first 开发：核心流程必须可脱离后端调试 |
+| 文档                                          | 说明                                                               |
+| --------------------------------------------- | ------------------------------------------------------------------ |
+| [code-style.md](02-conventions/code-style.md) | 代码风格：组件来源、Tailwind 规范、类型定义、i18n 规范、懒加载约定 |
+| [git.md](02-conventions/git.md)               | Git 规范：Conventional Commits 格式                                |
+| [mock-first.md](02-conventions/mock-first.md) | Mock-first 开发：核心流程必须可脱离后端调试                        |
 
 ## 03-reference/
 
-| 文档                                          | 说明                           |
-| --------------------------------------------- | ------------------------------ |
-| [error-codes.md](03-reference/error-codes.md) | 错误码参考：错误分类和处理流程 |
+| 文档                                          | 说明                                           |
+| --------------------------------------------- | ---------------------------------------------- |
+| [error-codes.md](03-reference/error-codes.md) | 错误码参考：错误分类、处理流程、组件级错误模式 |
 
 ## 04-frontend/
 

@@ -36,7 +36,7 @@
 3. **React 渲染错误** → ErrorBoundary → `formatError('render', ...)`
 4. **Axios HTTP 错误** → 响应拦截器 → toast 通知 + reject
 5. **业务错误** (`code !== '0'`) → 响应拦截器 → toast.error + reject
-6. **401 Token 过期** → raw fetch 刷新 token → 成功则重试原请求，失败则 toast.info + 跳转登录页
+6. **401 Token 过期** → raw fetch 刷新 token → 成功则重试原请求；失败则 `toast.info`（使用 i18n key `common.tokenExpired`）提示用户，所有排队的 401 请求被 reject，然后跳转登录页
 
 ## 用户通知
 
@@ -45,3 +45,15 @@
 ## 监控接入
 
 `handleError()` 预留了监控服务接入点，可集成 Sentry、LogRocket 等。
+
+## 组件级错误模式
+
+除全局错误处理外，部分组件实现了自身错误处理逻辑：
+
+### DataTable 错误状态
+
+`DataTable` 组件在 `fetchData` 失败时显示错误状态 UI：错误图标 + 错误消息 + 重试按钮。用户点击重试后重新发起请求。错误不会触发全局 toast，而是内联展示在表格区域。
+
+### ConfirmDialog 异步错误
+
+`ConfirmDialog` 的 `onConfirm` 支持异步操作。如果 `onConfirm` 抛出异常（Promise reject），错误通过 `toast.error` 展示通知，对话框保持打开状态，用户可以修正后重试。

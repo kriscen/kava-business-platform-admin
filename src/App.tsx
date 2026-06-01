@@ -1,16 +1,20 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { Spinner } from '@/components/ui/spinner'
 import PlatformLayout from '@/layouts/PlatformLayout'
 import TenantLayout from '@/layouts/TenantLayout'
-import PlatformLoginPage from '@/pages/platform/LoginPage'
-import TenantLoginPage from '@/pages/tenant/LoginPage'
-import PlatformDashboard from '@/pages/platform/Dashboard'
-import PlatformUserManagement from '@/pages/platform/UserManagement'
-import TenantDashboard from '@/pages/tenant/Dashboard'
-import TenantProfile from '@/pages/tenant/Profile'
-import OAuthCallbackPage from '@/pages/OAuthCallbackPage'
 import { useAuthStore, type UserRole } from '@/stores/authStore'
+
+const PlatformLoginPage = lazy(() => import('@/pages/platform/LoginPage'))
+const TenantLoginPage = lazy(() => import('@/pages/tenant/LoginPage'))
+const PlatformDashboard = lazy(() => import('@/pages/platform/Dashboard'))
+const PlatformUserManagement = lazy(() => import('@/pages/platform/UserManagement'))
+const TenantDashboard = lazy(() => import('@/pages/tenant/Dashboard'))
+const TenantProfile = lazy(() => import('@/pages/tenant/Profile'))
+const NotFound = lazy(() => import('@/pages/NotFound'))
+const OAuthCallbackPage = lazy(() => import('@/pages/OAuthCallbackPage'))
 
 /**
  * 路由守卫：检查认证状态和角色
@@ -68,42 +72,44 @@ function App() {
     <ErrorBoundary>
       <Toaster position="top-center" richColors />
       <BrowserRouter>
-        <Routes>
-          {/* 根路径重定向 */}
-          <Route path="/" element={<RootRedirect />} />
+        <Suspense fallback={<Spinner />}>
+          <Routes>
+            {/* 根路径重定向 */}
+            <Route path="/" element={<RootRedirect />} />
 
-          {/* OAuth 回调页 */}
-          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+            {/* OAuth 回调页 */}
+            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
-          {/* 平台管理员登录 */}
-          <Route element={<LoginRoute role="platform_admin" />}>
-            <Route path="/platform/login" element={<PlatformLoginPage />} />
-          </Route>
-
-          {/* 平台管理员后台 */}
-          <Route element={<RoleRoute allowedRole="platform_admin" loginPath="/platform/login" />}>
-            <Route element={<PlatformLayout />}>
-              <Route path="/platform/dashboard" element={<PlatformDashboard />} />
-              <Route path="/platform/system/users" element={<PlatformUserManagement />} />
+            {/* 平台管理员登录 */}
+            <Route element={<LoginRoute role="platform_admin" />}>
+              <Route path="/platform/login" element={<PlatformLoginPage />} />
             </Route>
-          </Route>
 
-          {/* 租户管理员登录 */}
-          <Route element={<LoginRoute role="tenant_admin" />}>
-            <Route path="/tenant/login" element={<TenantLoginPage />} />
-          </Route>
-
-          {/* 租户管理员后台 */}
-          <Route element={<RoleRoute allowedRole="tenant_admin" loginPath="/tenant/login" />}>
-            <Route element={<TenantLayout />}>
-              <Route path="/tenant/dashboard" element={<TenantDashboard />} />
-              <Route path="/tenant/profile" element={<TenantProfile />} />
+            {/* 平台管理员后台 */}
+            <Route element={<RoleRoute allowedRole="platform_admin" loginPath="/platform/login" />}>
+              <Route element={<PlatformLayout />}>
+                <Route path="/platform/dashboard" element={<PlatformDashboard />} />
+                <Route path="/platform/system/users" element={<PlatformUserManagement />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* 兜底重定向 */}
-          <Route path="*" element={<RootRedirect />} />
-        </Routes>
+            {/* 租户管理员登录 */}
+            <Route element={<LoginRoute role="tenant_admin" />}>
+              <Route path="/tenant/login" element={<TenantLoginPage />} />
+            </Route>
+
+            {/* 租户管理员后台 */}
+            <Route element={<RoleRoute allowedRole="tenant_admin" loginPath="/tenant/login" />}>
+              <Route element={<TenantLayout />}>
+                <Route path="/tenant/dashboard" element={<TenantDashboard />} />
+                <Route path="/tenant/profile" element={<TenantProfile />} />
+              </Route>
+            </Route>
+
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </ErrorBoundary>
   )

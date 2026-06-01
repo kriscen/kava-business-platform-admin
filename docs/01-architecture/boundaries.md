@@ -13,7 +13,7 @@ Axios 实例封装，统一处理请求/响应。
 
 - 业务错误：`code !== '0'` 时通过 `toast.error(msg)` 展示通知并 reject
 - HTTP 错误：按状态码 (401/403/404/500/502/503) 分类展示 toast 并 reject
-- Token 刷新：401 时使用 raw fetch（不经 Axios）刷新 token，并发请求排队等待
+- Token 刷新：401 时使用 raw fetch（不经 Axios）刷新 token，并发请求排队等待；刷新失败时所有排队的 `refreshSubscribers` 回调被 **reject**（不会悬挂），数组清空
 
 ### API 模块 (`src/api/modules/`)
 
@@ -67,13 +67,16 @@ Zustand store，使用 `persist` + `devtools` 中间件。
 
 - **Sidebar**: 导航菜单，支持折叠/展开，按角色渲染不同菜单项
 - **Header**: 顶部栏，显示用户信息和登出按钮
-- **Content**: 内容区
+- **Content**: 内容区，包裹 `<Outlet>` 的 ErrorBoundary 提供页面级崩溃隔离
 
 ## 错误边界 (`src/components/ErrorBoundary/`)
 
-全局捕获 React 渲染错误，记录 componentStack 并输出到控制台。
+嵌套式 ErrorBoundary，实现崩溃隔离：
 
-预留监控服务接入点 (Sentry、LogRocket 等)。
+- **App 根级**：`App.tsx` 顶层 ErrorBoundary 捕获全局未处理的渲染错误
+- **页面内容级**：`Content.tsx` 中 `<Outlet>` 被 ErrorBoundary 包裹，页面级渲染崩溃只影响内容区域，Header 和 Sidebar 保持可用，用户可通过导航离开错误页面
+
+记录 componentStack 并输出到控制台。预留监控服务接入点 (Sentry、LogRocket 等)。
 
 ## 错误处理分类
 

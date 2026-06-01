@@ -63,6 +63,10 @@ Artifact 规则 (见 `openspec/config.yaml`)：
 
 @.claude/rules/mock-first.md
 
+<!-- KAVA-PROJECT-RULES: do NOT remove next line on /init -->
+
+@.claude/rules/i18n.md
+
 ## Docs Structure
 
 ```

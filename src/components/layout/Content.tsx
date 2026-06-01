@@ -9,6 +9,7 @@ import {
 import { Home } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useBreadcrumbs } from '@/hooks'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 interface ContentProps {
   children: ReactNode
@@ -39,7 +40,9 @@ const Content: React.FC<ContentProps> = ({ children }) => {
         </Breadcrumb>
       </div>
       {/* 内容区域 */}
-      <div className="flex-1 overflow-auto bg-muted/30 p-6">{children}</div>
+      <div className="flex-1 overflow-auto bg-muted/30 p-6">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </div>
     </div>
   )
 }

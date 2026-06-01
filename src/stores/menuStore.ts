@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import i18n from '@/i18n'
 import { useAuthStore, type UserRole } from '@/stores/authStore'
 import type { MenuItem } from '@/types'
 
@@ -14,21 +15,21 @@ interface MenuConfig {
 const PLATFORM_MENUS: MenuConfig[] = [
   {
     key: 'dashboard',
-    label: '仪表盘',
+    label: 'layout.dashboard',
     path: '/platform/dashboard',
     icon: 'LayoutDashboard',
     roles: ['platform_admin'],
   },
   {
     key: 'system',
-    label: '系统管理',
+    label: 'layout.system',
     path: '/platform/system',
     icon: 'Settings',
     roles: ['platform_admin'],
     children: [
       {
         key: 'system-users',
-        label: '用户管理',
+        label: 'layout.userManagement',
         path: '/platform/system/users',
         roles: ['platform_admin'],
       },
@@ -39,14 +40,14 @@ const PLATFORM_MENUS: MenuConfig[] = [
 const TENANT_MENUS: MenuConfig[] = [
   {
     key: 'dashboard',
-    label: '仪表盘',
+    label: 'layout.dashboard',
     path: '/tenant/dashboard',
     icon: 'LayoutDashboard',
     roles: ['tenant_admin'],
   },
   {
     key: 'profile',
-    label: '个人信息',
+    label: 'layout.profile',
     path: '/tenant/profile',
     icon: 'User',
     roles: ['tenant_admin'],
@@ -70,7 +71,7 @@ function filterMenusByRole(menus: MenuConfig[], role: UserRole): MenuItem[] {
     .map((menu) => {
       const item: MenuItem = {
         key: menu.key,
-        label: menu.label,
+        label: i18n.t(menu.label),
         path: menu.path,
         icon: menu.icon,
       }

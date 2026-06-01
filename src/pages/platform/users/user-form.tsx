@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 import type { SysUserRequest } from '@/types'
 import { Input } from '@/components/ui/input'
@@ -15,10 +17,10 @@ import {
 } from '@/components/ui/select'
 
 const baseSchema = z.object({
-  username: z.string().min(1, '请输入用户名'),
+  username: z.string().min(1, i18n.t('user.usernamePlaceholder')),
   password: z.string().optional(),
   phone: z.string().optional(),
-  email: z.string().email('邮箱格式不正确').optional().or(z.literal('')),
+  email: z.string().email(i18n.t('user.emailInvalid')).optional().or(z.literal('')),
   nickname: z.string().optional(),
   name: z.string().optional(),
   lockFlag: z.string().optional(),
@@ -27,7 +29,7 @@ const baseSchema = z.object({
 export function getUserFormSchema(mode: 'create' | 'edit') {
   if (mode === 'create') {
     return baseSchema.refine((data) => data.password && data.password.length > 0, {
-      message: '请输入密码',
+      message: i18n.t('user.passwordRequired'),
       path: ['password'],
     })
   }
@@ -44,6 +46,7 @@ interface UserFormProps {
 }
 
 export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormProps) {
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,
@@ -91,11 +94,11 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
     <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-4" id="user-form">
       <div className="space-y-2">
         <Label htmlFor="username">
-          用户名 <span className="text-destructive">*</span>
+          {t('user.username')} <span className="text-destructive">*</span>
         </Label>
         <Input
           id="username"
-          placeholder="请输入用户名"
+          placeholder={t('user.usernamePlaceholder')}
           aria-invalid={!!errors.username}
           {...register('username')}
         />
@@ -105,12 +108,12 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
       {mode === 'create' && (
         <div className="space-y-2">
           <Label htmlFor="password">
-            密码 <span className="text-destructive">*</span>
+            {t('login.password')} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="password"
             type="password"
-            placeholder="请输入密码"
+            placeholder={t('login.passwordPlaceholder')}
             aria-invalid={!!errors.password}
             {...register('password')}
           />
@@ -120,14 +123,14 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="phone">手机号</Label>
-          <Input id="phone" placeholder="请输入手机号" {...register('phone')} />
+          <Label htmlFor="phone">{t('user.phone')}</Label>
+          <Input id="phone" placeholder={t('user.phonePlaceholder')} {...register('phone')} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">邮箱</Label>
+          <Label htmlFor="email">{t('user.email')}</Label>
           <Input
             id="email"
-            placeholder="请输入邮箱"
+            placeholder={t('user.emailPlaceholder')}
             aria-invalid={!!errors.email}
             {...register('email')}
           />
@@ -137,17 +140,21 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="nickname">昵称</Label>
-          <Input id="nickname" placeholder="请输入昵称" {...register('nickname')} />
+          <Label htmlFor="nickname">{t('user.nickname')}</Label>
+          <Input
+            id="nickname"
+            placeholder={t('user.nicknamePlaceholder')}
+            {...register('nickname')}
+          />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="name">姓名</Label>
-          <Input id="name" placeholder="请输入姓名" {...register('name')} />
+          <Label htmlFor="name">{t('user.name')}</Label>
+          <Input id="name" placeholder={t('user.namePlaceholder')} {...register('name')} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>状态</Label>
+        <Label>{t('user.status')}</Label>
         <Controller
           control={control}
           name="lockFlag"
@@ -157,8 +164,8 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">正常</SelectItem>
-                <SelectItem value="9">锁定</SelectItem>
+                <SelectItem value="0">{t('common.normal')}</SelectItem>
+                <SelectItem value="9">{t('common.locked')}</SelectItem>
               </SelectContent>
             </Select>
           )}
