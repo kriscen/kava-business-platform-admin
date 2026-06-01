@@ -59,6 +59,10 @@ Artifact 规则 (见 `openspec/config.yaml`)：
 - `@` 别名指向 `src/`
 - 构建 chunks: `vendor` (react/dom), `utils` (axios/zustand)
 
+<!-- KAVA-PROJECT-RULES: do NOT remove next line on /init -->
+
+@.claude/rules/mock-first.md
+
 ## Docs Structure
 
 ```
@@ -69,7 +73,8 @@ docs/
 │   └── boundaries.md        # 模块边界 (API层、状态层、布局层)
 ├── 02-conventions/
 │   ├── code-style.md        # 代码风格、组件规范
-│   └── git.md              # Git 提交规范
+│   ├── git.md              # Git 提交规范
+│   └── mock-first.md       # Mock-first 前端开发规范
 ├── 03-reference/
 │   └── error-codes.md      # 错误码参考和错误处理流程
 ├── 04-frontend/

@@ -15,6 +15,7 @@
 | --------------------------------------------- | ------------------------------------------- |
 | [code-style.md](02-conventions/code-style.md) | 代码风格：组件来源、Tailwind 规范、类型定义 |
 | [git.md](02-conventions/git.md)               | Git 规范：Conventional Commits 格式         |
+| [mock-first.md](02-conventions/mock-first.md) | Mock-first 开发：核心流程必须可脱离后端调试 |
 
 ## 03-reference/
 
