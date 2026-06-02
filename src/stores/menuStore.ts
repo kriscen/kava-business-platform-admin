@@ -33,6 +33,24 @@ const PLATFORM_MENUS: MenuConfig[] = [
         path: '/platform/system/users',
         roles: ['platform_admin'],
       },
+      {
+        key: 'system-dept',
+        label: 'layout.deptManagement',
+        path: '/platform/system/dept',
+        roles: ['platform_admin'],
+      },
+      {
+        key: 'system-tenant',
+        label: 'layout.tenantManagement',
+        path: '/platform/system/tenant',
+        roles: ['platform_admin'],
+      },
+      {
+        key: 'system-public-param',
+        label: 'layout.publicParamManagement',
+        path: '/platform/system/public-param',
+        roles: ['platform_admin'],
+      },
     ],
   },
 ]

@@ -26,14 +26,17 @@ src/
 │       ├── user.ts   # 用户 CRUD + 分页
 │       ├── role.ts   # 角色 CRUD + 下拉
 │       ├── menu.ts   # 菜单 CRUD + 树
-│       ├── dept.ts   # 部门 CRUD + 树
-│       └── tenant.ts # 租户 CRUD + 启停
+│       ├── dept.ts        # 部门 CRUD + 树
+│       ├── tenant.ts      # 租户 CRUD + 启停
+│       └── publicParam.ts # 公共参数 CRUD + 分页
 ├── components/       # React 组件
 │   ├── layout/      # 布局组件 (Sidebar, Header, Content)
 │   ├── ui/           # shadcn/ui 基础组件
 │   ├── data-table.tsx    # 通用 DataTable（服务端分页、列定义、行选择）
 │   ├── form-modal.tsx    # 通用 FormModal（新建/编辑切换、loading）
 │   ├── confirm-dialog.tsx # 通用确认对话框（异步 onConfirm、错误处理）
+│   ├── tree-select.tsx   # 树形选择组件（层级数据单选）
+│   ├── date-picker.tsx   # 日期时间选择组件（原生 datetime-local 包装）
 │   └── ErrorBoundary/    # 错误边界组件（嵌套式崩溃隔离）
 ├── layouts/          # 页面布局
 │   ├── PlatformLayout.tsx  # 平台管理员后台布局
@@ -53,8 +56,9 @@ src/
 │   ├── user.ts      # 用户实体类型
 │   ├── role.ts      # 角色实体类型
 │   ├── menu.ts      # 菜单实体类型
-│   ├── dept.ts      # 部门实体类型
-│   └── tenant.ts    # 租户实体类型
+│   ├── dept.ts        # 部门实体类型
+│   ├── tenant.ts      # 租户实体类型
+│   └── publicParam.ts # 公共参数实体类型
 └── utils/            # 工具函数 (errorHandler 等)
 
 mock/                 # vite-plugin-mock 数据（HTTP 拦截模式）

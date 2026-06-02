@@ -7,7 +7,18 @@ import authMocks from './auth'
 import userMocks from './user'
 import systemMocks from './system'
 import menuMocks from './menu'
+import deptMocks from './dept'
+import tenantMocks from './tenant'
+import publicParamMocks from './publicParam'
 
-const mocks: MockMethod[] = [...authMocks, ...userMocks, ...systemMocks, ...menuMocks]
+const mocks: MockMethod[] = [
+  ...authMocks,
+  ...userMocks,
+  ...systemMocks,
+  ...menuMocks,
+  ...deptMocks,
+  ...tenantMocks,
+  ...publicParamMocks,
+]
 
 export default mocks

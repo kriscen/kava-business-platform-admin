@@ -1,0 +1,23 @@
+{
+  "title": "公共参数",
+  "description": "管理系统公共配置参数",
+  "formTitle": "公共参数",
+  "publicName": "参数名称",
+  "publicNamePlaceholder": "请输入参数名称",
+  "publicKey": "参数键名",
+  "publicKeyPlaceholder": "请输入参数键名",
+  "publicValue": "参数键值",
+  "publicValuePlaceholder": "请输入参数键值",
+  "status": "状态",
+  "publicType": "参数类型",
+  "systemFlag": "系统内置",
+  "remark": "备注",
+  "remarkPlaceholder": "请输入备注",
+  "searchName": "搜索参数名称",
+  "addParam": "新增参数",
+  "confirmDelete": "确认删除参数「{publicName}」？",
+  "typeSystem": "系统参数",
+  "typeCustom": "自定义参数",
+  "yes": "是",
+  "no": "否"
+}

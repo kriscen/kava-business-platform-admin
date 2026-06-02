@@ -1,0 +1,14 @@
+{
+  "title": "部门管理",
+  "description": "管理系统组织架构中的部门信息",
+  "formTitle": "部门",
+  "name": "部门名称",
+  "namePlaceholder": "请输入部门名称",
+  "parentDept": "上级部门",
+  "parentDeptPlaceholder": "请选择上级部门",
+  "sortOrder": "排序",
+  "sortOrderPlaceholder": "请输入排序号",
+  "searchName": "搜索部门名称",
+  "confirmDelete": "确认删除部门「{name}」？",
+  "addDept": "新增部门"
+}

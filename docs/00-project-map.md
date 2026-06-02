@@ -32,11 +32,13 @@
 
 ## 05-modules/
 
-| 文档                                            | 说明                             |
-| ----------------------------------------------- | -------------------------------- |
-| [overview.md](05-modules/overview.md)           | 模块索引：按模块组织的文档目录   |
-| [core/README.md](05-modules/core/README.md)     | 核心模块：API 层、认证、状态管理 |
-| [member/README.md](05-modules/member/README.md) | 会员模块：待补充                 |
+| 文档                                                            | 说明                               |
+| --------------------------------------------------------------- | ---------------------------------- |
+| [overview.md](05-modules/overview.md)                           | 模块索引：按模块组织的文档目录     |
+| [core/README.md](05-modules/core/README.md)                     | 核心模块：API 层、认证、状态管理   |
+| [core/components.md](05-modules/core/components.md)             | 公共组件：DataTable、TreeSelect 等 |
+| [core/hooks-and-routes.md](05-modules/core/hooks-and-routes.md) | 路由与 Hooks：双角色路由定义       |
+| [member/README.md](05-modules/member/README.md)                 | 会员模块：待补充                   |
 
 ## 06-product/
 

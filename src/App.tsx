@@ -11,6 +11,11 @@ const PlatformLoginPage = lazy(() => import('@/pages/platform/LoginPage'))
 const TenantLoginPage = lazy(() => import('@/pages/tenant/LoginPage'))
 const PlatformDashboard = lazy(() => import('@/pages/platform/Dashboard'))
 const PlatformUserManagement = lazy(() => import('@/pages/platform/UserManagement'))
+const PlatformDeptManagement = lazy(() => import('@/pages/platform/dept/DeptManagement'))
+const PlatformTenantManagement = lazy(() => import('@/pages/platform/tenant/TenantManagement'))
+const PlatformPublicParamManagement = lazy(
+  () => import('@/pages/platform/public-param/PublicParamManagement')
+)
 const TenantDashboard = lazy(() => import('@/pages/tenant/Dashboard'))
 const TenantProfile = lazy(() => import('@/pages/tenant/Profile'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
@@ -90,6 +95,12 @@ function App() {
               <Route element={<PlatformLayout />}>
                 <Route path="/platform/dashboard" element={<PlatformDashboard />} />
                 <Route path="/platform/system/users" element={<PlatformUserManagement />} />
+                <Route path="/platform/system/dept" element={<PlatformDeptManagement />} />
+                <Route path="/platform/system/tenant" element={<PlatformTenantManagement />} />
+                <Route
+                  path="/platform/system/public-param"
+                  element={<PlatformPublicParamManagement />}
+                />
               </Route>
             </Route>
 

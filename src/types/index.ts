@@ -35,5 +35,11 @@ export type {
   SysTenantListResponse,
   SysTenantDropdownResponse,
 } from './tenant'
+export type {
+  SysPublicParamQuery,
+  SysPublicParamRequest,
+  SysPublicParamListResponse,
+  SysPublicParamDetailResponse,
+} from './publicParam'
 export type { MenuItem, LayoutConfig } from './layout'
 export type { ErrorType, ErrorInfo } from './error'
