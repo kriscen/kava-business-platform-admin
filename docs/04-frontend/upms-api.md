@@ -113,23 +113,17 @@
 
 ### 日志管理 `/api/v1/sys/log/`
 
-| 方法   | 路径    | 入参                                 | 返回值                                       | 说明         |
-| ------ | ------- | ------------------------------------ | -------------------------------------------- | ------------ |
-| GET    | `/page` | `SysLogAdapterListQuery` (query)     | `JsonResult<PagingInfo<SysLogListResponse>>` | 分页查询日志 |
-| GET    | `/{id}` | `id` (path)                          | `JsonResult<SysLogDetailResponse>`           | 日志详情     |
-| POST   | —       | `SysLogRequest` (body)               | `JsonResult<Long>`                           | 创建日志     |
-| PUT    | `/{id}` | `id` (path) + `SysLogRequest` (body) | `JsonResult<Void>`                           | 更新日志     |
-| DELETE | —       | `List<Long>` (body)                  | `JsonResult<Void>`                           | 批量删除日志 |
+| 方法 | 路径    | 入参                             | 返回值                                       | 说明         |
+| ---- | ------- | -------------------------------- | -------------------------------------------- | ------------ |
+| GET  | `/page` | `SysLogAdapterListQuery` (query) | `JsonResult<PagingInfo<SysLogListResponse>>` | 分页查询日志 |
+| GET  | `/{id}` | `id` (path)                      | `JsonResult<SysLogDetailResponse>`           | 日志详情     |
 
 ### 审计日志 `/api/v1/sys/audit-log/`
 
-| 方法   | 路径    | 入参                                      | 返回值                                            | 说明             |
-| ------ | ------- | ----------------------------------------- | ------------------------------------------------- | ---------------- |
-| GET    | `/page` | `SysAuditLogAdapterListQuery` (query)     | `JsonResult<PagingInfo<SysAuditLogListResponse>>` | 分页查询审计日志 |
-| GET    | `/{id}` | `id` (path)                               | `JsonResult<SysAuditLogDetailResponse>`           | 审计日志详情     |
-| POST   | —       | `SysAuditLogRequest` (body)               | `JsonResult<Long>`                                | 创建审计日志     |
-| PUT    | `/{id}` | `id` (path) + `SysAuditLogRequest` (body) | `JsonResult<Void>`                                | 更新审计日志     |
-| DELETE | —       | `List<Long>` (body)                       | `JsonResult<Void>`                                | 批量删除审计日志 |
+| 方法 | 路径    | 入参                                  | 返回值                                            | 说明             |
+| ---- | ------- | ------------------------------------- | ------------------------------------------------- | ---------------- |
+| GET  | `/page` | `SysAuditLogAdapterListQuery` (query) | `JsonResult<PagingInfo<SysAuditLogListResponse>>` | 分页查询审计日志 |
+| GET  | `/{id}` | `id` (path)                           | `JsonResult<SysAuditLogDetailResponse>`           | 审计日志详情     |
 
 ### 文件管理 `/api/v1/sys/file/`
 
@@ -183,7 +177,7 @@
 | PUT    | `/{id}` | `id` (path) + `SysRouteConfRequest` (body) | `JsonResult<Void>`                                 | 更新     |
 | DELETE | —       | `List<Long>` (body)                        | `JsonResult<Void>`                                 | 批量删除 |
 
-### OAuth 客户端 `/api/v1/sys/oauth-client-details/`
+### OAuth 客户端 `/api/v1/sys/oauth-client/`
 
 | 方法   | 路径    | 入参                                         | 返回值                                               | 说明     |
 | ------ | ------- | -------------------------------------------- | ---------------------------------------------------- | -------- |
@@ -205,13 +199,13 @@
 | GET    | `/dropdown`   | —                                       | `JsonResult<List<SysAppDropdownResponse>>`   | 应用下拉列表（id、code、name） |
 | PUT    | `/{id}/menus` | `id` (path) + `List<Long>` (body)       | `JsonResult<Void>`                           | 绑定应用菜单                   |
 
-### 租户应用订阅 `/api/v1/sys/tenant-app/`
+### 租户应用订阅 `/api/v1/sys/tenant/{tenantId}/apps`
 
-| 方法 | 路径                 | 入参                         | 返回值                                       | 说明                     |
-| ---- | -------------------- | ---------------------------- | -------------------------------------------- | ------------------------ |
-| POST | `/subscribe`         | `SysTenantAppRequest` (body) | `JsonResult<Void>`                           | 租户订阅应用             |
-| POST | `/unsubscribe`       | `SysTenantAppRequest` (body) | `JsonResult<Void>`                           | 租户退订应用             |
-| GET  | `/tenant/{tenantId}` | `tenantId` (path)            | `JsonResult<List<SysTenantAppListResponse>>` | 查询租户已订阅的应用列表 |
+| 方法   | 路径       | 入参                                                       | 返回值                                       | 说明                     |
+| ------ | ---------- | ---------------------------------------------------------- | -------------------------------------------- | ------------------------ |
+| POST   | —          | `tenantId` (path) + `SysTenantAppRequest` (body, 仅 appId) | `JsonResult<Void>`                           | 租户订阅应用             |
+| DELETE | `/{appId}` | `tenantId` (path) + `appId` (path)                         | `JsonResult<Void>`                           | 租户退订应用             |
+| GET    | —          | `tenantId` (path)                                          | `JsonResult<List<SysTenantAppListResponse>>` | 查询租户已订阅的应用列表 |
 
 ---
 
