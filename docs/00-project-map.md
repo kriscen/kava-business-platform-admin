@@ -4,10 +4,10 @@
 
 ## 01-architecture/
 
-| 文档                                           | 说明                                                                   |
-| ---------------------------------------------- | ---------------------------------------------------------------------- |
-| [overview.md](01-architecture/overview.md)     | 架构概览：技术栈、项目结构、双路由架构、路由懒加载、嵌套 ErrorBoundary |
-| [boundaries.md](01-architecture/boundaries.md) | 模块边界：API 层、状态层、布局层、错误处理、Token 刷新队列             |
+| 文档                                           | 说明                                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------ |
+| [overview.md](01-architecture/overview.md)     | 架构概览：技术栈、项目结构、统一路由架构、路由懒加载、嵌套 ErrorBoundary |
+| [boundaries.md](01-architecture/boundaries.md) | 模块边界：API 层、状态层、布局层（MainLayout）、错误处理、Token 刷新队列 |
 
 ## 02-conventions/
 
@@ -37,7 +37,7 @@
 | [overview.md](05-modules/overview.md)                           | 模块索引：按模块组织的文档目录     |
 | [core/README.md](05-modules/core/README.md)                     | 核心模块：API 层、认证、状态管理   |
 | [core/components.md](05-modules/core/components.md)             | 公共组件：DataTable、TreeSelect 等 |
-| [core/hooks-and-routes.md](05-modules/core/hooks-and-routes.md) | 路由与 Hooks：双角色路由定义       |
+| [core/hooks-and-routes.md](05-modules/core/hooks-and-routes.md) | 路由与 Hooks：统一路由与角色守卫   |
 | [member/README.md](05-modules/member/README.md)                 | 会员模块：待补充                   |
 
 ## 06-product/

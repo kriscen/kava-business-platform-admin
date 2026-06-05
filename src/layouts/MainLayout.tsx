@@ -6,7 +6,7 @@ import Content from '@/components/layout/Content'
 import { useAppStore } from '@/stores'
 import { useMenuStore } from '@/stores/menuStore'
 
-const TenantLayout: React.FC = () => {
+const MainLayout: React.FC = () => {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore()
   const { menus, buildMenus } = useMenuStore()
 
@@ -47,4 +47,4 @@ const TenantLayout: React.FC = () => {
   )
 }
 
-export default TenantLayout
+export default MainLayout

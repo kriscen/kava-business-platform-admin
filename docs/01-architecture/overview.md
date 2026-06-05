@@ -39,14 +39,14 @@ src/
 │   ├── date-picker.tsx   # 日期时间选择组件（原生 datetime-local 包装）
 │   └── ErrorBoundary/    # 错误边界组件（嵌套式崩溃隔离）
 ├── layouts/          # 页面布局
-│   ├── PlatformLayout.tsx  # 平台管理员后台布局
-│   └── TenantLayout.tsx    # 租户管理员后台布局
+│   └── MainLayout.tsx      # 统一后台布局（按角色动态渲染菜单）
 ├── hooks/            # 自定义 React Hooks
 ├── i18n/             # 国际化配置和翻译文件
 ├── lib/              # 工具库 (utils.ts)
 ├── pages/
-│   ├── platform/     # 平台管理员页面 (/platform/*)
-│   ├── tenant/       # 租户管理员页面 (/tenant/*)
+│   ├── login/        # 登录页（PlatformLoginPage, TenantLoginPage）
+│   ├── dashboard/    # Dashboard（按角色条件渲染）
+│   ├── system/       # 系统管理模块（用户、部门、租户、公共参数）
 │   └── NotFound.tsx  # 404 页面（路由通配符 * 匹配）
 ├── stores/           # Zustand 状态管理
 ├── styles/           # 全局样式
@@ -99,12 +99,12 @@ Zustand store，使用 `persist` + `devtools` 中间件：
 
 ## 路由 (`src/App.tsx`)
 
-React Router v7。采用双路由架构，按角色隔离：
+React Router v7。采用统一路由架构，页面组件按业务模块组织，通过角色守卫控制访问：
 
-- `/platform/*` — 平台管理员后台，使用 `PlatformLayout`
-- `/tenant/*` — 租户管理员后台，使用 `TenantLayout`
-- 各自有独立的登录页（`/platform/login`、`/tenant/login`）
-- 路由守卫检查用户角色，未认证用户重定向到对应登录页
+- `/platform/*` 和 `/tenant/*` 共享同一组页面组件（`src/pages/system/`、`src/pages/dashboard/`），由循环生成路由
+- 统一使用 `MainLayout`，菜单通过 `menuStore` 的 `ALL_MENUS` + `allowedRoles` 按角色过滤
+- 登录页独立（`/platform/login`、`/tenant/login`），不包裹 MainLayout
+- `RoleRoute` 守卫检查用户角色和路由元数据 `allowedRoles`，未认证用户重定向到对应登录页，越权访问重定向到对应角色首页
 - 页面组件使用 `React.lazy()` 动态导入，配合 `<Suspense fallback={<Spinner />}>` 实现代码分割
 - 通配符路由 `*` 渲染 `NotFound` 页面
 - `Content.tsx` 中 `<Outlet>` 包裹在 `ErrorBoundary` 内，页面级崩溃隔离在内容区域，Header/Sidebar 不受影响

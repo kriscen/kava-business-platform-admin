@@ -39,6 +39,21 @@ export const routeConfig: RouteConfig[] = [
             titleKey: 'layout.userManagement',
             parentPath: '/platform/system',
           },
+          {
+            path: '/platform/system/dept',
+            titleKey: 'layout.deptManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/tenant',
+            titleKey: 'layout.tenantManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/public-param',
+            titleKey: 'layout.publicParamManagement',
+            parentPath: '/platform/system',
+          },
         ],
       },
     ],
@@ -56,6 +71,33 @@ export const routeConfig: RouteConfig[] = [
         path: '/tenant/profile',
         titleKey: 'layout.profile',
         parentPath: '/tenant',
+      },
+      {
+        path: '/tenant/system',
+        titleKey: 'layout.system',
+        parentPath: '/tenant',
+        children: [
+          {
+            path: '/tenant/system/users',
+            titleKey: 'layout.userManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/dept',
+            titleKey: 'layout.deptManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/tenant',
+            titleKey: 'layout.tenantManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/public-param',
+            titleKey: 'layout.publicParamManagement',
+            parentPath: '/tenant/system',
+          },
+        ],
       },
     ],
   },

@@ -2,18 +2,18 @@
 
 ## Purpose
 
-Platform and tenant admin route isolation with dedicated layouts and role-based access control.
+Platform and tenant admin route isolation with unified layout and role-based access control.
 
 ## Requirements
 
 ### Requirement: Platform admin routes are isolated
 
-The system SHALL provide a dedicated route namespace `/platform/*` for platform admin pages, with its own Layout component.
+The system SHALL provide routes under `/platform/*` for platform admin pages, using the unified `MainLayout` component. Route isolation is achieved via role-based guard on route metadata, not via separate layout components.
 
 #### Scenario: Platform admin accesses platform routes
 
 - **WHEN** a user with `platform_admin` role navigates to `/platform/dashboard`
-- **THEN** the system renders the `PlatformLayout` with the dashboard page
+- **THEN** the system renders the `MainLayout` with the dashboard page and platform menu
 
 #### Scenario: Tenant admin is blocked from platform routes
 
@@ -22,12 +22,12 @@ The system SHALL provide a dedicated route namespace `/platform/*` for platform 
 
 ### Requirement: Tenant admin routes are isolated
 
-The system SHALL provide a dedicated route namespace `/tenant/*` for tenant admin pages, with its own Layout component.
+The system SHALL provide routes under `/tenant/*` for tenant admin pages, using the unified `MainLayout` component. Route isolation is achieved via role-based guard, not via separate layout components.
 
 #### Scenario: Tenant admin accesses tenant routes
 
 - **WHEN** a user with `tenant_admin` role navigates to `/tenant/dashboard`
-- **THEN** the system renders the `TenantLayout` with the dashboard page
+- **THEN** the system renders the `MainLayout` with the dashboard page and tenant menu
 
 #### Scenario: Platform admin is blocked from tenant routes
 
@@ -48,27 +48,9 @@ The system SHALL redirect unauthenticated users to the appropriate login page ba
 - **WHEN** an unauthenticated user navigates to `/tenant/dashboard`
 - **THEN** the system redirects to `/tenant/login`
 
-### Requirement: Platform Layout provides admin navigation
+### Requirement: Platform routes include management pages
 
-The `PlatformLayout` SHALL render a sidebar with platform admin menu items and a header with user info and logout.
-
-#### Scenario: Platform Layout renders correctly
-
-- **WHEN** a platform admin is authenticated and on any `/platform/*` route
-- **THEN** the system shows a sidebar with platform admin menu items, a header with username, and a logout button
-
-### Requirement: Tenant Layout provides tenant navigation
-
-The `TenantLayout` SHALL render a sidebar with tenant admin menu items and a header with user info and logout.
-
-#### Scenario: Tenant Layout renders correctly
-
-- **WHEN** a tenant admin is authenticated and on any `/tenant/*` route
-- **THEN** the system shows a sidebar with tenant admin menu items, a header with username, and a logout button
-
-### Requirement: Platform routes include new management pages
-
-系统 SHALL 在 platform 路由下注册三个新页面路由，使用 React.lazy 懒加载，并添加对应的菜单项。
+系统 SHALL 在 platform 路由下注册管理页面路由，使用 React.lazy 懒加载，并添加对应的菜单项。
 
 #### Scenario: Access dept management
 

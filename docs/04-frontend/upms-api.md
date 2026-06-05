@@ -1,7 +1,6 @@
 # UPMS 前端对接文档
 
 > 本文档面向前端开发者，包含 HTTP REST 接口、请求/响应字段定义和查询参数。
-> 后端内部接口（Dubbo RPC）请参考 [api.md](../06-modules/kbpd-upms/api.md)。
 
 ## 接入信息
 
@@ -46,13 +45,13 @@
 
 ### 用户管理 `/api/v1/sys/user/`
 
-| 方法   | 路径    | 入参                              | 返回值                                        | 说明                                                        |
-| ------ | ------- | --------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
-| GET    | `/page` | `SysUserAdapterListQuery` (query) | `JsonResult<PagingInfo<SysUserListResponse>>` | 分页查询用户（响应含 deptName、tenantName、roleIds）        |
-| GET    | `/{id}` | `id` (path)                       | `JsonResult<SysUserDetailResponse>`           | 用户详情（响应含 deptName、tenantName、roleNames、roleIds） |
-| POST   | —       | `SysUserRequest` (body)           | `JsonResult<Long>`                            | 创建用户，返回新 ID                                         |
-| PUT    | —       | `SysUserRequest` (body，含 id)    | `JsonResult<Boolean>`                         | 更新用户                                                    |
-| DELETE | —       | `List<Long>` (body)               | `JsonResult<Boolean>`                         | 批量删除用户                                                |
+| 方法   | 路径    | 入参                              | 返回值                                        | 说明                                                         |
+| ------ | ------- | --------------------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| GET    | `/page` | `SysUserAdapterListQuery` (query) | `JsonResult<PagingInfo<SysUserListResponse>>` | 分页查询用户（响应含 groupName、tenantName、roleIds）        |
+| GET    | `/{id}` | `id` (path)                       | `JsonResult<SysUserDetailResponse>`           | 用户详情（响应含 groupName、tenantName、roleNames、roleIds） |
+| POST   | —       | `SysUserRequest` (body)           | `JsonResult<Long>`                            | 创建用户，返回新 ID                                          |
+| PUT    | —       | `SysUserRequest` (body，含 id)    | `JsonResult<Boolean>`                         | 更新用户                                                     |
+| DELETE | —       | `List<Long>` (body)               | `JsonResult<Boolean>`                         | 批量删除用户                                                 |
 
 ### 角色管理 `/api/v1/sys/role/`
 
@@ -76,16 +75,16 @@
 | DELETE | —       | `List<Long>` (body)                   | `JsonResult<Void>`                            | 批量删除菜单                                          |
 | GET    | `/tree` | — (从 UserContext 解析)               | `JsonResult<List<SysMenuListResponse>>`       | 当前用户菜单树（按 scope 和角色过滤，sortOrder 排序） |
 
-### 部门管理 `/api/v1/sys/dept/`
+### 分组管理 `/api/v1/sys/group/`
 
-| 方法   | 路径    | 入参                                  | 返回值                                        | 说明                        |
-| ------ | ------- | ------------------------------------- | --------------------------------------------- | --------------------------- |
-| GET    | `/page` | `SysDeptAdapterListQuery` (query)     | `JsonResult<PagingInfo<SysDeptListResponse>>` | 分页查询部门                |
-| GET    | `/{id}` | `id` (path)                           | `JsonResult<SysDeptDetailResponse>`           | 部门详情                    |
-| POST   | —       | `SysDeptRequest` (body)               | `JsonResult<Long>`                            | 创建部门                    |
-| PUT    | `/{id}` | `id` (path) + `SysDeptRequest` (body) | `JsonResult<Void>`                            | 更新部门                    |
-| DELETE | —       | `List<Long>` (body)                   | `JsonResult<Void>`                            | 批量删除部门                |
-| GET    | `/tree` | —                                     | `JsonResult<List<SysDeptListResponse>>`       | 部门树形结构（按 pid 组装） |
+| 方法   | 路径    | 入参                                   | 返回值                                         | 说明                        |
+| ------ | ------- | -------------------------------------- | ---------------------------------------------- | --------------------------- |
+| GET    | `/page` | `SysGroupAdapterListQuery` (query)     | `JsonResult<PagingInfo<SysGroupListResponse>>` | 分页查询分组                |
+| GET    | `/{id}` | `id` (path)                            | `JsonResult<SysGroupDetailResponse>`           | 分组详情                    |
+| POST   | —       | `SysGroupRequest` (body)               | `JsonResult<Long>`                             | 创建分组                    |
+| PUT    | `/{id}` | `id` (path) + `SysGroupRequest` (body) | `JsonResult<Void>`                             | 更新分组                    |
+| DELETE | —       | `List<Long>` (body)                    | `JsonResult<Void>`                             | 批量删除分组                |
+| GET    | `/tree` | —                                      | `JsonResult<List<SysGroupListResponse>>`       | 分组树形结构（按 pid 组装） |
 
 ### 租户管理 `/api/v1/sys/tenant/`
 
@@ -194,6 +193,26 @@
 | PUT    | `/{id}` | `id` (path) + `SysOauthClientRequest` (body) | `JsonResult<Void>`                                   | 更新     |
 | DELETE | —       | `List<Long>` (body)                          | `JsonResult<Void>`                                   | 批量删除 |
 
+### 应用管理 `/api/v1/sys/app/`
+
+| 方法   | 路径          | 入参                                    | 返回值                                       | 说明                           |
+| ------ | ------------- | --------------------------------------- | -------------------------------------------- | ------------------------------ |
+| GET    | `/page`       | `appName`、`pageNo`、`pageSize` (query) | `JsonResult<PagingInfo<SysAppListResponse>>` | 分页查询应用                   |
+| GET    | `/{id}`       | `id` (path)                             | `JsonResult<SysAppDetailResponse>`           | 应用详情                       |
+| POST   | —             | `SysAppRequest` (body)                  | `JsonResult<Long>`                           | 创建应用，返回新 ID            |
+| PUT    | `/{id}`       | `id` (path) + `SysAppRequest` (body)    | `JsonResult<Void>`                           | 更新应用                       |
+| DELETE | —             | `List<Long>` (body)                     | `JsonResult<Void>`                           | 批量删除应用                   |
+| GET    | `/dropdown`   | —                                       | `JsonResult<List<SysAppDropdownResponse>>`   | 应用下拉列表（id、code、name） |
+| PUT    | `/{id}/menus` | `id` (path) + `List<Long>` (body)       | `JsonResult<Void>`                           | 绑定应用菜单                   |
+
+### 租户应用订阅 `/api/v1/sys/tenant-app/`
+
+| 方法 | 路径                 | 入参                         | 返回值                                       | 说明                     |
+| ---- | -------------------- | ---------------------------- | -------------------------------------------- | ------------------------ |
+| POST | `/subscribe`         | `SysTenantAppRequest` (body) | `JsonResult<Void>`                           | 租户订阅应用             |
+| POST | `/unsubscribe`       | `SysTenantAppRequest` (body) | `JsonResult<Void>`                           | 租户退订应用             |
+| GET  | `/tenant/{tenantId}` | `tenantId` (path)            | `JsonResult<List<SysTenantAppListResponse>>` | 查询租户已订阅的应用列表 |
+
 ---
 
 ## 请求体字段（RequestBody）
@@ -207,7 +226,7 @@
 | `password` | `String`     | 创建必填 | 密码             |
 | `phone`    | `String`     | 否       | 手机号           |
 | `avatar`   | `String`     | 否       | 头像             |
-| `deptId`   | `Long`       | 否       | 部门 ID          |
+| `groupId`  | `Long`       | 否       | 分组 ID          |
 | `tenantId` | `Long`       | 否       | 租户 ID          |
 | `nickname` | `String`     | 否       | 昵称             |
 | `name`     | `String`     | 否       | 真实姓名         |
@@ -244,13 +263,13 @@
 | `keepAlive`  | `String`  | 否       | 路由缓存                   |
 | `embedded`   | `String`  | 否       | 是否内嵌                   |
 
-### SysDeptRequest
+### SysGroupRequest
 
 | 字段        | 类型      | 必填     | 说明      |
 | ----------- | --------- | -------- | --------- |
-| `id`        | `Long`    | PUT 必填 | 部门 ID   |
-| `name`      | `String`  | 是       | 部门名称  |
-| `pid`       | `Long`    | 否       | 父部门 ID |
+| `id`        | `Long`    | PUT 必填 | 分组 ID   |
+| `name`      | `String`  | 是       | 分组名称  |
+| `pid`       | `Long`    | 否       | 父分组 ID |
 | `sortOrder` | `Integer` | 否       | 排序      |
 
 ### SysTenantRequest
@@ -298,6 +317,24 @@
 | `tenantId`             | `Long`     | 否       | 所属租户（传递 `additionalInformation` 中） |
 | `userType`             | `String`   | 否       | 用户类型（传递 `additionalInformation` 中） |
 
+### SysAppRequest
+
+| 字段          | 类型         | 必填     | 说明             |
+| ------------- | ------------ | -------- | ---------------- |
+| `id`          | `Long`       | PUT 必填 | 应用 ID          |
+| `code`        | `String`     | 是       | 应用编码         |
+| `name`        | `String`     | 是       | 应用名称         |
+| `icon`        | `String`     | 否       | 应用图标         |
+| `description` | `String`     | 否       | 应用描述         |
+| `menuIds`     | `List<Long>` | 否       | 关联菜单 ID 列表 |
+
+### SysTenantAppRequest
+
+| 字段       | 类型   | 必填 | 说明    |
+| ---------- | ------ | ---- | ------- |
+| `tenantId` | `Long` | 是   | 租户 ID |
+| `appId`    | `Long` | 是   | 应用 ID |
+
 ### 其他 Request（通用字段模式）
 
 以下资源的 Request 字段结构相对简单，前端按需传递即可：
@@ -329,8 +366,8 @@
 | `nickname`    | `String`        | 昵称                 |
 | `name`        | `String`        | 真实姓名             |
 | `email`       | `String`        | 邮箱                 |
-| `deptId`      | `Long`          | 部门 ID              |
-| `deptName`    | `String`        | 部门名称（富化字段） |
+| `groupId`     | `Long`          | 分组 ID              |
+| `groupName`   | `String`        | 分组名称（富化字段） |
 | `tenantId`    | `Long`          | 租户 ID              |
 | `tenantName`  | `String`        | 租户名称（富化字段） |
 | `lockFlag`    | `String`        | 锁定标记             |
@@ -402,21 +439,21 @@
 
 与 ListResponse 类似，但不包含 `children`，包含 `parentName`。
 
-### 部门
+### 分组
 
-**SysDeptListResponse**（列表/树）
+**SysGroupListResponse**（列表/树）
 
-| 字段         | 类型                        | 说明               |
-| ------------ | --------------------------- | ------------------ |
-| `id`         | `Long`                      | 部门 ID            |
-| `name`       | `String`                    | 部门名称           |
-| `sortOrder`  | `Integer`                   | 排序               |
-| `pid`        | `Long`                      | 父部门 ID          |
-| `parentName` | `String`                    | 父部门名称         |
-| `children`   | `List<SysDeptListResponse>` | 子部门（树形结构） |
-| `gmtCreate`  | `LocalDateTime`             | 创建时间           |
+| 字段         | 类型                         | 说明               |
+| ------------ | ---------------------------- | ------------------ |
+| `id`         | `Long`                       | 分组 ID            |
+| `name`       | `String`                     | 分组名称           |
+| `sortOrder`  | `Integer`                    | 排序               |
+| `pid`        | `Long`                       | 父分组 ID          |
+| `parentName` | `String`                     | 父分组名称         |
+| `children`   | `List<SysGroupListResponse>` | 子分组（树形结构） |
+| `gmtCreate`  | `LocalDateTime`              | 创建时间           |
 
-**SysDeptDetailResponse**（详情）
+**SysGroupDetailResponse**（详情）
 
 与 ListResponse 类似，但不包含 `children`，包含 `parentName`。
 
@@ -462,6 +499,51 @@
 | `areaStatus` | `String` | 状态（0-停用, 1-启用）           |
 | `cityCode`   | `String` | 城市编码                         |
 
+### 应用
+
+**SysAppListResponse**（列表）
+
+| 字段     | 类型     | 说明     |
+| -------- | -------- | -------- |
+| `id`     | `Long`   | 应用 ID  |
+| `code`   | `String` | 应用编码 |
+| `name`   | `String` | 应用名称 |
+| `icon`   | `String` | 应用图标 |
+| `status` | `String` | 状态     |
+
+**SysAppDetailResponse**（详情）
+
+在 ListResponse 基础上额外返回：
+
+| 字段          | 类型            | 说明     |
+| ------------- | --------------- | -------- |
+| `description` | `String`        | 应用描述 |
+| `gmtCreate`   | `LocalDateTime` | 创建时间 |
+| `gmtModified` | `LocalDateTime` | 更新时间 |
+
+**SysAppDropdownResponse**（下拉）
+
+| 字段   | 类型     | 说明     |
+| ------ | -------- | -------- |
+| `id`   | `Long`   | 应用 ID  |
+| `code` | `String` | 应用编码 |
+| `name` | `String` | 应用名称 |
+
+### 租户应用订阅
+
+**SysTenantAppListResponse**
+
+| 字段        | 类型            | 说明                 |
+| ----------- | --------------- | -------------------- |
+| `id`        | `Long`          | 记录 ID              |
+| `tenantId`  | `Long`          | 租户 ID              |
+| `appId`     | `Long`          | 应用 ID              |
+| `appCode`   | `String`        | 应用编码（富化字段） |
+| `appName`   | `String`        | 应用名称（富化字段） |
+| `appIcon`   | `String`        | 应用图标（富化字段） |
+| `status`    | `String`        | 状态                 |
+| `gmtCreate` | `LocalDateTime` | 创建时间             |
+
 ---
 
 ## 查询参数（Query Params）
@@ -475,16 +557,17 @@
 
 各资源查询支持的过滤参数（作为 query string 传递）：
 
-| 资源   | 常用过滤参数                                          |
-| ------ | ----------------------------------------------------- |
-| 用户   | `username`, `phone`, `deptId`, `tenantId`, `lockFlag` |
-| 角色   | `roleName`, `roleCode`                                |
-| 菜单   | `name`, `menuType`, `visible`                         |
-| 部门   | `name`                                                |
-| 租户   | `name`, `code`, `status`                              |
-| 地区   | `name`, `areaType`, `pid`, `adcode`                   |
-| 日志   | `logType`, `title`, `createBy`, `serviceId`           |
-| 国际化 | `code`（模糊匹配）, `language`（精确匹配）            |
+| 资源   | 常用过滤参数                                           |
+| ------ | ------------------------------------------------------ |
+| 用户   | `username`, `phone`, `groupId`, `tenantId`, `lockFlag` |
+| 角色   | `roleName`, `roleCode`                                 |
+| 菜单   | `name`, `menuType`, `visible`                          |
+| 分组   | `name`                                                 |
+| 租户   | `name`, `code`, `status`                               |
+| 地区   | `name`, `areaType`, `pid`, `adcode`                    |
+| 日志   | `logType`, `title`, `createBy`, `serviceId`            |
+| 国际化 | `code`（模糊匹配）, `language`（精确匹配）             |
+| 应用   | `appName`（直接 `@RequestParam`，非 AdapterListQuery） |
 
 > 未列出的资源（审计日志、文件、文件分组、公共参数、路由配置、OAuth 客户端）支持按自身字段过滤，前端按需传递即可。
 
@@ -499,4 +582,4 @@
 - **分页查询** 使用 query string 传参（`@ModelAttribute`）
 - **创建 / 更新** 使用 JSON body（`@RequestBody`）
 - **所有下拉接口** 不分页，返回完整列表
-- **树形接口**（Menu/Dept/Area）返回嵌套 `children` 结构
+- **树形接口**（Menu/Group/Area）返回嵌套 `children` 结构

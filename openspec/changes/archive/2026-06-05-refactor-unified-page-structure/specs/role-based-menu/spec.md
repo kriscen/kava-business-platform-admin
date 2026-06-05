@@ -1,24 +1,6 @@
-# Role-Based Menu Spec
+# Role-Based Menu Spec — Delta
 
-## Purpose
-
-统一的菜单配置系统，通过角色标记控制菜单可见性，替代双数组硬编码方案。
-
-## Requirements
-
-### Requirement: JWT 包含角色信息
-
-登录成功后获取的 JWT payload SHALL 包含用户角色信息，用于前端动态渲染菜单。
-
-#### Scenario: JWT 包含 platform_admin 角色
-
-- **WHEN** 平台管理员登录成功
-- **THEN** JWT payload 包含 `{ "role": "platform_admin", "username": "admin" }`
-
-#### Scenario: JWT 包含 tenant_admin 角色
-
-- **WHEN** 租户管理员登录成功
-- **THEN** JWT payload 包含 `{ "role": "tenant_admin", "tenantCode": "DEMO", "username": "tenant" }`
+## MODIFIED Requirements
 
 ### Requirement: 动态菜单渲染
 
@@ -52,3 +34,23 @@ The menu store SHALL provide a `buildMenus()` method that reads the current user
 
 - **WHEN** `buildMenus()` is called while the current user has `tenant_admin` role
 - **THEN** it returns all menu items where `allowedRoles` includes `tenant_admin`
+
+## REMOVED Requirements
+
+### Requirement: Platform admin sees platform-specific menu items
+
+**Reason**: 合并为统一的菜单配置，通过 `allowedRoles` 过滤。不再需要独立的 platform 菜单硬编码。
+
+**Migration**: `PLATFORM_MENUS` 常量 SHALL 被合并到统一的 `ALL_MENUS` 数组中，每个项添加 `allowedRoles: ['platform_admin']`。
+
+### Requirement: Tenant admin sees tenant-specific menu items
+
+**Reason**: 同上。
+
+**Migration**: `TENANT_MENUS` 常量 SHALL 被合并到统一的 `ALL_MENUS` 数组中，每个项添加 `allowedRoles: ['tenant_admin']`。
+
+### Requirement: Menu items have correct routing paths
+
+**Reason**: 路径前缀策略不变，但菜单路径 SHALL 通过 `getBasePath()` 工具函数动态生成，而非硬编码。
+
+**Migration**: 菜单项的 `path` 字段改为相对路径（如 `/system/users`），渲染时根据角色拼接前缀（`/platform` 或 `/tenant`）。

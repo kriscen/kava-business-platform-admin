@@ -8,69 +8,63 @@ interface MenuConfig {
   label: string
   path: string
   icon?: string
-  roles: UserRole[]
+  allowedRoles: UserRole[]
   children?: MenuConfig[]
 }
 
-const PLATFORM_MENUS: MenuConfig[] = [
+const ALL_MENUS: MenuConfig[] = [
   {
     key: 'dashboard',
     label: 'layout.dashboard',
-    path: '/platform/dashboard',
+    path: '/dashboard',
     icon: 'LayoutDashboard',
-    roles: ['platform_admin'],
+    allowedRoles: ['platform_admin', 'tenant_admin'],
   },
   {
     key: 'system',
     label: 'layout.system',
-    path: '/platform/system',
+    path: '/system',
     icon: 'Settings',
-    roles: ['platform_admin'],
+    allowedRoles: ['platform_admin'],
     children: [
       {
         key: 'system-users',
         label: 'layout.userManagement',
-        path: '/platform/system/users',
-        roles: ['platform_admin'],
+        path: '/system/users',
+        allowedRoles: ['platform_admin'],
       },
       {
         key: 'system-dept',
         label: 'layout.deptManagement',
-        path: '/platform/system/dept',
-        roles: ['platform_admin'],
+        path: '/system/dept',
+        allowedRoles: ['platform_admin'],
       },
       {
         key: 'system-tenant',
         label: 'layout.tenantManagement',
-        path: '/platform/system/tenant',
-        roles: ['platform_admin'],
+        path: '/system/tenant',
+        allowedRoles: ['platform_admin'],
       },
       {
         key: 'system-public-param',
         label: 'layout.publicParamManagement',
-        path: '/platform/system/public-param',
-        roles: ['platform_admin'],
+        path: '/system/public-param',
+        allowedRoles: ['platform_admin'],
       },
     ],
-  },
-]
-
-const TENANT_MENUS: MenuConfig[] = [
-  {
-    key: 'dashboard',
-    label: 'layout.dashboard',
-    path: '/tenant/dashboard',
-    icon: 'LayoutDashboard',
-    roles: ['tenant_admin'],
   },
   {
     key: 'profile',
     label: 'layout.profile',
-    path: '/tenant/profile',
+    path: '/profile',
     icon: 'User',
-    roles: ['tenant_admin'],
+    allowedRoles: ['tenant_admin'],
   },
 ]
+
+export function getBasePath(role: UserRole): string {
+  return role === 'tenant_admin' ? '/tenant' : '/platform'
+}
 
 interface MenuState {
   menus: MenuItem[]
@@ -85,12 +79,13 @@ type MenuStore = MenuState & MenuActions
 
 function filterMenusByRole(menus: MenuConfig[], role: UserRole): MenuItem[] {
   return menus
-    .filter((menu) => menu.roles.includes(role))
+    .filter((menu) => menu.allowedRoles.includes(role))
     .map((menu) => {
+      const basePath = getBasePath(role)
       const item: MenuItem = {
         key: menu.key,
         label: i18n.t(menu.label),
-        path: menu.path,
+        path: `${basePath}${menu.path}`,
         icon: menu.icon,
       }
       if (menu.children) {
@@ -107,14 +102,12 @@ export const useMenuStore = create<MenuStore>((set) => ({
     const userInfo = useAuthStore.getState().userInfo
     const role = userInfo?.role || 'platform_admin'
 
-    const allMenus = role === 'platform_admin' ? PLATFORM_MENUS : TENANT_MENUS
-    const filteredMenus = filterMenusByRole(allMenus, role)
+    const filteredMenus = filterMenusByRole(ALL_MENUS, role)
 
     set({ menus: filteredMenus })
   },
 
   getMenuByRole: (role: UserRole) => {
-    const allMenus = role === 'platform_admin' ? PLATFORM_MENUS : TENANT_MENUS
-    return filterMenusByRole(allMenus, role)
+    return filterMenusByRole(ALL_MENUS, role)
   },
 }))

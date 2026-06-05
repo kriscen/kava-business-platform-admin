@@ -1,7 +1,6 @@
 # Auth 前端对接文档
 
 > 本文档面向前端开发者，包含登录流程、OAuth2 协议端点和 JWT Token 结构。
-> 后端内部配置（Dubbo RPC 依赖、静态资源白名单）请参考 [api.md](../06-modules/kbpd-auth/api.md)。
 
 ## 概述
 
@@ -211,7 +210,7 @@ RFC 7009 Token Revocation。
   "jti": "{token_id}",
   "userId": 1,
   "username": "admin",
-  "deptId": 1,
+  "groupId": 1,
   "authorities": ["ROLE_ADMIN", "sys:user:list"]
 }
 ```

@@ -54,14 +54,13 @@ Zustand store，使用 `persist` + `devtools` 中间件。
 
 ### menuStore
 
-管理菜单配置，按角色返回不同菜单项。平台管理员和租户管理员看到不同的侧边栏菜单。
+管理菜单配置，使用统一的 `ALL_MENUS` 数组 + `allowedRoles` 字段，`buildMenus()` 根据当前用户角色过滤菜单项。菜单路径为相对路径，渲染时通过 `getBasePath(role)` 拼接 `/platform` 或 `/tenant` 前缀。
 
 ## 布局层
 
 ### 页面布局 (`src/layouts/`)
 
-- **PlatformLayout**: 平台管理员后台布局，包含平台侧边栏和头部
-- **TenantLayout**: 租户管理员后台布局，包含租户侧边栏和头部
+- **MainLayout**: 统一后台布局，包含 Sidebar、Header、Content 三个子组件。根据当前用户角色从 menuStore 获取对应菜单，无需按角色切换 Layout
 
 ### 公共组件 (`src/components/layout/`)
 
