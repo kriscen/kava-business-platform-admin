@@ -87,6 +87,36 @@ const ALL_MENUS: MenuConfig[] = [
         path: '/system/oauth-client',
         allowedRoles: ['platform_admin', 'tenant_admin'],
       },
+      {
+        key: 'system-log',
+        label: 'layout.logManagement',
+        path: '/system/log',
+        allowedRoles: ['platform_admin'],
+      },
+      {
+        key: 'system-audit-log',
+        label: 'layout.auditLogManagement',
+        path: '/system/audit-log',
+        allowedRoles: ['platform_admin'],
+      },
+      {
+        key: 'system-file',
+        label: 'layout.fileManagement',
+        path: '/system/file',
+        allowedRoles: ['platform_admin'],
+      },
+      {
+        key: 'system-file-group',
+        label: 'layout.fileGroupManagement',
+        path: '/system/file-group',
+        allowedRoles: ['platform_admin'],
+      },
+      {
+        key: 'system-app',
+        label: 'layout.appManagement',
+        path: '/system/app',
+        allowedRoles: ['platform_admin'],
+      },
     ],
   },
   {

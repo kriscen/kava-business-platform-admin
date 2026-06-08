@@ -15,6 +15,11 @@ import i18nMocks from './i18n'
 import areaMocks from './area'
 import routeConfMocks from './routeConf'
 import oauthClientMocks from './oauthClient'
+import logMocks from './log'
+import auditLogMocks from './auditLog'
+import fileMocks from './file'
+import fileGroupMocks from './fileGroup'
+import appMocks from './app'
 
 const mocks: MockMethod[] = [
   ...authMocks,
@@ -29,6 +34,11 @@ const mocks: MockMethod[] = [
   ...areaMocks,
   ...routeConfMocks,
   ...oauthClientMocks,
+  ...logMocks,
+  ...auditLogMocks,
+  ...fileMocks,
+  ...fileGroupMocks,
+  ...appMocks,
 ]
 
 export default mocks

@@ -1,0 +1,23 @@
+{
+  "title": "文件管理",
+  "description": "管理文件元数据记录",
+  "formTitle": "文件",
+  "fileName": "文件名",
+  "fileNamePlaceholder": "请输入文件名",
+  "original": "原始文件名",
+  "originalPlaceholder": "请输入原始文件名",
+  "bucketName": "存储桶",
+  "bucketNamePlaceholder": "请输入存储桶名称",
+  "dir": "目录",
+  "dirPlaceholder": "请输入目录路径",
+  "type": "文件类型",
+  "typePlaceholder": "请输入文件类型(MIME)",
+  "groupId": "分组ID",
+  "groupIdPlaceholder": "请输入分组ID",
+  "fileSize": "文件大小(字节)",
+  "fileSizePlaceholder": "请输入文件大小",
+  "gmtCreate": "创建时间",
+  "searchName": "搜索文件名",
+  "addFile": "新增文件",
+  "confirmDelete": "确认删除文件「{name}」？"
+}

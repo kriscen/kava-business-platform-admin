@@ -20,6 +20,8 @@
   "all": "全部",
   "normal": "正常",
   "locked": "锁定",
+  "disabled": "禁用",
+  "batchDelete": "批量删除",
   "actions": "操作",
   "retry": "重试",
   "backToHome": "返回首页",

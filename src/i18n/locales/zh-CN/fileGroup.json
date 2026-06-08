@@ -1,0 +1,16 @@
+{
+  "title": "文件分组管理",
+  "description": "管理文件分组分类",
+  "formTitle": "文件分组",
+  "name": "分组名称",
+  "namePlaceholder": "请输入分组名称",
+  "pid": "上级分组ID",
+  "pidPlaceholder": "请输入上级分组ID",
+  "type": "类型",
+  "typePlaceholder": "请输入类型",
+  "gmtCreate": "创建时间",
+  "searchName": "搜索分组名称",
+  "addGroup": "新增分组",
+  "confirmDelete": "确认删除分组「{name}」？",
+  "confirmBatchDelete": "确认删除选中的 {count} 个分组？"
+}

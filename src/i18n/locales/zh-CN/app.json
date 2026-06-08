@@ -1,0 +1,22 @@
+{
+  "title": "应用管理",
+  "description": "管理平台应用及其菜单绑定",
+  "formTitle": "应用",
+  "code": "应用编码",
+  "codePlaceholder": "请输入应用编码",
+  "name": "应用名称",
+  "namePlaceholder": "请输入应用名称",
+  "icon": "图标",
+  "iconPlaceholder": "请输入图标名称",
+  "description": "描述",
+  "descriptionPlaceholder": "请输入应用描述",
+  "status": "状态",
+  "gmtCreate": "创建时间",
+  "searchName": "搜索应用名称",
+  "addApp": "新增应用",
+  "bindMenus": "绑定菜单",
+  "bindMenusTitle": "绑定菜单",
+  "confirmDelete": "确认删除应用「{name}」？",
+  "confirmBatchDelete": "确认删除选中的 {count} 个应用？",
+  "bindSuccess": "菜单绑定成功"
+}

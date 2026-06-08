@@ -84,6 +84,31 @@ export const routeConfig: RouteConfig[] = [
             titleKey: 'layout.oauthClientManagement',
             parentPath: '/platform/system',
           },
+          {
+            path: '/platform/system/log',
+            titleKey: 'layout.logManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/audit-log',
+            titleKey: 'layout.auditLogManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/file',
+            titleKey: 'layout.fileManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/file-group',
+            titleKey: 'layout.fileGroupManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/app',
+            titleKey: 'layout.appManagement',
+            parentPath: '/platform/system',
+          },
         ],
       },
     ],
@@ -155,6 +180,31 @@ export const routeConfig: RouteConfig[] = [
           {
             path: '/tenant/system/oauth-client',
             titleKey: 'layout.oauthClientManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/log',
+            titleKey: 'layout.logManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/audit-log',
+            titleKey: 'layout.auditLogManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/file',
+            titleKey: 'layout.fileManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/file-group',
+            titleKey: 'layout.fileGroupManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/app',
+            titleKey: 'layout.appManagement',
             parentPath: '/tenant/system',
           },
         ],

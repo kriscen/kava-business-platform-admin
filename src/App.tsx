@@ -24,6 +24,11 @@ const RouteConfManagement = lazy(() => import('@/pages/system/route-conf/RouteCo
 const OAuthClientManagement = lazy(
   () => import('@/pages/system/oauth-client/OAuthClientManagement')
 )
+const LogManagement = lazy(() => import('@/pages/system/log/LogManagement'))
+const AuditLogManagement = lazy(() => import('@/pages/system/audit-log/AuditLogManagement'))
+const FileManagement = lazy(() => import('@/pages/system/file/FileManagement'))
+const FileGroupManagement = lazy(() => import('@/pages/system/file-group/FileGroupManagement'))
+const AppManagement = lazy(() => import('@/pages/system/app/AppManagement'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 const OAuthCallbackPage = lazy(() => import('@/pages/oauth-callback/OAuthCallbackPage'))
 
@@ -74,6 +79,11 @@ const sharedRoutes: SharedRoute[] = [
     allowedRoles: ['platform_admin', 'tenant_admin'],
   },
   { path: 'profile', element: Profile, allowedRoles: ['tenant_admin'] },
+  { path: 'system/log', element: LogManagement, allowedRoles: ['platform_admin'] },
+  { path: 'system/audit-log', element: AuditLogManagement, allowedRoles: ['platform_admin'] },
+  { path: 'system/file', element: FileManagement, allowedRoles: ['platform_admin'] },
+  { path: 'system/file-group', element: FileGroupManagement, allowedRoles: ['platform_admin'] },
+  { path: 'system/app', element: AppManagement, allowedRoles: ['platform_admin'] },
 ]
 
 const prefixConfigs = [

@@ -1,0 +1,12 @@
+{
+  "title": "审计日志管理",
+  "description": "查看系统数据变更审计记录",
+  "detailTitle": "审计详情",
+  "auditName": "审计名称",
+  "auditField": "审计字段",
+  "beforeVal": "变更前值",
+  "afterVal": "变更后值",
+  "gmtCreate": "创建时间",
+  "searchName": "搜索审计名称",
+  "viewDetail": "查看详情"
+}

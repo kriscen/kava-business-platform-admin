@@ -65,5 +65,31 @@ export type {
   SysOauthClientListResponse,
   SysOauthClientDetailResponse,
 } from './oauthClient'
+export type { SysLogQuery, SysLogListResponse, SysLogDetailResponse } from './log'
+export type {
+  SysAuditLogQuery,
+  SysAuditLogListResponse,
+  SysAuditLogDetailResponse,
+} from './auditLog'
+export type {
+  SysFileQuery,
+  SysFileRequest,
+  SysFileListResponse,
+  SysFileDetailResponse,
+} from './file'
+export type {
+  SysFileGroupQuery,
+  SysFileGroupRequest,
+  SysFileGroupListResponse,
+  SysFileGroupDetailResponse,
+} from './fileGroup'
+export type {
+  SysAppQuery,
+  SysAppRequest,
+  SysAppListResponse,
+  SysAppDetailResponse,
+  SysAppDropdownResponse,
+  SysAppBindMenusRequest,
+} from './app'
 export type { MenuItem, LayoutConfig } from './layout'
 export type { ErrorType, ErrorInfo } from './error'
