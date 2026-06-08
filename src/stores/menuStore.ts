@@ -51,6 +51,42 @@ const ALL_MENUS: MenuConfig[] = [
         path: '/system/public-param',
         allowedRoles: ['platform_admin'],
       },
+      {
+        key: 'system-role',
+        label: 'layout.roleManagement',
+        path: '/system/role',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
+      {
+        key: 'system-menu',
+        label: 'layout.menuManagement',
+        path: '/system/menu',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
+      {
+        key: 'system-area',
+        label: 'layout.areaManagement',
+        path: '/system/area',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
+      {
+        key: 'system-i18n',
+        label: 'layout.i18nManagement',
+        path: '/system/i18n',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
+      {
+        key: 'system-route-conf',
+        label: 'layout.routeConfManagement',
+        path: '/system/route-conf',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
+      {
+        key: 'system-oauth-client',
+        label: 'layout.oauthClientManagement',
+        path: '/system/oauth-client',
+        allowedRoles: ['platform_admin', 'tenant_admin'],
+      },
     ],
   },
   {

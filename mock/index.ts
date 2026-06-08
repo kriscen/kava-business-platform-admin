@@ -10,6 +10,11 @@ import menuMocks from './menu'
 import deptMocks from './dept'
 import tenantMocks from './tenant'
 import publicParamMocks from './publicParam'
+import roleMocks from './role'
+import i18nMocks from './i18n'
+import areaMocks from './area'
+import routeConfMocks from './routeConf'
+import oauthClientMocks from './oauthClient'
 
 const mocks: MockMethod[] = [
   ...authMocks,
@@ -19,6 +24,11 @@ const mocks: MockMethod[] = [
   ...deptMocks,
   ...tenantMocks,
   ...publicParamMocks,
+  ...roleMocks,
+  ...i18nMocks,
+  ...areaMocks,
+  ...routeConfMocks,
+  ...oauthClientMocks,
 ]
 
 export default mocks

@@ -16,6 +16,14 @@ const PublicParamManagement = lazy(
   () => import('@/pages/system/public-param/PublicParamManagement')
 )
 const Profile = lazy(() => import('@/pages/system/Profile'))
+const RoleManagement = lazy(() => import('@/pages/system/role/RoleManagement'))
+const MenuManagement = lazy(() => import('@/pages/system/menu/MenuManagement'))
+const AreaManagement = lazy(() => import('@/pages/system/area/AreaManagement'))
+const I18nManagement = lazy(() => import('@/pages/system/i18n/I18nManagement'))
+const RouteConfManagement = lazy(() => import('@/pages/system/route-conf/RouteConfManagement'))
+const OAuthClientManagement = lazy(
+  () => import('@/pages/system/oauth-client/OAuthClientManagement')
+)
 const NotFound = lazy(() => import('@/pages/NotFound'))
 const OAuthCallbackPage = lazy(() => import('@/pages/oauth-callback/OAuthCallbackPage'))
 
@@ -34,6 +42,36 @@ const sharedRoutes: SharedRoute[] = [
     path: 'system/public-param',
     element: PublicParamManagement,
     allowedRoles: ['platform_admin'],
+  },
+  {
+    path: 'system/role',
+    element: RoleManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
+  },
+  {
+    path: 'system/menu',
+    element: MenuManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
+  },
+  {
+    path: 'system/area',
+    element: AreaManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
+  },
+  {
+    path: 'system/i18n',
+    element: I18nManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
+  },
+  {
+    path: 'system/route-conf',
+    element: RouteConfManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
+  },
+  {
+    path: 'system/oauth-client',
+    element: OAuthClientManagement,
+    allowedRoles: ['platform_admin', 'tenant_admin'],
   },
   { path: 'profile', element: Profile, allowedRoles: ['tenant_admin'] },
 ]

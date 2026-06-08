@@ -54,6 +54,36 @@ export const routeConfig: RouteConfig[] = [
             titleKey: 'layout.publicParamManagement',
             parentPath: '/platform/system',
           },
+          {
+            path: '/platform/system/role',
+            titleKey: 'layout.roleManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/menu',
+            titleKey: 'layout.menuManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/area',
+            titleKey: 'layout.areaManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/i18n',
+            titleKey: 'layout.i18nManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/route-conf',
+            titleKey: 'layout.routeConfManagement',
+            parentPath: '/platform/system',
+          },
+          {
+            path: '/platform/system/oauth-client',
+            titleKey: 'layout.oauthClientManagement',
+            parentPath: '/platform/system',
+          },
         ],
       },
     ],
@@ -95,6 +125,36 @@ export const routeConfig: RouteConfig[] = [
           {
             path: '/tenant/system/public-param',
             titleKey: 'layout.publicParamManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/role',
+            titleKey: 'layout.roleManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/menu',
+            titleKey: 'layout.menuManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/area',
+            titleKey: 'layout.areaManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/i18n',
+            titleKey: 'layout.i18nManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/route-conf',
+            titleKey: 'layout.routeConfManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/oauth-client',
+            titleKey: 'layout.oauthClientManagement',
             parentPath: '/tenant/system',
           },
         ],

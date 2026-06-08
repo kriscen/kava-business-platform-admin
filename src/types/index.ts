@@ -41,5 +41,29 @@ export type {
   SysPublicParamListResponse,
   SysPublicParamDetailResponse,
 } from './publicParam'
+export type {
+  SysI18nQuery,
+  SysI18nRequest,
+  SysI18nListResponse,
+  SysI18nDetailResponse,
+} from './i18n'
+export type {
+  SysAreaQuery,
+  SysAreaRequest,
+  SysAreaListResponse,
+  SysAreaDetailResponse,
+} from './area'
+export type {
+  SysRouteConfQuery,
+  SysRouteConfRequest,
+  SysRouteConfListResponse,
+  SysRouteConfDetailResponse,
+} from './routeConf'
+export type {
+  SysOauthClientQuery,
+  SysOauthClientRequest,
+  SysOauthClientListResponse,
+  SysOauthClientDetailResponse,
+} from './oauthClient'
 export type { MenuItem, LayoutConfig } from './layout'
 export type { ErrorType, ErrorInfo } from './error'

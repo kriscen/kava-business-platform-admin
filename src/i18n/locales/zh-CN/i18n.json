@@ -1,0 +1,17 @@
+{
+  "title": "国际化管理",
+  "description": "管理系统国际化翻译数据",
+  "formTitle": "翻译",
+  "code": "编码",
+  "codePlaceholder": "请输入编码",
+  "language": "语言",
+  "languagePlaceholder": "请选择语言",
+  "content": "内容",
+  "contentPlaceholder": "请输入翻译内容",
+  "searchCode": "搜索编码",
+  "addI18n": "新增翻译",
+  "confirmDelete": "确认删除翻译「{code}」？",
+  "langZhCN": "简体中文",
+  "langEnUS": "English",
+  "langJaJP": "日本語"
+}

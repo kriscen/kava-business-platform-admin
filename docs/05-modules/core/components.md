@@ -24,6 +24,13 @@ shadcn/ui 基础组件集合（Button、Input、Dialog、Table 等），通过 `
 - **特性**: 服务端分页、列定义、行选择、排序
 - **使用场景**: 所有列表页（用户、角色、部门、租户等）
 
+### TreeTable
+
+- **文件**: `src/components/tree-table.tsx`
+- **用途**: 通用树形数据表格组件，支持递归渲染带 `children` 的树形数据
+- **特性**: 复用 `DataTableColumn<T>` 列定义、展开/折叠行、可选 `onLoadChildren` 懒加载回调、操作列插槽
+- **使用场景**: 菜单管理、区域管理等树形结构数据页面
+
 ### FormModal
 
 - **文件**: `src/components/form-modal.tsx`

@@ -1,0 +1,23 @@
+{
+  "title": "路由配置",
+  "description": "管理网关路由配置",
+  "formTitle": "路由",
+  "routeId": "路由 ID",
+  "routeIdPlaceholder": "请输入路由 ID",
+  "routeName": "路由名称",
+  "routeNamePlaceholder": "请输入路由名称",
+  "predicates": "断言",
+  "predicatesPlaceholder": "请输入 JSON 格式的断言配置",
+  "filters": "过滤器",
+  "filtersPlaceholder": "请输入 JSON 格式的过滤器配置",
+  "uri": "目标 URI",
+  "uriPlaceholder": "请输入目标 URI，如 lb://service-name",
+  "sortOrder": "排序",
+  "sortOrderPlaceholder": "请输入排序号",
+  "metadata": "元数据",
+  "metadataPlaceholder": "请输入 JSON 格式的元数据",
+  "searchName": "搜索路由名称",
+  "addRouteConf": "新增路由",
+  "confirmDelete": "确认删除路由「{name}」？",
+  "invalidJson": "请输入有效的 JSON"
+}
