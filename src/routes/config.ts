@@ -40,11 +40,6 @@ export const routeConfig: RouteConfig[] = [
             parentPath: '/platform/system',
           },
           {
-            path: '/platform/system/dept',
-            titleKey: 'layout.deptManagement',
-            parentPath: '/platform/system',
-          },
-          {
             path: '/platform/system/tenant',
             titleKey: 'layout.tenantManagement',
             parentPath: '/platform/system',
@@ -135,11 +130,6 @@ export const routeConfig: RouteConfig[] = [
           {
             path: '/tenant/system/users',
             titleKey: 'layout.userManagement',
-            parentPath: '/tenant/system',
-          },
-          {
-            path: '/tenant/system/dept',
-            titleKey: 'layout.deptManagement',
             parentPath: '/tenant/system',
           },
           {

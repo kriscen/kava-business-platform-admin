@@ -2,43 +2,18 @@
 
 ## Purpose
 
-系统管理 CRUD 页面的统一模式：使用 DataTable/FormModal 或 TreeTable/FormModal + 批量删除 + i18n 构建管理页面，覆盖部门、租户、公共参数、角色、菜单、区域、i18n、路由配置、OAuth 客户端共 9 个实体。
+系统管理 CRUD 页面的统一模式：使用 DataTable/FormModal 或 TreeTable/FormModal + 批量删除 + i18n 构建管理页面，覆盖租户、公共参数、角色、菜单、区域、i18n、路由配置、OAuth 客户端共 8 个实体。
 
 ## Requirements
 
-### Requirement: 部门管理页面
+### Requirement: Consistent page directory structure
 
-系统 SHALL 展示部门分页列表，包含 CRUD 操作和树形上级选择。
+每个管理模块的页面组件 SHALL 位于 `src/pages/system/<module>/` 子目录内，文件名为 `index.tsx` 或 `<Module>Management.tsx`。模块的 columns 和 form 组件与页面组件同级。
 
-#### Scenario: 部门列表加载
+#### Scenario: User management page location
 
-- **WHEN** 用户访问 `/platform/system/dept`
-- **THEN** 系统调用 `GET /api/v1/sys/dept/page?pageNo=1&pageSize=10` 展示分页表格，列包含：部门名称 (name)、上级部门 (parentName)、排序 (sortOrder)、创建时间 (gmtCreate)、操作（编辑/删除）
-
-#### Scenario: 部门名称搜索
-
-- **WHEN** 用户在搜索栏输入部门名称并触发搜索
-- **THEN** 系统调用 `GET /api/v1/sys/dept/page?name={keyword}` 展示过滤结果
-
-#### Scenario: 创建部门（含上级选择）
-
-- **WHEN** 用户点击"新增"按钮，填写部门名称，从 tree-select 选择上级部门，点击确认
-- **THEN** 系统调用 `POST /api/v1/sys/dept` 发送 `{ name, pid, sortOrder }`，成功后刷新列表
-
-#### Scenario: 创建顶级部门
-
-- **WHEN** 用户创建部门时不选择上级部门
-- **THEN** 系统发送 `pid` 为空，代表顶级部门
-
-#### Scenario: 编辑部门
-
-- **WHEN** 用户点击某行的编辑按钮，修改部门名称，点击确认
-- **THEN** 系统调用 `PUT /api/v1/sys/dept/{id}` 发送更新数据，成功后刷新列表
-
-#### Scenario: 批量删除部门
-
-- **WHEN** 用户勾选多个部门行，点击批量删除，确认弹窗后执行
-- **THEN** 系统调用 `DELETE /api/v1/sys/dept` 发送选中 ID 数组，成功后刷新列表
+- **WHEN** 项目启动时加载用户管理页面
+- **THEN** lazy import 路径指向 `@/pages/system/users/UserManagement`（或 `@/pages/system/users/index`），与 tenant、app、role 等模块的目录结构一致
 
 ### Requirement: 租户管理页面
 

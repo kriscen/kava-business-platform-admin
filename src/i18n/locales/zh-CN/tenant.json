@@ -30,5 +30,16 @@
   "searchCode": "搜索租户编码",
   "confirmDelete": "确认删除租户「{name}」？",
   "active": "正常",
-  "expired": "已停用"
+  "expired": "已停用",
+  "appSubscription": "应用订阅",
+  "subscribedApps": "已订阅应用",
+  "subscribeNewApp": "订阅新应用",
+  "selectApp": "请选择应用",
+  "subscribe": "订阅",
+  "unsubscribe": "退订",
+  "unsubscribeConfirm": "确认退订应用「{name}」？",
+  "subscribeSuccess": "订阅成功",
+  "unsubscribeSuccess": "退订成功",
+  "noSubscribedApps": "暂无已订阅应用",
+  "systemAppNoUnsubscribe": "系统应用不可退订"
 }

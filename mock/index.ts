@@ -7,7 +7,6 @@ import authMocks from './auth'
 import userMocks from './user'
 import systemMocks from './system'
 import menuMocks from './menu'
-import deptMocks from './dept'
 import tenantMocks from './tenant'
 import publicParamMocks from './publicParam'
 import roleMocks from './role'
@@ -26,7 +25,6 @@ const mocks: MockMethod[] = [
   ...userMocks,
   ...systemMocks,
   ...menuMocks,
-  ...deptMocks,
   ...tenantMocks,
   ...publicParamMocks,
   ...roleMocks,

@@ -34,12 +34,6 @@ const ALL_MENUS: MenuConfig[] = [
         allowedRoles: ['platform_admin'],
       },
       {
-        key: 'system-dept',
-        label: 'layout.deptManagement',
-        path: '/system/dept',
-        allowedRoles: ['platform_admin'],
-      },
-      {
         key: 'system-tenant',
         label: 'layout.tenantManagement',
         path: '/system/tenant',

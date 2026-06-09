@@ -9,8 +9,7 @@ import { useAuthStore, type UserRole } from '@/stores/authStore'
 const PlatformLoginPage = lazy(() => import('@/pages/login/PlatformLoginPage'))
 const TenantLoginPage = lazy(() => import('@/pages/login/TenantLoginPage'))
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'))
-const UserManagement = lazy(() => import('@/pages/system/UserManagement'))
-const DeptManagement = lazy(() => import('@/pages/system/dept/DeptManagement'))
+const UserManagement = lazy(() => import('@/pages/system/users/UserManagement'))
 const TenantManagement = lazy(() => import('@/pages/system/tenant/TenantManagement'))
 const PublicParamManagement = lazy(
   () => import('@/pages/system/public-param/PublicParamManagement')
@@ -41,7 +40,6 @@ type SharedRoute = {
 const sharedRoutes: SharedRoute[] = [
   { path: 'dashboard', element: Dashboard, allowedRoles: ['platform_admin', 'tenant_admin'] },
   { path: 'system/users', element: UserManagement, allowedRoles: ['platform_admin'] },
-  { path: 'system/dept', element: DeptManagement, allowedRoles: ['platform_admin'] },
   { path: 'system/tenant', element: TenantManagement, allowedRoles: ['platform_admin'] },
   {
     path: 'system/public-param',

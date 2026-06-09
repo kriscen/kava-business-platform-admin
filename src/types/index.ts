@@ -24,16 +24,11 @@ export type {
   SysMenuDetailResponse,
 } from './menu'
 export type {
-  SysDeptQuery,
-  SysDeptRequest,
-  SysDeptListResponse,
-  SysDeptDetailResponse,
-} from './dept'
-export type {
   SysTenantQuery,
   SysTenantRequest,
   SysTenantListResponse,
   SysTenantDropdownResponse,
+  SysTenantAppListResponse,
 } from './tenant'
 export type {
   SysPublicParamQuery,

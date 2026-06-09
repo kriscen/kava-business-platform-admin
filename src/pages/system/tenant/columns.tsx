@@ -8,12 +8,14 @@ interface ColumnsConfig {
   onEdit: (row: SysTenantListResponse) => void
   onDelete: (row: SysTenantListResponse) => void
   onToggleStatus: (row: SysTenantListResponse) => void
+  onAppSubscription: (row: SysTenantListResponse) => void
 }
 
 export function getTenantColumns({
   onEdit,
   onDelete,
   onToggleStatus,
+  onAppSubscription,
 }: ColumnsConfig): DataTableColumn<SysTenantListResponse>[] {
   return [
     { key: 'name', title: i18n.t('tenant.name') },
@@ -37,6 +39,9 @@ export function getTenantColumns({
       title: i18n.t('common.actions'),
       render: (_, row) => (
         <div className="flex gap-1">
+          <Button variant="ghost" size="xs" onClick={() => onAppSubscription(row)}>
+            {i18n.t('tenant.appSubscription')}
+          </Button>
           <Button variant="ghost" size="xs" onClick={() => onEdit(row)}>
             {i18n.t('common.edit')}
           </Button>

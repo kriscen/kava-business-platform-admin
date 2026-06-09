@@ -46,3 +46,15 @@ export interface SysTenantDropdownResponse {
   code: string
   status: string
 }
+
+/** 租户应用订阅列表响应 */
+export interface SysTenantAppListResponse {
+  id: number
+  tenantId: number
+  appId: number
+  appCode: string
+  appName: string
+  appIcon: string
+  status: string
+  gmtCreate: string
+}

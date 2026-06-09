@@ -6,6 +6,7 @@ import type {
   SysTenantRequest,
   SysTenantListResponse,
   SysTenantDropdownResponse,
+  SysTenantAppListResponse,
 } from '@/types'
 
 const BASE_URL = '/api/v1/sys/tenant'
@@ -41,5 +42,17 @@ export const tenantApi = {
 
   getDropdown: (): Promise<ApiResponse<SysTenantDropdownResponse[]>> => {
     return request.get(BASE_URL + '/dropdown')
+  },
+
+  getApps: (tenantId: number): Promise<ApiResponse<SysTenantAppListResponse[]>> => {
+    return request.get(`${BASE_URL}/${tenantId}/apps`)
+  },
+
+  subscribeApp: (tenantId: number, appId: number): Promise<ApiResponse<void>> => {
+    return request.post(`${BASE_URL}/${tenantId}/apps`, { appId })
+  },
+
+  unsubscribeApp: (tenantId: number, appId: number): Promise<ApiResponse<void>> => {
+    return request.delete(`${BASE_URL}/${tenantId}/apps/${appId}`)
   },
 }

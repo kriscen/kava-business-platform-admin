@@ -17,8 +17,8 @@ import {
 import { toast } from 'sonner'
 import { confirm } from '@/components/confirm-dialog'
 
-import { UserForm, type UserFormValues } from './users/user-form'
-import { getUserColumns } from './users/columns'
+import { UserForm, type UserFormValues } from './user-form'
+import { getUserColumns } from './columns'
 
 export default function PlatformUserManagement() {
   const { t } = useTranslation()

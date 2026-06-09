@@ -19,6 +19,7 @@ import { confirm } from '@/components/confirm-dialog'
 
 import { TenantForm, type TenantFormValues } from './tenant-form'
 import { getTenantColumns } from './columns'
+import { AppSubscriptionModal } from './app-subscription-modal'
 
 export default function TenantManagement() {
   const { t } = useTranslation()
@@ -33,6 +34,8 @@ export default function TenantManagement() {
   const formRef = useRef<HTMLFormElement>(null)
 
   const [dataVersion, setDataVersion] = useState(0)
+  const [subscribeDialogOpen, setSubscribeDialogOpen] = useState(false)
+  const [currentTenantId, setCurrentTenantId] = useState<number>(0)
 
   const searchParams = useMemo(
     () => ({
@@ -104,6 +107,11 @@ export default function TenantManagement() {
     [t]
   )
 
+  const handleAppSubscription = useCallback((row: SysTenantListResponse) => {
+    setCurrentTenantId(row.id)
+    setSubscribeDialogOpen(true)
+  }, [])
+
   const handleFormSubmit = async (values: TenantFormValues) => {
     setSubmitting(true)
     try {
@@ -143,8 +151,9 @@ export default function TenantManagement() {
         onEdit: handleEdit,
         onDelete: handleDelete,
         onToggleStatus: handleToggleStatus,
+        onAppSubscription: handleAppSubscription,
       }),
-    [handleEdit, handleDelete, handleToggleStatus]
+    [handleEdit, handleDelete, handleToggleStatus, handleAppSubscription]
   )
 
   const searchSlot = (
@@ -222,6 +231,12 @@ export default function TenantManagement() {
           formRef={formRef}
         />
       </FormModal>
+
+      <AppSubscriptionModal
+        open={subscribeDialogOpen}
+        onOpenChange={setSubscribeDialogOpen}
+        tenantId={currentTenantId}
+      />
     </div>
   )
 }
