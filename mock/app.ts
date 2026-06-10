@@ -122,10 +122,10 @@ export default [
     },
   },
   {
-    url: /\/api\/v1\/sys\/app\/\d+$/,
+    url: '/api/v1/sys/app',
     method: 'put',
-    response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
-      const id = parseInt(url.split('/').pop()!)
+    response: ({ body }: { body: Record<string, unknown> }) => {
+      const id = body.id as number
       if (!records[id]) return { code: -1, message: '应用不存在' }
       records[id] = {
         ...records[id],

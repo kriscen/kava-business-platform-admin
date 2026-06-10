@@ -65,10 +65,10 @@ export default [
     },
   },
   {
-    url: /\/api\/v1\/sys\/file-group\/\d+$/,
+    url: '/api/v1/sys/file-group',
     method: 'put',
-    response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
-      const id = parseInt(url.split('/').pop()!)
+    response: ({ body }: { body: Record<string, unknown> }) => {
+      const id = body.id as number
       if (!records[id]) return { code: -1, message: '分组不存在' }
       records[id] = {
         ...records[id],

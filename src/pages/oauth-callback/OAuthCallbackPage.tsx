@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/authStore'
 import type { AuthState } from '@/stores/authStore'
-import { request } from '@/api'
+import { authApi } from '@/api/auth'
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate()
@@ -34,18 +34,8 @@ const OAuthCallbackPage: React.FC = () => {
       }
 
       try {
-        const response = await request.post<{
-          access_token: string
-          refresh_token: string
-          token_type: string
-          expires_in: number
-        }>('/oauth2/token', {
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: import.meta.env.VITE_OAUTH_REDIRECT_URI,
-        })
+        const data = await authApi.exchangeCode(code)
 
-        const data = response.data
         if (data) {
           const payload = JSON.parse(atob(data.access_token.split('.')[1]))
 

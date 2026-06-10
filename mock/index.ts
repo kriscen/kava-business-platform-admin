@@ -4,8 +4,6 @@
 
 import type { MockMethod } from 'vite-plugin-mock'
 import authMocks from './auth'
-import userMocks from './user'
-import systemMocks from './system'
 import menuMocks from './menu'
 import tenantMocks from './tenant'
 import publicParamMocks from './publicParam'
@@ -22,8 +20,6 @@ import appMocks from './app'
 
 const mocks: MockMethod[] = [
   ...authMocks,
-  ...userMocks,
-  ...systemMocks,
   ...menuMocks,
   ...tenantMocks,
   ...publicParamMocks,

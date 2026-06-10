@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
 import { request } from '@/api'
+import { authApi } from '@/api/auth'
 
 /**
  * 用户角色类型
@@ -123,17 +124,11 @@ export const useAuthStore = create<AuthStore>()(
               refreshToken: result.data!.refreshToken,
             })
           } else {
-            const result = await request.post<{
-              access_token: string
-              refresh_token: string
-            }>('/oauth2/token', {
-              grant_type: 'refresh_token',
-              refresh_token: refreshToken,
-            })
+            const data = await authApi.refreshToken(refreshToken)
 
             set({
-              accessToken: result.data!.access_token,
-              refreshToken: result.data!.refresh_token,
+              accessToken: data.access_token,
+              refreshToken: data.refresh_token,
             })
           }
         },

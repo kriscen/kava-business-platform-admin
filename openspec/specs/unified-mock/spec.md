@@ -73,17 +73,17 @@ The auth store SHALL use HTTP API calls (via Axios) for login, even in mock mode
 
 ### Requirement: Mock endpoints aligned with real API paths
 
-系统 SHALL 在 mock 数据中提供与真实后端完全一致的 API 路径和响应结构。新增 dept、tenant、publicParam 三个资源的 mock 端点。
+系统 SHALL 在 mock 数据中提供与真实后端完全一致的 API 路径和响应结构。所有 mock 的 URL、HTTP 方法、请求参数 SHALL 与对应 API 模块（`src/api/modules/`）的实际调用行为完全匹配。
 
-#### Scenario: Dept mock endpoints
+#### Scenario: App update mock URL matches API module
 
-- **WHEN** 开发模式下请求 `GET /api/v1/sys/dept/page`
-- **THEN** 返回符合 `PagingInfo<SysDeptListResponse>` 结构的分页数据
+- **WHEN** 开发模式下前端调用 `appApi.update(data)` 发送 `PUT /api/v1/sys/app`（id 在 request body 中）
+- **THEN** mock 系统 SHALL 拦截 `PUT /api/v1/sys/app` 并返回成功响应，不带 `{id}` 路径参数
 
-#### Scenario: Dept tree mock
+#### Scenario: FileGroup update mock URL matches API module
 
-- **WHEN** 开发模式下请求 `GET /api/v1/sys/dept/tree`
-- **THEN** 返回嵌套 `children` 结构的部门树形数据
+- **WHEN** 开发模式下前端调用 `fileGroupApi.update(data)` 发送 `PUT /api/v1/sys/file-group`（id 在 request body 中）
+- **THEN** mock 系统 SHALL 拦截 `PUT /api/v1/sys/file-group` 并返回成功响应，不带 `{id}` 路径参数
 
 #### Scenario: Tenant mock endpoints
 

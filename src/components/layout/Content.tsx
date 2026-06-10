@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +17,7 @@ interface ContentProps {
 
 const Content: React.FC<ContentProps> = ({ children }) => {
   const breadcrumbs = useBreadcrumbs()
+  const location = useLocation()
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -41,7 +42,7 @@ const Content: React.FC<ContentProps> = ({ children }) => {
       </div>
       {/* 内容区域 */}
       <div className="flex-1 overflow-auto bg-muted/30 p-6">
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>
       </div>
     </div>
   )
