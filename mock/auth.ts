@@ -58,11 +58,23 @@ export default [
         return { code: -1, message: '租户编码错误' }
       }
 
+      const isPlatform = role === 'platform_admin'
+      const jwtPayload: Record<string, unknown> = {
+        sub: username,
+        username,
+        tenantId: isPlatform ? '1000001' : '1000002',
+        userType: isPlatform ? '1' : '2',
+        userId: isPlatform ? '1' : '2',
+        groupId: isPlatform ? '1' : '2',
+        roles: isPlatform ? ['ROLE_ADMIN'] : ['ROLE_TENANT'],
+        dataScope: '0',
+      }
+
       return {
         code: 0,
         data: {
           userInfo: account.userInfo,
-          accessToken: generateMockJWT({ sub: username, role, username, tenantCode }),
+          accessToken: generateMockJWT(jwtPayload),
           refreshToken: generateRefreshToken(),
         },
         message: 'success',
@@ -88,7 +100,15 @@ export default [
       return {
         code: 0,
         data: {
-          accessToken: generateMockJWT({ sub: 'refreshed' }),
+          accessToken: generateMockJWT({
+            sub: 'refreshed',
+            username: 'admin',
+            tenantId: '1000001',
+            userType: '1',
+            userId: '1',
+            roles: ['ROLE_ADMIN'],
+            dataScope: '0',
+          }),
           refreshToken: generateRefreshToken(),
         },
         message: 'success',

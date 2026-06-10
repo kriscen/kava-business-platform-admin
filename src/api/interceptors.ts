@@ -2,7 +2,7 @@ import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axio
 import { toast } from 'sonner'
 import i18n from '@/i18n'
 import type { ApiResponse } from '@/types'
-import { useAuthStore } from '@/stores/authStore'
+import { useAuthStore, doRefreshAccessToken } from '@/stores/authStore'
 
 let isRefreshing = false
 let refreshSubscribers: Array<{
@@ -34,6 +34,9 @@ function clearAuthAndRedirect() {
     refreshToken: null,
   })
   localStorage.removeItem('auth-storage')
+  sessionStorage.removeItem('access_token')
+  sessionStorage.removeItem('pkce_code_verifier')
+  sessionStorage.removeItem('pkce_state')
   const loginPath = role === 'tenant_admin' ? '/tenant/login' : '/platform/login'
   window.location.href = loginPath
 }
@@ -70,8 +73,7 @@ export const setupInterceptors = (instance: AxiosInstance): void => {
             if (!isRefreshing) {
               isRefreshing = true
               try {
-                await useAuthStore.getState().refreshAccessToken()
-                const newToken = useAuthStore.getState().accessToken
+                const newToken = await doRefreshAccessToken()
                 if (newToken) {
                   onTokenRefreshed(newToken)
                 } else {

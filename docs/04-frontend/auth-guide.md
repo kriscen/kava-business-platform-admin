@@ -4,12 +4,20 @@
 
 ## 概述
 
-Kava 使用 OAuth2 协议进行认证。当前阶段支持**密码模式（Password Grant）**，前端直接向 Auth 服务换取 Token。
+Kava 使用 **OAuth2 Authorization Code + PKCE** 模式进行认证。前端 SPA 作为 Public Client，不需要 `client_secret`，通过 PKCE 保证授权码交换的安全性。
 
 ```
-┌──────────┐     POST /auth/oauth2/token      ┌──────────┐
-│  前端 SPA │ ──── (username + password) ────→ │ Auth 服务 │
-│          │ ←─── access_token + refresh_token ──│          │
+┌──────────┐                                    ┌──────────┐
+│  前端 SPA │ ── GET /auth/oauth2/authorize ──→ │ Auth 服务 │
+│          │ ←── 302 → Auth 登录页 ────────────│          │
+│          │                                    │          │
+│          │    用户在登录页输入凭证               │          │
+│          │                                    │          │
+│          │ ←── 302 redirect_uri?code=xxx ────│          │
+│          │                                    └──────────┘
+│          │     POST /auth/oauth2/token
+│          │ ── (code + code_verifier) ──────→ ┌──────────┐
+│          │ ←── access_token + refresh_token ──│ Auth 服务 │
 └──────────┘                                    └──────────┘
      │
      │  Authorization: Bearer <access_token>
@@ -22,38 +30,128 @@ Kava 使用 OAuth2 协议进行认证。当前阶段支持**密码模式（Passw
 
 ## Step 1：确定 Client 配置
 
-每个前端应用对应一个 OAuth2 Client，由后端在 `sys_oauth_client_details` 表中配置。需要向后端获取：
+每个前端应用对应一个 OAuth2 Client，由后端在 `sys_oauth_client` 表中配置。需要向后端获取：
 
-| 参数            | 说明                             | 示例         |
-| --------------- | -------------------------------- | ------------ |
-| `client_id`     | 客户端 ID                        | `kava-admin` |
-| `client_secret` | 客户端密钥                       | `secret`     |
-| `user_type`     | 用户类型（隐含在 Client 配置中） | B端=1，C端=2 |
+| 参数           | 说明                             | 示例                             |
+| -------------- | -------------------------------- | -------------------------------- |
+| `client_id`    | 客户端 ID                        | `kava-admin`                     |
+| `redirect_uri` | 授权回调地址                     | `http://localhost:3000/callback` |
+| `user_type`    | 用户类型（隐含在 Client 配置中） | B端=1，C端=2                     |
 
 > `client_id` 决定了登录用户的类型和归属租户，前端不需要传递 `user_type` 和 `tenantId`。
+> **Public Client 不需要 `client_secret`**，PKCE 替代了客户端密钥的安全保障。
 
-## Step 2：获取 Token
+> **CORS 跨域**：Gateway 已配置全局 CORS 策略，前端 SPA 跨域调用 Token 端点无需额外处理。开发环境允许 `localhost:*`，生产环境需在 Gateway Nacos 配置中添加实际域名。
+
+## Step 2：生成 PKCE 参数
+
+在发起授权请求前，前端需要生成 PKCE 参数：
+
+```javascript
+// 1. 生成 code_verifier（43-128 位的随机字符串）
+function generateCodeVerifier() {
+  const array = new Uint8Array(32)
+  crypto.getRandomValues(array)
+  return base64UrlEncode(array)
+}
+
+// 2. 从 code_verifier 派生 code_challenge
+async function generateCodeChallenge(codeVerifier) {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(codeVerifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return base64UrlEncode(new Uint8Array(digest))
+}
+
+function base64UrlEncode(buffer) {
+  return btoa(String.fromCharCode(...buffer))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
+// 3. 生成 state（防 CSRF，编码角色信息）
+// 格式: {role}:{random}，如 "platform_admin:a8f3k2..."
+function generateState(role) {
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return `${role}:${base64UrlEncode(array)}`
+}
+```
+
+> **重要**：`code_verifier` 必须保存在内存中（不能存 URL），后续换 Token 时需要。
+
+## Step 3：发起授权请求（重定向到 Auth 服务）
+
+将用户浏览器重定向到授权端点：
+
+```
+GET http://{gateway}:8500/auth/oauth2/authorize
+```
+
+| 参数                    | 值                                 | 说明               |
+| ----------------------- | ---------------------------------- | ------------------ |
+| `client_id`             | `kava-admin`                       | 客户端 ID          |
+| `response_type`         | `code`                             | 授权码模式         |
+| `redirect_uri`          | `http://localhost:3000/callback`   | 必须与注册的一致   |
+| `code_challenge`        | Step 2 生成的值                    | PKCE 挑战码        |
+| `code_challenge_method` | `S256`                             | 固定使用 S256      |
+| `scope`                 | `internal`                         | 申请的权限范围     |
+| `state`                 | Step 2 生成的 `{role}:{random}` 值 | 防 CSRF + 角色标识 |
+
+### 示例 URL
+
+```
+https://{gateway}:8500/auth/oauth2/authorize?client_id=kava-admin&response_type=code&redirect_uri=http://localhost:3000/callback&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256&scope=internal&state=abc123
+```
+
+## Step 4：用户在 Auth 服务登录页认证
+
+浏览器重定向后，用户在 Auth 服务托管的登录页面输入用户名和密码。认证成功后，Auth 服务 302 重定向回前端：
+
+```
+HTTP/1.1 302 Found
+Location: http://localhost:3000/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=abc123
+```
+
+### 前端处理回调
+
+```javascript
+// 在 callback 页面中
+const urlParams = new URLSearchParams(window.location.search)
+const code = urlParams.get('code')
+const state = urlParams.get('state')
+
+// 验证 state 匹配
+if (state !== savedState) {
+  // state 不匹配，中止认证！
+  throw new Error('State mismatch - possible CSRF attack')
+}
+
+// 用 code + code_verifier 换取 Token
+exchangeToken(code, savedCodeVerifier)
+```
+
+## Step 5：用授权码 + PKCE 换取 Token
 
 ### 请求
 
 ```
 POST http://{gateway}:8500/auth/oauth2/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic {base64(client_id:client_secret)}
 ```
 
 请求体（form-urlencoded）：
 
-| 参数         | 值               | 说明     |
-| ------------ | ---------------- | -------- |
-| `grant_type` | `password`       | 密码模式 |
-| `username`   | 用户输入的用户名 |          |
-| `password`   | 用户输入的密码   |          |
+| 参数            | 值                   | 说明           |
+| --------------- | -------------------- | -------------- |
+| `grant_type`    | `authorization_code` | 授权码模式     |
+| `code`          | 回调收到的授权码     |                |
+| `redirect_uri`  | 与 Step 3 一致       |                |
+| `client_id`     | `kava-admin`         | 在请求体中传递 |
+| `code_verifier` | Step 2 生成的原始值  | PKCE 验证      |
 
-**客户端认证方式**（二选一）：
-
-- `client_secret_basic`：在 `Authorization` Header 中用 Basic Auth 传递 `client_id:client_secret`
-- `client_secret_post`：在请求体中额外传递 `client_id` 和 `client_secret` 参数
+> **Public Client 不需要 `Authorization` Header 或 `client_secret`**，仅通过 `client_id` + `code_verifier` 完成交换。
 
 ### 响应
 
@@ -95,7 +193,7 @@ Authorization: Basic {base64(client_id:client_secret)}
 }
 ```
 
-## Step 3：存储 Token
+## Step 6：存储 Token
 
 | Token           | 推荐存储位置                 | 说明                       |
 | --------------- | ---------------------------- | -------------------------- |
@@ -104,7 +202,7 @@ Authorization: Basic {base64(client_id:client_secret)}
 
 > 避免将 `access_token` 存入 `localStorage`（易受 XSS 攻击）。内存变量最安全，但刷新页面后丢失；`sessionStorage` 是折中方案。
 
-## Step 4：携带 Token 请求业务接口
+## Step 7：携带 Token 请求业务接口
 
 所有业务接口需在请求头中携带 Token：
 
@@ -113,22 +211,22 @@ GET http://{gateway}:8500/upms/api/v1/sys/user/page?pageNo=1&pageSize=10
 Authorization: Bearer eyJhbGciOiJSUzI1NiIs...
 ```
 
-## Step 5：Token 刷新
+## Token 刷新
 
-当 `access_token` 过期时，用 `refresh_token` 获取新的 Token，无需用户重新登录。
+当 `access_token` 过期时，用 `refresh_token` 获取新的 Token，无需用户重新走授权流程。
 
 ### 请求
 
 ```
 POST http://{gateway}:8500/auth/oauth2/token
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic {base64(client_id:client_secret)}
 ```
 
 | 参数            | 值                       |
 | --------------- | ------------------------ |
 | `grant_type`    | `refresh_token`          |
 | `refresh_token` | 之前保存的 refresh_token |
+| `client_id`     | `kava-admin`             |
 
 ### 响应
 
@@ -136,7 +234,7 @@ Authorization: Basic {base64(client_id:client_secret)}
 
 > 刷新后旧的 `refresh_token` 失效，务必用新的替换。
 
-## Step 6：登出
+## 登出
 
 ### 清除本地 Token
 
@@ -147,9 +245,8 @@ Authorization: Basic {base64(client_id:client_secret)}
 ```
 POST http://{gateway}:8500/auth/oauth2/revoke
 Content-Type: application/x-www-form-urlencoded
-Authorization: Basic {base64(client_id:client_secret)}
 
-token={access_token}
+token={access_token}&client_id=kava-admin
 ```
 
 ## JWT Token 结构
@@ -211,25 +308,40 @@ token={access_token}
 
 ### Token 有效期
 
-| Token 类型    | 默认有效期 | 说明             |
-| ------------- | ---------- | ---------------- |
-| Access Token  | 12 小时    | 过期后需刷新     |
-| Refresh Token | 30 天      | 过期后需重新登录 |
+| Token 类型    | 默认有效期 | 说明                                 |
+| ------------- | ---------- | ------------------------------------ |
+| Access Token  | 12 小时    | 过期后需刷新                         |
+| Refresh Token | 30 天      | 过期后需重新走 Auth Code + PKCE 流程 |
 
 ## 前端登录流程总结
 
 ```
-用户输入用户名密码
+用户点击"登录"
        │
        ▼
-POST /auth/oauth2/token (grant_type=password)
+生成 PKCE 参数 (code_verifier, code_challenge, state)
        │
-       ├── 成功 → 存储 access_token + refresh_token → 进入主页
+       ▼
+重定向到 GET /auth/oauth2/authorize?...&code_challenge=xxx
        │
-       └── 失败 → 显示 errorMessage
-                   ├── "Bad credentials" → 用户名或密码错误
-                   ├── "User account is locked" → 账号已锁定
-                   └── 其他 → 联系管理员
+       ▼
+用户在 Auth 服务登录页输入凭证
+       │
+       ├── 认证失败 → 显示错误信息
+       │
+       └── 认证成功 → 302 回调到 redirect_uri?code=xxx&state=xxx
+              │
+              ▼
+         验证 state 匹配
+              │
+              ├── state 不匹配 → 中止，报错
+              │
+              └── state 匹配 → POST /auth/oauth2/token
+                     │       (code + code_verifier + client_id)
+                     │
+                     ├── 成功 → 存储 Token → 进入主页
+                     │
+                     └── 失败 → 显示错误信息
 
 使用中 access_token 过期
        │
@@ -238,5 +350,5 @@ POST /auth/oauth2/token (grant_type=refresh_token)
        │
        ├── 成功 → 替换 Token → 重试原请求
        │
-       └── 失败 → refresh_token 也过期 → 跳转登录页
+       └── 失败 → refresh_token 过期 → 重新发起 Auth Code + PKCE 流程
 ```

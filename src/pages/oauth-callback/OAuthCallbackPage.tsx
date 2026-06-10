@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useAuthStore } from '@/stores/authStore'
-import type { AuthState } from '@/stores/authStore'
+import { useAuthStore, buildUserInfoFromJwt, parseJwtPayload } from '@/stores/authStore'
+import type { UserRole } from '@/stores/authStore'
 import { authApi } from '@/api/auth'
 
 const OAuthCallbackPage: React.FC = () => {
@@ -22,6 +22,7 @@ const OAuthCallbackPage: React.FC = () => {
       const params = new URLSearchParams(window.location.search)
       const code = params.get('code')
       const errorParam = params.get('error')
+      const state = params.get('state')
 
       if (errorParam) {
         setError(t('oauth.authFailed', { error: errorParam }))
@@ -33,27 +34,37 @@ const OAuthCallbackPage: React.FC = () => {
         return
       }
 
+      const savedState = sessionStorage.getItem('pkce_state')
+      if (!state || state !== savedState) {
+        setError(t('oauth.stateMismatch'))
+        return
+      }
+
+      const codeVerifier = sessionStorage.getItem('pkce_code_verifier')
+      if (!codeVerifier) {
+        setError(t('oauth.noCodeVerifier'))
+        return
+      }
+
       try {
-        const data = await authApi.exchangeCode(code)
+        const data = await authApi.exchangeCode(code, codeVerifier)
 
-        if (data) {
-          const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+        const payload = parseJwtPayload(data.access_token)
+        const userType = payload.userType as string
+        const role: UserRole = userType === '1' ? 'platform_admin' : 'tenant_admin'
 
-          const newState: AuthState = {
-            isAuthenticated: true,
-            userInfo: {
-              role: payload.role,
-              username: payload.username,
-              tenantCode: payload.tenantCode,
-            },
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token,
-          }
-          useAuthStore.setState(newState)
+        useAuthStore.setState({
+          isAuthenticated: true,
+          userInfo: buildUserInfoFromJwt(payload, role),
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token,
+        })
 
-          const role = useAuthStore.getState().userInfo?.role
-          navigate(role === 'tenant_admin' ? '/tenant/dashboard' : '/platform/dashboard')
-        }
+        sessionStorage.setItem('access_token', data.access_token)
+        sessionStorage.removeItem('pkce_code_verifier')
+        sessionStorage.removeItem('pkce_state')
+
+        navigate(role === 'tenant_admin' ? '/tenant/dashboard' : '/platform/dashboard')
       } catch {
         setError(t('oauth.tokenFailed'))
       }

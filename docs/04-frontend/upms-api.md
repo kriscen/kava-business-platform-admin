@@ -17,25 +17,33 @@
 
 ```json
 {
-  "code": "0",
-  "msg": "success",
-  "data": { ... }
+  "success": true,
+  "data": { ... },
+  "errorCode": null,
+  "errorMessage": null
 }
 ```
+
+| 字段           | 类型    | 说明                          |
+| -------------- | ------- | ----------------------------- |
+| `success`      | boolean | `true` = 成功，`false` = 失败 |
+| `data`         | T       | 业务数据，失败时为 `null`     |
+| `errorCode`    | String  | 错误码，成功时为 `null`       |
+| `errorMessage` | String  | 错误描述，成功时为 `null`     |
 
 分页响应结构：`JsonResult<PagingInfo<T>>`
 
 ```json
 {
-  "code": "0",
-  "msg": "success",
+  "success": true,
   "data": {
-    "records": [ ... ],
+    "list": [ ... ],
     "total": 100,
-    "size": 10,
-    "current": 1,
-    "pages": 10
-  }
+    "pageNo": 1,
+    "pageSize": 10
+  },
+  "errorCode": null,
+  "errorMessage": null
 }
 ```
 
