@@ -1,8 +1,8 @@
-# CRUD Management Pages Spec
+# System Management Pages Spec
 
 ## Purpose
 
-系统管理 CRUD 页面的统一模式：使用 DataTable/FormModal 或 TreeTable/FormModal + 批量删除 + i18n 构建管理页面，覆盖租户、公共参数、角色、菜单、区域、i18n、路由配置、OAuth 客户端共 8 个实体。
+系统管理 CRUD 页面的统一模式：使用 DataTable/FormModal 或 TreeTable/FormModal + 批量删除 + i18n 构建管理页面，覆盖应用、租户、公共参数、角色、菜单、区域、i18n、路由配置、OAuth 客户端、审计日志、日志、文件、文件分组共 13 个实体。
 
 ## Requirements
 
@@ -43,6 +43,46 @@
 
 - **WHEN** 定义 `SysUserQuery` 类型
 - **THEN** 查询参数 SHALL 包含 `groupId`（非 `deptId`），与后端过滤参数一致
+
+### Requirement: 应用管理页面
+
+系统 SHALL 展示应用分页列表，支持 CRUD 操作和菜单绑定。仅平台管理员可见。
+
+#### Scenario: 应用列表加载
+
+- **WHEN** 用户访问 `/platform/system/app`
+- **THEN** 系统调用 `GET /api/v1/sys/app/page?pageNo=1&pageSize=10` 展示分页表格，列包含：应用编码 (code)、应用名称 (name)、应用图标 (icon)、状态 (status)、创建时间 (gmtCreate)、操作（编辑/删除/绑定菜单）
+
+#### Scenario: 应用按名称搜索
+
+- **WHEN** 用户在搜索栏输入应用名称
+- **THEN** 系统调用 `GET /api/v1/sys/app/page?appName={keyword}` 展示过滤结果
+
+#### Scenario: 创建应用
+
+- **WHEN** 用户点击"新增"按钮，填写应用信息（code、name、icon、description），点击确认
+- **THEN** 系统调用 `POST /api/v1/sys/app` 发送数据，成功后刷新列表
+
+#### Scenario: 编辑应用
+
+- **WHEN** 用户点击某行的编辑按钮，修改应用信息，点击确认
+- **THEN** 系统调用 `PUT /api/v1/sys/app/{id}` 发送更新数据，成功后刷新列表
+
+#### Scenario: 批量删除应用
+
+- **WHEN** 用户勾选多条记录，点击批量删除，确认弹窗后执行
+- **THEN** 系统调用 `DELETE /api/v1/sys/app` 发送选中 ID 数组，成功后刷新列表
+
+#### Scenario: 绑定应用菜单
+
+- **WHEN** 用户点击某行的"绑定菜单"按钮
+- **THEN** 系统弹出菜单选择弹窗，展示菜单树 Checkbox 列表，用户勾选菜单后点击确认
+- **THEN** 系统调用 `PUT /api/v1/sys/app/{id}/menus` 发送选中的菜单 ID 数组，成功后关闭弹窗
+
+#### Scenario: 应用下拉列表
+
+- **WHEN** 其他页面需要选择应用
+- **THEN** 系统调用 `GET /api/v1/sys/app/dropdown` 获取应用列表（id、code、name），用于下拉选择组件
 
 ### Requirement: 租户管理页面
 
@@ -300,6 +340,112 @@
 
 - **WHEN** 用户勾选多条记录，点击批量删除，确认弹窗后执行
 - **THEN** 系统调用 `DELETE /api/v1/sys/oauth-client` 发送选中 ID 数组，成功后刷新列表
+
+### Requirement: 审计日志管理页面
+
+系统 SHALL 展示审计日志分页列表，支持查看审计详情。审计日志为只读数据，不支持新增、编辑、删除。
+
+#### Scenario: 审计日志列表加载
+
+- **WHEN** 用户访问 `/platform/system/audit-log`
+- **THEN** 系统调用 `GET /api/v1/sys/audit-log/page?pageNo=1&pageSize=10` 展示分页表格，列包含：审计名称 (auditName)、审计字段 (auditField)、变更前值 (beforeVal)、变更后值 (afterVal)、创建时间 (gmtCreate)、操作（查看详情）
+
+#### Scenario: 审计日志按条件搜索
+
+- **WHEN** 用户在搜索栏输入审计名称
+- **THEN** 系统调用 `GET /api/v1/sys/audit-log/page?auditName={keyword}` 展示过滤结果
+
+#### Scenario: 查看审计日志详情
+
+- **WHEN** 用户点击某行的"查看详情"按钮
+- **THEN** 系统调用 `GET /api/v1/sys/audit-log/{id}` 获取详情，在弹窗中展示完整审计信息
+
+#### Scenario: 审计日志页面无新增按钮
+
+- **WHEN** 用户访问审计日志管理页面
+- **THEN** 页面不显示"新增"按钮，不显示批量删除功能，行操作不显示"编辑"和"删除"按钮
+
+### Requirement: 日志管理页面
+
+系统 SHALL 展示操作日志分页列表，支持查看日志详情。日志为只读数据，不支持新增、编辑、删除。
+
+#### Scenario: 日志列表加载
+
+- **WHEN** 用户访问 `/platform/system/log`
+- **THEN** 系统调用 `GET /api/v1/sys/log/page?pageNo=1&pageSize=10` 展示分页表格，列包含：日志类型 (logType)、标题 (title)、请求URI (requestUri)、请求方法 (method)、服务ID (serviceId)、操作人 (createBy)、创建时间 (gmtCreate)、操作（查看详情）
+
+#### Scenario: 日志按条件搜索
+
+- **WHEN** 用户在搜索栏输入标题、日志类型或操作人
+- **THEN** 系统调用 `GET /api/v1/sys/log/page?title={keyword}&logType={type}&createBy={user}` 展示过滤结果
+
+#### Scenario: 查看日志详情
+
+- **WHEN** 用户点击某行的"查看详情"按钮
+- **THEN** 系统调用 `GET /api/v1/sys/log/{id}` 获取详情，在弹窗中展示完整日志信息（含 remoteAddr、params、time、exception 等字段）
+
+#### Scenario: 日志页面无新增按钮
+
+- **WHEN** 用户访问日志管理页面
+- **THEN** 页面不显示"新增"按钮，不显示批量删除功能，行操作不显示"编辑"和"删除"按钮
+
+### Requirement: 文件管理页面
+
+系统 SHALL 展示文件元数据分页列表，支持 CRUD 操作。
+
+#### Scenario: 文件列表加载
+
+- **WHEN** 用户访问 `/platform/system/file`
+- **THEN** 系统调用 `GET /api/v1/sys/file/page?pageNo=1&pageSize=10` 展示分页表格，列包含：文件名 (fileName)、原始文件名 (original)、存储桶 (bucketName)、目录 (dir)、文件类型 (type)、文件大小 (fileSize)、创建时间 (gmtCreate)、操作（编辑/删除）
+
+#### Scenario: 文件按名称搜索
+
+- **WHEN** 用户在搜索栏输入文件名
+- **THEN** 系统调用 `GET /api/v1/sys/file/page?fileName={keyword}` 展示过滤结果
+
+#### Scenario: 创建文件记录
+
+- **WHEN** 用户点击"新增"按钮，填写文件信息（fileName、original、bucketName、dir、type、groupId、fileSize），点击确认
+- **THEN** 系统调用 `POST /api/v1/sys/file` 发送数据，成功后刷新列表
+
+#### Scenario: 编辑文件记录
+
+- **WHEN** 用户点击某行的编辑按钮，修改文件信息，点击确认
+- **THEN** 系统调用 `PUT /api/v1/sys/file/{id}` 发送更新数据，成功后刷新列表
+
+#### Scenario: 批量删除文件
+
+- **WHEN** 用户勾选多条记录，点击批量删除，确认弹窗后执行
+- **THEN** 系统调用 `DELETE /api/v1/sys/file` 发送选中 ID 数组，成功后刷新列表
+
+### Requirement: 文件分组管理页面
+
+系统 SHALL 展示文件分组分页列表，支持 CRUD 操作。
+
+#### Scenario: 文件分组列表加载
+
+- **WHEN** 用户访问 `/platform/system/file-group`
+- **THEN** 系统调用 `GET /api/v1/sys/file-group/page?pageNo=1&pageSize=10` 展示分页表格，列包含：分组名称 (name)、类型 (type)、创建时间 (gmtCreate)、操作（编辑/删除）
+
+#### Scenario: 文件分组按名称搜索
+
+- **WHEN** 用户在搜索栏输入分组名称
+- **THEN** 系统调用 `GET /api/v1/sys/file-group/page?name={keyword}` 展示过滤结果
+
+#### Scenario: 创建文件分组
+
+- **WHEN** 用户点击"新增"按钮，填写分组信息（name、pid、type），点击确认
+- **THEN** 系统调用 `POST /api/v1/sys/file-group` 发送数据，成功后刷新列表
+
+#### Scenario: 编辑文件分组
+
+- **WHEN** 用户点击某行的编辑按钮，修改分组信息，点击确认
+- **THEN** 系统调用 `PUT /api/v1/sys/file-group/{id}` 发送更新数据，成功后刷新列表
+
+#### Scenario: 批量删除文件分组
+
+- **WHEN** 用户勾选多条记录，点击批量删除，确认弹窗后执行
+- **THEN** 系统调用 `DELETE /api/v1/sys/file-group` 发送选中 ID 数组，成功后刷新列表
 
 ### Requirement: TreeTable 组件
 
