@@ -17,6 +17,7 @@ import auditLogMocks from './auditLog'
 import fileMocks from './file'
 import fileGroupMocks from './fileGroup'
 import appMocks from './app'
+import groupMocks from './group'
 
 const mocks: MockMethod[] = [
   ...authMocks,
@@ -33,6 +34,7 @@ const mocks: MockMethod[] = [
   ...fileMocks,
   ...fileGroupMocks,
   ...appMocks,
+  ...groupMocks,
 ]
 
 export default mocks

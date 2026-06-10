@@ -86,5 +86,11 @@ export type {
   SysAppDropdownResponse,
   SysAppBindMenusRequest,
 } from './app'
+export type {
+  SysGroupQuery,
+  SysGroupRequest,
+  SysGroupListResponse,
+  SysGroupDetailResponse,
+} from './group'
 export type { MenuItem, LayoutConfig } from './layout'
 export type { ErrorType, ErrorInfo } from './error'

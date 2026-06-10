@@ -1,0 +1,16 @@
+{
+  "title": "分组管理",
+  "description": "管理系统分组（组织结构）数据",
+  "formTitle": "分组",
+  "name": "分组名称",
+  "namePlaceholder": "请输入分组名称",
+  "parentGroup": "上级分组",
+  "parentGroupPlaceholder": "请选择上级分组",
+  "sortOrder": "排序",
+  "sortOrderPlaceholder": "请输入排序值",
+  "gmtCreate": "创建时间",
+  "searchName": "搜索分组名称",
+  "addGroup": "新增分组",
+  "addSubGroup": "新增子分组",
+  "confirmDelete": "确认删除分组「{name}」？"
+}

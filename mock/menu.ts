@@ -180,6 +180,22 @@ const records: Record<
     gmtCreate: '2025-01-01 00:00:00',
     gmtModified: '2025-01-01 00:00:00',
   },
+  11: {
+    id: 11,
+    name: '分组管理',
+    permission: 'sys:group:list',
+    pid: 1,
+    path: '/system/group',
+    component: 'system/group/index',
+    icon: 'FolderTree',
+    sortOrder: 7,
+    menuType: '0',
+    visible: '0',
+    keepAlive: '0',
+    embedded: '0',
+    gmtCreate: '2025-01-01 00:00:00',
+    gmtModified: '2025-01-01 00:00:00',
+  },
 }
 nextId = 101
 

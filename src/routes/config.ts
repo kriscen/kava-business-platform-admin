@@ -104,6 +104,11 @@ export const routeConfig: RouteConfig[] = [
             titleKey: 'layout.appManagement',
             parentPath: '/platform/system',
           },
+          {
+            path: '/platform/system/group',
+            titleKey: 'layout.groupManagement',
+            parentPath: '/platform/system',
+          },
         ],
       },
     ],
@@ -195,6 +200,11 @@ export const routeConfig: RouteConfig[] = [
           {
             path: '/tenant/system/app',
             titleKey: 'layout.appManagement',
+            parentPath: '/tenant/system',
+          },
+          {
+            path: '/tenant/system/group',
+            titleKey: 'layout.groupManagement',
             parentPath: '/tenant/system',
           },
         ],

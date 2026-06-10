@@ -28,6 +28,7 @@ const AuditLogManagement = lazy(() => import('@/pages/system/audit-log/AuditLogM
 const FileManagement = lazy(() => import('@/pages/system/file/FileManagement'))
 const FileGroupManagement = lazy(() => import('@/pages/system/file-group/FileGroupManagement'))
 const AppManagement = lazy(() => import('@/pages/system/app/AppManagement'))
+const GroupManagement = lazy(() => import('@/pages/system/group/GroupManagement'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 const OAuthCallbackPage = lazy(() => import('@/pages/oauth-callback/OAuthCallbackPage'))
 
@@ -82,6 +83,7 @@ const sharedRoutes: SharedRoute[] = [
   { path: 'system/file', element: FileManagement, allowedRoles: ['platform_admin'] },
   { path: 'system/file-group', element: FileGroupManagement, allowedRoles: ['platform_admin'] },
   { path: 'system/app', element: AppManagement, allowedRoles: ['platform_admin'] },
+  { path: 'system/group', element: GroupManagement, allowedRoles: ['platform_admin'] },
 ]
 
 const prefixConfigs = [
