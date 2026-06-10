@@ -4,7 +4,7 @@ import type { PageQuery } from './common'
 export interface SysUserQuery extends PageQuery {
   username?: string
   phone?: string
-  deptId?: number
+  groupId?: number
   tenantId?: number
   lockFlag?: string
 }
@@ -16,7 +16,7 @@ export interface SysUserRequest {
   password?: string
   phone?: string
   avatar?: string
-  deptId?: number
+  groupId?: number
   tenantId?: number
   nickname?: string
   name?: string
@@ -34,17 +34,16 @@ export interface SysUserListResponse {
   nickname: string
   name: string
   email: string
-  deptId: number
-  deptName: string
+  groupId: number
+  groupName: string
   tenantId: number
   tenantName: string
   lockFlag: string
   roleIds: number[]
+  roleNames: string[]
   gmtCreate: string
   gmtModified: string
 }
 
 /** 用户详情响应 */
-export interface SysUserDetailResponse extends SysUserListResponse {
-  roleNames: string[]
-}
+export type SysUserDetailResponse = SysUserListResponse

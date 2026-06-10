@@ -110,6 +110,9 @@ export default function PlatformUserManagement() {
         nickname: values.nickname,
         name: values.name,
         lockFlag: values.lockFlag,
+        groupId: values.groupId,
+        roleIds: values.roleIds,
+        tenantId: values.tenantId,
       }
       if (modalMode === 'create') {
         data.password = values.password

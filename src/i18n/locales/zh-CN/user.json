@@ -11,7 +11,6 @@
   "email": "邮箱",
   "emailPlaceholder": "请输入邮箱",
   "emailInvalid": "邮箱格式不正确",
-  "dept": "部门",
   "status": "状态",
   "createTime": "创建时间",
   "name": "姓名",
@@ -22,5 +21,13 @@
   "confirmBatchDelete": "确定删除选中的 {{count}} 个用户吗？",
   "searchUsername": "搜索用户名",
   "searchPhone": "搜索手机号",
-  "passwordRequired": "请输入密码"
+  "passwordRequired": "请输入密码",
+  "group": "分组",
+  "groupPlaceholder": "请选择分组",
+  "groupName": "分组名称",
+  "role": "角色",
+  "rolePlaceholder": "请选择角色",
+  "roleNames": "角色",
+  "tenant": "租户",
+  "tenantPlaceholder": "请选择租户"
 }

@@ -59,7 +59,7 @@ shadcn/ui 基础组件集合（Button、Input、Dialog、Table 等），通过 `
   - `childrenField` (`string`) — 子节点字段名，默认 `'children'`
   - `disabled` (`boolean`) — 是否禁用
 - **特性**: 可配置字段映射、清除选择、点击外部关闭、缩进层级显示
-- **使用场景**: 部门表单（上级部门选择），未来可用于菜单/区域等层级数据
+- **使用场景**: 分组表单（上级分组选择）、用户表单（分组选择），未来可用于菜单/区域等层级数据
 
 ### DatePicker
 

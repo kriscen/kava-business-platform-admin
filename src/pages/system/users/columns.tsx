@@ -18,7 +18,12 @@ export function getUserColumns({
     { key: 'nickname', title: i18n.t('user.nickname') },
     { key: 'phone', title: i18n.t('user.phone') },
     { key: 'email', title: i18n.t('user.email') },
-    { key: 'deptName', title: i18n.t('user.dept') },
+    { key: 'groupName', title: i18n.t('user.groupName') },
+    {
+      key: 'roleNames',
+      title: i18n.t('user.roleNames'),
+      render: (val) => (val as string[]).join(', '),
+    },
     {
       key: 'lockFlag',
       title: i18n.t('user.status'),

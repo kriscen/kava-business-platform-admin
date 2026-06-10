@@ -1,11 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import i18n from '@/i18n'
 
+import type {
+  SysGroupListResponse,
+  SysRoleDropdownResponse,
+  SysTenantDropdownResponse,
+} from '@/types'
 import type { SysUserRequest } from '@/types'
+import { groupApi } from '@/api/modules/group'
+import { roleApi } from '@/api/modules/role'
+import { tenantApi } from '@/api/modules/tenant'
+import { useAuthStore } from '@/stores/authStore'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -24,6 +33,9 @@ const baseSchema = z.object({
   nickname: z.string().optional(),
   name: z.string().optional(),
   lockFlag: z.string().optional(),
+  groupId: z.number().optional(),
+  roleIds: z.array(z.number()).optional(),
+  tenantId: z.number().optional(),
 })
 
 export function getUserFormSchema(mode: 'create' | 'edit') {
@@ -40,17 +52,102 @@ export type UserFormValues = z.infer<typeof baseSchema>
 
 interface UserFormProps {
   mode: 'create' | 'edit'
-  initialValues?: Partial<SysUserRequest>
+  initialValues?: Partial<SysUserRequest> & { groupName?: string; roleNames?: string[] }
   onSubmit: (values: UserFormValues) => void
   formRef?: React.RefObject<HTMLFormElement | null>
 }
 
+function GroupTreeRadio({
+  nodes,
+  selectedId,
+  onChange,
+  depth = 0,
+}: {
+  nodes: SysGroupListResponse[]
+  selectedId?: number
+  onChange: (id: number) => void
+  depth?: number
+}) {
+  return (
+    <div>
+      {nodes.map((node) => (
+        <div key={node.id} style={{ paddingLeft: `${depth * 16}px` }}>
+          <label className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1">
+            <input
+              type="radio"
+              name="group-radio"
+              checked={selectedId === node.id}
+              onChange={() => onChange(node.id)}
+              className="size-3.5 border-input"
+            />
+            <span className="text-sm">{node.name}</span>
+          </label>
+          {node.children && node.children.length > 0 && (
+            <GroupTreeRadio
+              nodes={node.children}
+              selectedId={selectedId}
+              onChange={onChange}
+              depth={depth + 1}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function RoleCheckboxList({
+  roles,
+  selectedIds,
+  onChange,
+}: {
+  roles: SysRoleDropdownResponse[]
+  selectedIds: number[]
+  onChange: (ids: number[]) => void
+}) {
+  const toggle = (id: number) => {
+    if (selectedIds.includes(id)) {
+      onChange(selectedIds.filter((i) => i !== id))
+    } else {
+      onChange([...selectedIds, id])
+    }
+  }
+
+  return (
+    <div>
+      {roles.map((role) => (
+        <label
+          key={role.id}
+          className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent rounded px-1"
+        >
+          <input
+            type="checkbox"
+            checked={selectedIds.includes(role.id)}
+            onChange={() => toggle(role.id)}
+            className="size-3.5 rounded border-input"
+          />
+          <span className="text-sm">{role.roleName}</span>
+        </label>
+      ))}
+    </div>
+  )
+}
+
 export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormProps) {
   const { t } = useTranslation()
+  const userInfo = useAuthStore((state) => state.userInfo)
+  const isPlatformAdmin = userInfo?.role === 'platform_admin'
+
+  const [groupTree, setGroupTree] = useState<SysGroupListResponse[]>([])
+  const [roles, setRoles] = useState<SysRoleDropdownResponse[]>([])
+  const [tenants, setTenants] = useState<SysTenantDropdownResponse[]>([])
+
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     control,
     formState: { errors },
   } = useForm<UserFormValues>({
@@ -63,8 +160,43 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
       nickname: '',
       name: '',
       lockFlag: '0',
+      groupId: undefined,
+      roleIds: [],
+      tenantId: undefined,
     },
   })
+
+  const groupIdValue = watch('groupId')
+  const roleIdsValue = watch('roleIds') ?? []
+
+  useEffect(() => {
+    groupApi
+      .getTree()
+      .then((res) => {
+        setGroupTree(res.data ?? [])
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    roleApi
+      .getDropdown()
+      .then((res) => {
+        setRoles(res.data ?? [])
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (isPlatformAdmin) {
+      tenantApi
+        .getDropdown()
+        .then((res) => {
+          setTenants(res.data ?? [])
+        })
+        .catch(() => {})
+    }
+  }, [isPlatformAdmin])
 
   useEffect(() => {
     if (initialValues) {
@@ -76,6 +208,9 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
         nickname: initialValues.nickname ?? '',
         name: initialValues.name ?? '',
         lockFlag: initialValues.lockFlag ?? '0',
+        groupId: initialValues.groupId,
+        roleIds: initialValues.roleIds ?? [],
+        tenantId: initialValues.tenantId,
       })
     } else {
       reset({
@@ -86,6 +221,9 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
         nickname: '',
         name: '',
         lockFlag: '0',
+        groupId: undefined,
+        roleIds: [],
+        tenantId: undefined,
       })
     }
   }, [initialValues, reset])
@@ -152,6 +290,69 @@ export function UserForm({ mode, initialValues, onSubmit, formRef }: UserFormPro
           <Input id="name" placeholder={t('user.namePlaceholder')} {...register('name')} />
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label>{t('user.group')}</Label>
+        <div className="max-h-48 overflow-y-auto rounded-lg border p-2">
+          {groupTree.length > 0 ? (
+            <GroupTreeRadio
+              nodes={groupTree}
+              selectedId={groupIdValue}
+              onChange={(id) => setValue('groupId', id)}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-2">{t('common.noData')}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t('user.role')}</Label>
+        <div className="max-h-48 overflow-y-auto rounded-lg border p-2">
+          {roles.length > 0 ? (
+            <RoleCheckboxList
+              roles={roles}
+              selectedIds={roleIdsValue}
+              onChange={(ids) => setValue('roleIds', ids)}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-2">{t('common.noData')}</p>
+          )}
+        </div>
+      </div>
+
+      {isPlatformAdmin && (
+        <div className="space-y-2">
+          <Label>{t('user.tenant')}</Label>
+          <Controller
+            control={control}
+            name="tenantId"
+            render={({ field }) => (
+              <Select
+                value={field.value != null ? String(field.value) : ''}
+                onValueChange={(v) => field.onChange(v ? Number(v) : undefined)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t('user.tenantPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {tenants.length > 0 ? (
+                    tenants.map((t) => (
+                      <SelectItem key={t.id} value={String(t.id)}>
+                        {t.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      {t('common.noData')}
+                    </p>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label>{t('user.status')}</Label>
