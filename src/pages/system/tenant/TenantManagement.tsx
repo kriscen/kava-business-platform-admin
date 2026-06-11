@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import type { SysTenantListResponse, SysTenantRequest } from '@/types'
 import { tenantApi } from '@/api/modules/tenant'
 import { DataTable } from '@/components/data-table'
 import { FormModal } from '@/components/form-modal'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { toast } from 'sonner'
 import { confirm } from '@/components/confirm-dialog'
+import { useCrudPage } from '@/hooks'
 
 import { TenantForm, type TenantFormValues } from './tenant-form'
 import { getTenantColumns } from './columns'
@@ -27,13 +29,6 @@ export default function TenantManagement() {
   const [searchCode, setSearchCode] = useState('')
   const [searchStatus, setSearchStatus] = useState('')
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingTenant, setEditingTenant] = useState<SysTenantListResponse | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [dataVersion, setDataVersion] = useState(0)
   const [subscribeDialogOpen, setSubscribeDialogOpen] = useState(false)
   const [currentTenantId, setCurrentTenantId] = useState<number>(0)
 
@@ -46,45 +41,34 @@ export default function TenantManagement() {
     [searchName, searchCode, searchStatus]
   )
 
-  const fetchData = useCallback(
-    async (params: { pageNo: number; pageSize: number }) => {
-      const res = await tenantApi.getPage({ ...params, ...searchParams })
-      return {
-        records: res.data?.records ?? [],
-        total: res.data?.total ?? 0,
+  const { modal, handlers, refresh, tableProps } = useCrudPage<SysTenantListResponse>({
+    api: tenantApi,
+    searchParams,
+    confirmDeleteText: (row) => t('tenant.confirmDelete', { name: row.name }),
+    onFormSubmit: async (values: TenantFormValues, mode) => {
+      const data: SysTenantRequest = {
+        name: values.name,
+        code: values.code,
+        tenantDomain: values.tenantDomain,
+        websiteName: values.websiteName,
+        logo: values.logo,
+        footer: values.footer,
+        startTime: values.startTime,
+        endTime: values.endTime,
+        status: values.status,
+      }
+      if (mode === 'create') {
+        data.adminUsername = values.adminUsername
+        data.adminPassword = values.adminPassword
+        await tenantApi.create(data)
+        toast.success(t('common.createSuccess'))
+      } else {
+        data.id = modal.editingItem!.id
+        await tenantApi.update(data.id, data)
+        toast.success(t('common.editSuccess'))
       }
     },
-    [searchParams]
-  )
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingTenant(null)
-    setModalOpen(true)
-  }
-
-  const handleEdit = useCallback((row: SysTenantListResponse) => {
-    setModalMode('edit')
-    setEditingTenant(row)
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysTenantListResponse) => {
-      const confirmed = await confirm({
-        title: t('tenant.confirmDelete', { name: row.name }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await tenantApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
+  })
 
   const handleToggleStatus = useCallback(
     async (row: SysTenantListResponse) => {
@@ -102,9 +86,9 @@ export default function TenantManagement() {
       })
       if (!confirmed) return
       toast.success(t('common.editSuccess'))
-      setDataVersion((v) => v + 1)
+      refresh()
     },
-    [t]
+    [refresh, t]
   )
 
   const handleAppSubscription = useCallback((row: SysTenantListResponse) => {
@@ -112,48 +96,15 @@ export default function TenantManagement() {
     setSubscribeDialogOpen(true)
   }, [])
 
-  const handleFormSubmit = async (values: TenantFormValues) => {
-    setSubmitting(true)
-    try {
-      const data: SysTenantRequest = {
-        name: values.name,
-        code: values.code,
-        tenantDomain: values.tenantDomain,
-        websiteName: values.websiteName,
-        logo: values.logo,
-        footer: values.footer,
-        startTime: values.startTime,
-        endTime: values.endTime,
-        status: values.status,
-      }
-      if (modalMode === 'create') {
-        data.adminUsername = values.adminUsername
-        data.adminPassword = values.adminPassword
-        await tenantApi.create(data)
-        toast.success(t('common.createSuccess'))
-      } else {
-        data.id = editingTenant!.id
-        await tenantApi.update(data.id, data)
-        toast.success(t('common.editSuccess'))
-      }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   const columns = useMemo(
     () =>
       getTenantColumns({
-        onEdit: handleEdit,
-        onDelete: handleDelete,
+        onEdit: handlers.handleEdit,
+        onDelete: handlers.handleDelete,
         onToggleStatus: handleToggleStatus,
         onAppSubscription: handleAppSubscription,
       }),
-    [handleEdit, handleDelete, handleToggleStatus, handleAppSubscription]
+    [handlers.handleEdit, handlers.handleDelete, handleToggleStatus, handleAppSubscription]
   )
 
   const searchSlot = (
@@ -197,46 +148,47 @@ export default function TenantManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('tenant.addTenant')}</Button>
+      <Button onClick={handlers.handleCreate}>{t('tenant.addTenant')}</Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('tenant.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('tenant.description')}</p>
-      </div>
-
-      <DataTable
-        columns={columns}
-        fetchData={fetchData}
+    <>
+      <CrudPageLayout
+        title={t('tenant.title')}
+        description={t('tenant.description')}
         searchSlot={searchSlot}
         toolbarSlot={toolbarSlot}
-        refreshKey={dataVersion}
+        table={
+          <DataTable
+            columns={columns}
+            fetchData={tableProps.fetchData}
+            refreshKey={tableProps.refreshKey}
+          />
+        }
+        formModal={
+          <FormModal
+            open={modal.open}
+            onOpenChange={handlers.setOpen}
+            mode={modal.mode}
+            title={t('tenant.formTitle')}
+            submitting={modal.submitting}
+            onConfirm={() => modal.formRef.current?.requestSubmit()}
+          >
+            <TenantForm
+              mode={modal.mode}
+              initialValues={modal.editingItem ?? undefined}
+              onSubmit={handlers.handleFormSubmit}
+              formRef={modal.formRef}
+            />
+          </FormModal>
+        }
       />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('tenant.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <TenantForm
-          mode={modalMode}
-          initialValues={editingTenant ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
-        />
-      </FormModal>
-
       <AppSubscriptionModal
         open={subscribeDialogOpen}
         onOpenChange={setSubscribeDialogOpen}
         tenantId={currentTenantId}
       />
-    </div>
+    </>
   )
 }

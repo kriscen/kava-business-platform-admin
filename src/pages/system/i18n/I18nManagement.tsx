@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
-import type { SysI18nListResponse, SysI18nRequest } from '@/types'
+import type { SysI18nRequest } from '@/types'
 import { i18nApi } from '@/api/modules/i18n'
 import { DataTable } from '@/components/data-table'
 import { FormModal } from '@/components/form-modal'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,8 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { confirm } from '@/components/confirm-dialog'
+import { useCrudPage } from '@/hooks'
 
 import { I18nForm, type I18nFormValues } from './i18n-form'
 import { getI18nColumns } from './columns'
@@ -25,14 +26,6 @@ export default function I18nManagement() {
   const [searchCode, setSearchCode] = useState('')
   const [searchLanguage, setSearchLanguage] = useState('')
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingItem, setEditingItem] = useState<SysI18nListResponse | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [dataVersion, setDataVersion] = useState(0)
-
   const searchParams = useMemo(
     () => ({
       code: searchCode || undefined,
@@ -41,74 +34,30 @@ export default function I18nManagement() {
     [searchCode, searchLanguage]
   )
 
-  const fetchData = useCallback(
-    async (params: { pageNo: number; pageSize: number }) => {
-      const res = await i18nApi.getPage({ ...params, ...searchParams })
-      return {
-        records: res.data?.records ?? [],
-        total: res.data?.total ?? 0,
-      }
-    },
-    [searchParams]
-  )
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingItem(null)
-    setModalOpen(true)
-  }
-
-  const handleEdit = useCallback((row: SysI18nListResponse) => {
-    setModalMode('edit')
-    setEditingItem(row)
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysI18nListResponse) => {
-      const confirmed = await confirm({
-        title: t('i18n.confirmDelete', { code: row.code }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await i18nApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
-
-  const handleFormSubmit = async (values: I18nFormValues) => {
-    setSubmitting(true)
-    try {
+  const { modal, handlers, tableProps } = useCrudPage({
+    api: i18nApi,
+    searchParams,
+    onFormSubmit: async (values: I18nFormValues, mode) => {
       const data: SysI18nRequest = {
         code: values.code,
         language: values.language,
         content: values.content,
       }
-      if (modalMode === 'create') {
+      if (mode === 'create') {
         await i18nApi.create(data)
         toast.success(t('common.createSuccess'))
       } else {
-        data.id = editingItem!.id
-        await i18nApi.update(editingItem!.id, data)
+        data.id = modal.editingItem!.id
+        await i18nApi.update(modal.editingItem!.id, data)
         toast.success(t('common.editSuccess'))
       }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    },
+    confirmDeleteText: (row) => t('i18n.confirmDelete', { code: row.code }),
+  })
 
   const columns = useMemo(
-    () => getI18nColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleEdit, handleDelete]
+    () => getI18nColumns({ onEdit: handlers.handleEdit, onDelete: handlers.handleDelete }),
+    [handlers.handleEdit, handlers.handleDelete]
   )
 
   const searchSlot = (
@@ -144,40 +93,40 @@ export default function I18nManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('i18n.addI18n')}</Button>
+      <Button onClick={handlers.handleCreate}>{t('i18n.addI18n')}</Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('i18n.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('i18n.description')}</p>
-      </div>
-
-      <DataTable
-        columns={columns}
-        fetchData={fetchData}
-        searchSlot={searchSlot}
-        toolbarSlot={toolbarSlot}
-        refreshKey={dataVersion}
-      />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('i18n.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <I18nForm
-          mode={modalMode}
-          initialValues={editingItem ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
+    <CrudPageLayout
+      title={t('i18n.title')}
+      description={t('i18n.description')}
+      searchSlot={searchSlot}
+      toolbarSlot={toolbarSlot}
+      table={
+        <DataTable
+          columns={columns}
+          fetchData={tableProps.fetchData}
+          refreshKey={tableProps.refreshKey}
         />
-      </FormModal>
-    </div>
+      }
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode={modal.mode}
+          title={t('i18n.formTitle')}
+          submitting={modal.submitting}
+          onConfirm={() => modal.formRef.current?.requestSubmit()}
+        >
+          <I18nForm
+            mode={modal.mode}
+            initialValues={modal.editingDetail ?? undefined}
+            onSubmit={handlers.handleFormSubmit}
+            formRef={modal.formRef}
+          />
+        </FormModal>
+      }
+    />
   )
 }

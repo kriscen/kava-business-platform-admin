@@ -1,8 +1,11 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { SysAuditLogListResponse } from '@/types'
+import type { CrudApi } from '@/hooks'
 import { auditLogApi } from '@/api/modules/auditLog'
+import { useCrudPage } from '@/hooks'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { DataTable } from '@/components/data-table'
 import { FormModal } from '@/components/form-modal'
 import { Input } from '@/components/ui/input'
@@ -14,9 +17,6 @@ export default function AuditLogManagement() {
   const { t } = useTranslation()
   const [searchName, setSearchName] = useState('')
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [detailData, setDetailData] = useState<SysAuditLogListResponse | null>(null)
-
   const searchParams = useMemo(
     () => ({
       auditName: searchName || undefined,
@@ -24,30 +24,16 @@ export default function AuditLogManagement() {
     [searchName]
   )
 
-  const fetchData = useCallback(
-    async (params: { pageNo: number; pageSize: number }) => {
-      const res = await auditLogApi.getPage({ ...params, ...searchParams })
-      return {
-        records: res.data?.records ?? [],
-        total: res.data?.total ?? 0,
-      }
-    },
-    [searchParams]
-  )
-
-  const handleViewDetail = useCallback(async (row: SysAuditLogListResponse) => {
-    try {
-      const res = await auditLogApi.getById(row.id)
-      setDetailData((res.data as SysAuditLogListResponse) ?? row)
-    } catch {
-      setDetailData(row)
-    }
-    setModalOpen(true)
-  }, [])
+  const { modal, handlers, tableProps } = useCrudPage<SysAuditLogListResponse>({
+    api: { ...auditLogApi, remove: async () => {} } as CrudApi<SysAuditLogListResponse>,
+    searchParams,
+    onFormSubmit: async () => {},
+    confirmDeleteText: () => '',
+  })
 
   const columns = useMemo(
-    () => getAuditLogColumns({ onViewDetail: handleViewDetail }),
-    [handleViewDetail]
+    () => getAuditLogColumns({ onViewDetail: handlers.handleEdit }),
+    [handlers.handleEdit]
   )
 
   const searchSlot = (
@@ -65,53 +51,51 @@ export default function AuditLogManagement() {
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('auditLog.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('auditLog.description')}</p>
-      </div>
-
-      <DataTable columns={columns} fetchData={fetchData} searchSlot={searchSlot} />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode="edit"
-        title={t('auditLog.detailTitle')}
-        onConfirm={() => setModalOpen(false)}
-        width="sm:max-w-lg"
-      >
-        {detailData && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <Label className="text-muted-foreground">{t('auditLog.auditName')}</Label>
-                <p>{detailData.auditName}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">{t('auditLog.auditField')}</Label>
-                <p>{detailData.auditField}</p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-muted-foreground">{t('auditLog.beforeVal')}</Label>
-                <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-auto max-h-32">
-                  {detailData.beforeVal}
-                </pre>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-muted-foreground">{t('auditLog.afterVal')}</Label>
-                <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-auto max-h-32">
-                  {detailData.afterVal}
-                </pre>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">{t('auditLog.gmtCreate')}</Label>
-                <p>{detailData.gmtCreate}</p>
+    <CrudPageLayout
+      title={t('auditLog.title')}
+      description={t('auditLog.description')}
+      table={<DataTable columns={columns} searchSlot={searchSlot} {...tableProps} />}
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode="edit"
+          title={t('auditLog.detailTitle')}
+          onConfirm={() => handlers.setOpen(false)}
+          width="sm:max-w-lg"
+        >
+          {modal.editingDetail && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <Label className="text-muted-foreground">{t('auditLog.auditName')}</Label>
+                  <p>{modal.editingDetail.auditName}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">{t('auditLog.auditField')}</Label>
+                  <p>{modal.editingDetail.auditField}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-muted-foreground">{t('auditLog.beforeVal')}</Label>
+                  <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-auto max-h-32">
+                    {modal.editingDetail.beforeVal}
+                  </pre>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-muted-foreground">{t('auditLog.afterVal')}</Label>
+                  <pre className="mt-1 rounded bg-muted p-2 text-xs overflow-auto max-h-32">
+                    {modal.editingDetail.afterVal}
+                  </pre>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">{t('auditLog.gmtCreate')}</Label>
+                  <p>{modal.editingDetail.gmtCreate}</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </FormModal>
-    </div>
+          )}
+        </FormModal>
+      }
+    />
   )
 }

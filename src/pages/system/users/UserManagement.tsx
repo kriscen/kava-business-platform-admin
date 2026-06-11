@@ -1,8 +1,11 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import type { SysUserListResponse, SysUserRequest } from '@/types'
 import { userApi } from '@/api/modules/user'
+import { useCrudPage } from '@/hooks'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { DataTable } from '@/components/data-table'
 import { FormModal } from '@/components/form-modal'
 import { Button } from '@/components/ui/button'
@@ -14,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { confirm } from '@/components/confirm-dialog'
 
 import { UserForm, type UserFormValues } from './user-form'
 import { getUserColumns } from './columns'
@@ -26,15 +27,6 @@ export default function PlatformUserManagement() {
   const [searchPhone, setSearchPhone] = useState('')
   const [searchLockFlag, setSearchLockFlag] = useState('')
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingUser, setEditingUser] = useState<SysUserListResponse | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [selectedRows, setSelectedRows] = useState<SysUserListResponse[]>([])
-  const [dataVersion, setDataVersion] = useState(0)
-
   const searchParams = useMemo(
     () => ({
       username: searchUsername || undefined,
@@ -44,65 +36,17 @@ export default function PlatformUserManagement() {
     [searchUsername, searchPhone, searchLockFlag]
   )
 
-  const fetchData = useCallback(
-    async (params: { pageNo: number; pageSize: number }) => {
-      const res = await userApi.getPage({ ...params, ...searchParams })
-      return {
-        records: res.data?.records ?? [],
-        total: res.data?.total ?? 0,
-      }
-    },
-    [searchParams]
-  )
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingUser(null)
-    setModalOpen(true)
-  }
-
-  const handleEdit = useCallback((row: SysUserListResponse) => {
-    setModalMode('edit')
-    setEditingUser(row)
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysUserListResponse) => {
-      const confirmed = await confirm({
-        title: t('user.confirmDelete', { username: row.username }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await userApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
-
-  const handleBatchDelete = async () => {
-    if (!selectedRows.length) return
-    const confirmed = await confirm({
-      title: t('user.confirmBatchDelete', { count: selectedRows.length }),
-      variant: 'destructive',
-      confirmText: t('common.delete'),
-      onConfirm: async () => {
-        await userApi.remove(selectedRows.map((r) => r.id))
-      },
-    })
-    if (!confirmed) return
-    toast.success(t('common.batchDeleteSuccess'))
-    setSelectedRows([])
-    setDataVersion((v) => v + 1)
-  }
-
-  const handleFormSubmit = async (values: UserFormValues) => {
-    setSubmitting(true)
-    try {
+  const { modal, handlers, tableProps } = useCrudPage<
+    SysUserListResponse,
+    SysUserListResponse,
+    UserFormValues
+  >({
+    api: userApi,
+    searchParams,
+    confirmDeleteText: (row) => t('user.confirmDelete', { username: row.username }),
+    confirmBatchDeleteText: (count) => t('user.confirmBatchDelete', { count }),
+    enableBatchDelete: true,
+    onFormSubmit: async (values, mode) => {
       const data: SysUserRequest = {
         username: values.username,
         phone: values.phone,
@@ -114,27 +58,21 @@ export default function PlatformUserManagement() {
         roleIds: values.roleIds,
         tenantId: values.tenantId,
       }
-      if (modalMode === 'create') {
+      if (mode === 'create') {
         data.password = values.password
         await userApi.create(data)
         toast.success(t('common.createSuccess'))
       } else {
-        data.id = editingUser!.id
+        data.id = modal.editingItem!.id
         await userApi.update(data)
         toast.success(t('common.editSuccess'))
       }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    },
+  })
 
   const columns = useMemo(
-    () => getUserColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleEdit, handleDelete]
+    () => getUserColumns({ onEdit: handlers.handleEdit, onDelete: handlers.handleDelete }),
+    [handlers.handleEdit, handlers.handleDelete]
   )
 
   const searchSlot = (
@@ -178,46 +116,37 @@ export default function PlatformUserManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('user.addUser')}</Button>
-      {selectedRows.length > 0 && (
-        <Button variant="destructive" onClick={handleBatchDelete}>
-          {t('user.batchDelete')} ({selectedRows.length})
-        </Button>
-      )}
+      <Button onClick={handlers.handleCreate}>{t('user.addUser')}</Button>
+      <Button variant="destructive" onClick={handlers.handleBatchDelete}>
+        {t('user.batchDelete')}
+      </Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('user.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('user.description')}</p>
-      </div>
-
-      <DataTable
-        columns={columns}
-        fetchData={fetchData}
-        searchSlot={searchSlot}
-        toolbarSlot={toolbarSlot}
-        onSelectedRowsChange={setSelectedRows}
-        refreshKey={dataVersion}
-      />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('user.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <UserForm
-          mode={modalMode}
-          initialValues={editingUser ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
-        />
-      </FormModal>
-    </div>
+    <CrudPageLayout
+      title={t('user.title')}
+      description={t('user.description')}
+      searchSlot={searchSlot}
+      toolbarSlot={toolbarSlot}
+      table={<DataTable columns={columns} {...tableProps} />}
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode={modal.mode}
+          title={t('user.formTitle')}
+          submitting={modal.submitting}
+          onConfirm={() => modal.formRef.current?.requestSubmit()}
+        >
+          <UserForm
+            mode={modal.mode}
+            initialValues={modal.editingDetail ?? undefined}
+            onSubmit={handlers.handleFormSubmit}
+            formRef={modal.formRef}
+          />
+        </FormModal>
+      }
+    />
   )
 }

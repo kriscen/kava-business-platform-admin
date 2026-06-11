@@ -1,10 +1,4 @@
-# System Management Pages Spec
-
-## Purpose
-
-系统管理 CRUD 页面的统一模式：使用 DataTable/FormModal 或 TreeTable/FormModal + 批量删除 + i18n 构建管理页面，覆盖应用、租户、公共参数、角色、菜单、区域、i18n、路由配置、OAuth 客户端、审计日志、日志、文件、文件分组共 13 个实体。
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Consistent page directory structure
 
@@ -39,25 +33,6 @@
 
 - **WHEN** 用户列表加载完成
 - **THEN** 列表 SHALL 展示分组名称（groupName）和角色名称（roleNames）列，数据来自后端 `SysUserListResponse` 的富化字段
-
-### Requirement: 用户类型定义修正
-
-`src/types/user.ts` 中的类型定义 SHALL 与后端 API 契约（`docs/04-frontend/upms-api.md`）保持一致。
-
-#### Scenario: SysUserRequest 字段修正
-
-- **WHEN** 定义 `SysUserRequest` 类型
-- **THEN** SHALL 包含 `groupId`（非 `deptId`）、`roleIds`、`tenantId`、`username`、`password`、`phone`、`avatar`、`nickname`、`name`、`email`、`lockFlag`、`id` 字段，类型与 API 文档一致
-
-#### Scenario: SysUserListResponse 字段修正
-
-- **WHEN** 定义 `SysUserListResponse` 类型
-- **THEN** SHALL 包含 `groupId`（非 `deptId`）、`groupName`（非 `deptName`）、`tenantId`、`tenantName`、`roleIds` 字段
-
-#### Scenario: SysUserQuery 字段修正
-
-- **WHEN** 定义 `SysUserQuery` 类型
-- **THEN** 查询参数 SHALL 包含 `groupId`（非 `deptId`），与后端过滤参数一致
 
 ### Requirement: 应用管理页面
 
@@ -461,37 +436,3 @@
 
 - **WHEN** 用户勾选多条记录，点击批量删除，确认弹窗后执行
 - **THEN** 系统调用 `DELETE /api/v1/sys/file-group` 发送选中 ID 数组，成功后刷新列表
-
-### Requirement: TreeTable 组件
-
-系统 SHALL 提供通用树形数据表格组件，支持展开/折叠和列定义复用。
-
-#### Scenario: 树形数据渲染
-
-- **WHEN** 父组件传入带 `children` 的数组数据
-- **THEN** TreeTable 递归渲染所有层级，每行显示展开/折叠箭头，缩进表示层级关系
-
-#### Scenario: 展开/折叠交互
-
-- **WHEN** 用户点击某行的展开箭头
-- **THEN** 该行的子节点显示出来；再次点击折叠
-
-#### Scenario: 懒加载子节点
-
-- **WHEN** TreeTable 配置了 `onLoadChildren` 回调且某行无 children 数据
-- **THEN** 点击展开时调用 `onLoadChildren(row)` 异步加载子节点，加载中显示 spinner
-
-#### Scenario: 列定义兼容
-
-- **WHEN** 使用 TreeTable 组件
-- **THEN** 列定义类型与 DataTable 的 `DataTableColumn<T>` 完全一致，操作列 render 函数可用
-
-### Requirement: CRUD 管理页 i18n 支持
-
-所有管理页面的用户可见字符串 SHALL 通过 i18n `t()` 函数引用对应模块的翻译 key。
-
-#### Scenario: 各模块页面 i18n
-
-- **WHEN** 各模块页面渲染时
-- **THEN** 表头、按钮文字、搜索标签、提示消息均通过 `t('<module>.xxx')` 引用，翻译文件放在 `src/i18n/locales/zh-CN/<module>.json`
-- **THEN** 新增的日志、审计日志、文件、文件分组、应用管理 5 个模块均遵循此规范

@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import type { SysMenuListResponse, SysMenuRequest } from '@/types'
 import { menuApi } from '@/api/modules/menu'
+import { useTreeCrudPage } from '@/hooks'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { TreeTable } from '@/components/tree-table'
 import { FormModal } from '@/components/form-modal'
 import { Button } from '@/components/ui/button'
@@ -14,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { confirm } from '@/components/confirm-dialog'
 
 import { MenuForm, type MenuFormValues } from './menu-form'
 import { getMenuColumns } from './columns'
@@ -25,76 +26,32 @@ export default function MenuManagement() {
   const [searchName, setSearchName] = useState('')
   const [searchMenuType, setSearchMenuType] = useState('')
 
-  const [treeData, setTreeData] = useState<SysMenuListResponse[]>([])
-  const [loading, setLoading] = useState(true)
+  const searchParams = useMemo(
+    () => ({
+      name: searchName || undefined,
+      menuType: searchMenuType || undefined,
+    }),
+    [searchName, searchMenuType]
+  )
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingItem, setEditingItem] = useState<SysMenuListResponse | null>(null)
-  const [editingDetail, setEditingDetail] = useState<
-    (SysMenuListResponse & Partial<SysMenuListResponse>) | null
-  >(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [dataVersion, setDataVersion] = useState(0)
-
-  const fetchTree = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await menuApi.getTree()
-      let data = res.data ?? []
-      if (searchName) {
-        function filterTree(nodes: SysMenuListResponse[]): SysMenuListResponse[] {
-          return nodes
-            .map((n) => {
-              const children = n.children ? filterTree(n.children) : []
-              if (n.name.includes(searchName) || children.length > 0) {
-                return { ...n, children }
-              }
-              return null
-            })
-            .filter(Boolean) as SysMenuListResponse[]
-        }
-        data = filterTree(data)
-      }
-      if (searchMenuType) {
-        function filterByType(nodes: SysMenuListResponse[]): SysMenuListResponse[] {
-          return nodes
-            .map((n) => {
-              const children = n.children ? filterByType(n.children) : []
-              if (n.menuType === searchMenuType || children.length > 0) {
-                return { ...n, children }
-              }
-              return null
-            })
-            .filter(Boolean) as SysMenuListResponse[]
-        }
-        data = filterByType(data)
-      }
-      setTreeData(data)
-    } finally {
-      setLoading(false)
-    }
-  }, [searchName, searchMenuType])
-
-  useEffect(() => {
-    fetchTree()
-  }, [fetchTree, dataVersion])
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingItem(null)
-    setEditingDetail(null)
-    setModalOpen(true)
-  }
-
-  const handleAddChild = useCallback((row: SysMenuListResponse) => {
-    setModalMode('create')
-    setEditingItem(null)
-    setEditingDetail({
+  const { modal, handlers, treeData, loading } = useTreeCrudPage<
+    SysMenuListResponse,
+    SysMenuListResponse & Partial<SysMenuListResponse>,
+    MenuFormValues
+  >({
+    api: menuApi,
+    searchParams,
+    confirmDeleteText: (row) => t('menu.confirmDelete', { name: row.name }),
+    filterNode: (node, params) => {
+      const name = params.name as string | undefined
+      const menuType = params.menuType as string | undefined
+      const nameMatch = !name || (node.name as string).includes(name)
+      const typeMatch = !menuType || node.menuType === menuType
+      return nameMatch && typeMatch
+    },
+    onBeforeCreate: (parent) => ({
       id: 0,
-      pid: row.id,
+      pid: parent.id,
       name: '',
       permission: '',
       path: '',
@@ -105,44 +62,10 @@ export default function MenuManagement() {
       visible: '0',
       keepAlive: '0',
       embedded: '0',
-      parentName: row.name,
+      parentName: parent.name as string,
       children: [],
-    })
-    setModalOpen(true)
-  }, [])
-
-  const handleEdit = useCallback(async (row: SysMenuListResponse) => {
-    setModalMode('edit')
-    setEditingItem(row)
-    try {
-      const res = await menuApi.getById(row.id)
-      setEditingDetail(res.data ?? null)
-    } catch {
-      setEditingDetail(row)
-    }
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysMenuListResponse) => {
-      const confirmed = await confirm({
-        title: t('menu.confirmDelete', { name: row.name }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await menuApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
-
-  const handleFormSubmit = async (values: MenuFormValues) => {
-    setSubmitting(true)
-    try {
+    }),
+    onFormSubmit: async (values, mode) => {
       const data: SysMenuRequest = {
         name: values.name,
         permission: values.permission || undefined,
@@ -156,31 +79,25 @@ export default function MenuManagement() {
         keepAlive: values.keepAlive || undefined,
         embedded: values.embedded || undefined,
       }
-      if (modalMode === 'create') {
+      if (mode === 'create') {
         await menuApi.create(data)
         toast.success(t('common.createSuccess'))
       } else {
-        data.id = editingItem!.id
-        await menuApi.update(editingItem!.id, data)
+        data.id = modal.editingItem!.id
+        await menuApi.update(modal.editingItem!.id, data)
         toast.success(t('common.editSuccess'))
       }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    },
+  })
 
   const columns = useMemo(
     () =>
       getMenuColumns({
-        onEdit: handleEdit,
-        onDelete: handleDelete,
-        onAddChild: handleAddChild,
+        onEdit: handlers.handleEdit,
+        onDelete: handlers.handleDelete,
+        onAddChild: handlers.handleAddChild,
       }),
-    [handleEdit, handleDelete, handleAddChild]
+    [handlers.handleEdit, handlers.handleDelete, handlers.handleAddChild]
   )
 
   const searchSlot = (
@@ -215,40 +132,40 @@ export default function MenuManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('menu.addMenu')}</Button>
+      <Button onClick={handlers.handleCreate}>{t('menu.addMenu')}</Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('menu.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('menu.description')}</p>
-      </div>
-
-      <TreeTable<SysMenuListResponse>
-        columns={columns}
-        data={treeData}
-        searchSlot={searchSlot}
-        toolbarSlot={toolbarSlot}
-        loading={loading}
-      />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('menu.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <MenuForm
-          mode={modalMode}
-          initialValues={editingDetail ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
+    <CrudPageLayout
+      title={t('menu.title')}
+      description={t('menu.description')}
+      table={
+        <TreeTable<SysMenuListResponse>
+          columns={columns}
+          data={treeData}
+          searchSlot={searchSlot}
+          toolbarSlot={toolbarSlot}
+          loading={loading}
         />
-      </FormModal>
-    </div>
+      }
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode={modal.mode}
+          title={t('menu.formTitle')}
+          submitting={modal.submitting}
+          onConfirm={() => modal.formRef.current?.requestSubmit()}
+        >
+          <MenuForm
+            mode={modal.mode}
+            initialValues={modal.editingDetail ?? undefined}
+            onSubmit={handlers.handleFormSubmit}
+            formRef={modal.formRef}
+          />
+        </FormModal>
+      }
+    />
   )
 }

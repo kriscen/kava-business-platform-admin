@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import type { SysGroupListResponse, SysGroupRequest } from '@/types'
 import { groupApi } from '@/api/modules/group'
+import { useTreeCrudPage } from '@/hooks'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { TreeTable } from '@/components/tree-table'
 import { FormModal } from '@/components/form-modal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
-import { confirm } from '@/components/confirm-dialog'
 
 import { GroupForm, type GroupFormValues } from './group-form'
 import { getGroupColumns } from './columns'
@@ -17,127 +18,54 @@ export default function GroupManagement() {
   const { t } = useTranslation()
   const [searchName, setSearchName] = useState('')
 
-  const [treeData, setTreeData] = useState<SysGroupListResponse[]>([])
-  const [loading, setLoading] = useState(true)
+  const searchParams = useMemo(() => ({ name: searchName || undefined }), [searchName])
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingItem, setEditingItem] = useState<SysGroupListResponse | null>(null)
-  const [editingDetail, setEditingDetail] = useState<SysGroupListResponse | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [dataVersion, setDataVersion] = useState(0)
-
-  const fetchTree = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await groupApi.getTree()
-      let data = res.data ?? []
-      if (searchName) {
-        function filterTree(nodes: SysGroupListResponse[]): SysGroupListResponse[] {
-          return nodes
-            .map((n) => {
-              const children = n.children ? filterTree(n.children) : []
-              if (n.name.includes(searchName) || children.length > 0) {
-                return { ...n, children }
-              }
-              return null
-            })
-            .filter(Boolean) as SysGroupListResponse[]
-        }
-        data = filterTree(data)
-      }
-      setTreeData(data)
-    } finally {
-      setLoading(false)
-    }
-  }, [searchName])
-
-  useEffect(() => {
-    fetchTree()
-  }, [fetchTree, dataVersion])
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingItem(null)
-    setEditingDetail(null)
-    setModalOpen(true)
-  }
-
-  const handleAddChild = useCallback((row: SysGroupListResponse) => {
-    setModalMode('create')
-    setEditingItem(null)
-    setEditingDetail({
+  const { modal, handlers, treeData, loading } = useTreeCrudPage<
+    SysGroupListResponse,
+    SysGroupListResponse,
+    GroupFormValues
+  >({
+    api: groupApi,
+    searchParams,
+    confirmDeleteText: (row) => t('group.confirmDelete', { name: row.name }),
+    filterNode: (node, params) => {
+      const name = params.name as string | undefined
+      return !name || (node.name as string).includes(name)
+    },
+    onBeforeCreate: (parent) => ({
       id: 0,
-      pid: row.id,
+      pid: parent.id,
       name: '',
       sortOrder: 0,
-      parentName: row.name,
+      parentName: parent.name as string,
       children: [],
       gmtCreate: '',
-    })
-    setModalOpen(true)
-  }, [])
-
-  const handleEdit = useCallback(async (row: SysGroupListResponse) => {
-    setModalMode('edit')
-    setEditingItem(row)
-    try {
-      const res = await groupApi.getById(row.id)
-      setEditingDetail(res.data ?? null)
-    } catch {
-      setEditingDetail(row)
-    }
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysGroupListResponse) => {
-      const confirmed = await confirm({
-        title: t('group.confirmDelete', { name: row.name }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await groupApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
-
-  const handleFormSubmit = async (values: GroupFormValues) => {
-    setSubmitting(true)
-    try {
+    }),
+    onFormSubmit: async (values, mode) => {
       const data: SysGroupRequest = {
         name: values.name,
         pid: values.pid ?? undefined,
         sortOrder: values.sortOrder ?? 0,
       }
-      if (modalMode === 'create') {
+      if (mode === 'create') {
         await groupApi.create(data)
         toast.success(t('common.createSuccess'))
       } else {
-        data.id = editingItem!.id
-        await groupApi.update(editingItem!.id, data)
+        data.id = modal.editingItem!.id
+        await groupApi.update(modal.editingItem!.id, data)
         toast.success(t('common.editSuccess'))
       }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    },
+  })
 
   const columns = useMemo(
     () =>
-      getGroupColumns({ onEdit: handleEdit, onDelete: handleDelete, onAddChild: handleAddChild }),
-    [handleEdit, handleDelete, handleAddChild]
+      getGroupColumns({
+        onEdit: handlers.handleEdit,
+        onDelete: handlers.handleDelete,
+        onAddChild: handlers.handleAddChild,
+      }),
+    [handlers.handleEdit, handlers.handleDelete, handlers.handleAddChild]
   )
 
   const searchSlot = (
@@ -156,41 +84,41 @@ export default function GroupManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('group.addGroup')}</Button>
+      <Button onClick={handlers.handleCreate}>{t('group.addGroup')}</Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('group.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('group.description')}</p>
-      </div>
-
-      <TreeTable<SysGroupListResponse>
-        columns={columns}
-        data={treeData}
-        searchSlot={searchSlot}
-        toolbarSlot={toolbarSlot}
-        loading={loading}
-      />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('group.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <GroupForm
-          mode={modalMode}
-          initialValues={editingDetail ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
-          excludeId={modalMode === 'edit' ? editingItem?.id : undefined}
+    <CrudPageLayout
+      title={t('group.title')}
+      description={t('group.description')}
+      table={
+        <TreeTable<SysGroupListResponse>
+          columns={columns}
+          data={treeData}
+          searchSlot={searchSlot}
+          toolbarSlot={toolbarSlot}
+          loading={loading}
         />
-      </FormModal>
-    </div>
+      }
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode={modal.mode}
+          title={t('group.formTitle')}
+          submitting={modal.submitting}
+          onConfirm={() => modal.formRef.current?.requestSubmit()}
+        >
+          <GroupForm
+            mode={modal.mode}
+            initialValues={modal.editingDetail ?? undefined}
+            onSubmit={handlers.handleFormSubmit}
+            formRef={modal.formRef}
+            excludeId={modal.mode === 'edit' ? modal.editingItem?.id : undefined}
+          />
+        </FormModal>
+      }
+    />
   )
 }

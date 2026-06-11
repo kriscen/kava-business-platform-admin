@@ -1,14 +1,15 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import type { SysFileGroupListResponse, SysFileGroupRequest } from '@/types'
 import { fileGroupApi } from '@/api/modules/fileGroup'
 import { DataTable } from '@/components/data-table'
 import { FormModal } from '@/components/form-modal'
+import { CrudPageLayout } from '@/components/crud-page-layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
-import { confirm } from '@/components/confirm-dialog'
+import { useCrudPage } from '@/hooks'
 
 import { FileGroupForm, type FileGroupFormValues } from './file-group-form'
 import { getFileGroupColumns } from './columns'
@@ -17,15 +18,6 @@ export default function FileGroupManagement() {
   const { t } = useTranslation()
   const [searchName, setSearchName] = useState('')
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
-  const [editingRow, setEditingRow] = useState<SysFileGroupListResponse | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-
-  const [selectedRows, setSelectedRows] = useState<SysFileGroupListResponse[]>([])
-  const [dataVersion, setDataVersion] = useState(0)
-
   const searchParams = useMemo(
     () => ({
       name: searchName || undefined,
@@ -33,90 +25,32 @@ export default function FileGroupManagement() {
     [searchName]
   )
 
-  const fetchData = useCallback(
-    async (params: { pageNo: number; pageSize: number }) => {
-      const res = await fileGroupApi.getPage({ ...params, ...searchParams })
-      return {
-        records: res.data?.records ?? [],
-        total: res.data?.total ?? 0,
-      }
-    },
-    [searchParams]
-  )
-
-  const handleCreate = () => {
-    setModalMode('create')
-    setEditingRow(null)
-    setModalOpen(true)
-  }
-
-  const handleEdit = useCallback((row: SysFileGroupListResponse) => {
-    setModalMode('edit')
-    setEditingRow(row)
-    setModalOpen(true)
-  }, [])
-
-  const handleDelete = useCallback(
-    async (row: SysFileGroupListResponse) => {
-      const confirmed = await confirm({
-        title: t('fileGroup.confirmDelete', { name: row.name }),
-        variant: 'destructive',
-        confirmText: t('common.delete'),
-        onConfirm: async () => {
-          await fileGroupApi.remove([row.id])
-        },
-      })
-      if (!confirmed) return
-      toast.success(t('common.deleteSuccess'))
-      setDataVersion((v) => v + 1)
-    },
-    [t]
-  )
-
-  const handleBatchDelete = async () => {
-    if (!selectedRows.length) return
-    const confirmed = await confirm({
-      title: t('fileGroup.confirmBatchDelete', { count: selectedRows.length }),
-      variant: 'destructive',
-      confirmText: t('common.delete'),
-      onConfirm: async () => {
-        await fileGroupApi.remove(selectedRows.map((r) => r.id))
-      },
-    })
-    if (!confirmed) return
-    toast.success(t('common.batchDeleteSuccess'))
-    setSelectedRows([])
-    setDataVersion((v) => v + 1)
-  }
-
-  const handleFormSubmit = async (values: FileGroupFormValues) => {
-    setSubmitting(true)
-    try {
+  const { modal, handlers, tableProps } = useCrudPage<SysFileGroupListResponse>({
+    api: fileGroupApi,
+    searchParams,
+    enableBatchDelete: true,
+    confirmDeleteText: (row) => t('fileGroup.confirmDelete', { name: row.name }),
+    confirmBatchDeleteText: (count) => t('fileGroup.confirmBatchDelete', { count }),
+    onFormSubmit: async (values: FileGroupFormValues, mode) => {
       const data: SysFileGroupRequest = {
         name: values.name,
         pid: values.pid,
         type: values.type,
       }
-      if (modalMode === 'create') {
+      if (mode === 'create') {
         await fileGroupApi.create(data)
         toast.success(t('common.createSuccess'))
       } else {
-        data.id = editingRow!.id
+        data.id = modal.editingItem!.id
         await fileGroupApi.update(data)
         toast.success(t('common.editSuccess'))
       }
-      setModalOpen(false)
-      setDataVersion((v) => v + 1)
-    } catch {
-      // error toast handled by interceptor
-    } finally {
-      setSubmitting(false)
-    }
-  }
+    },
+  })
 
   const columns = useMemo(
-    () => getFileGroupColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleEdit, handleDelete]
+    () => getFileGroupColumns({ onEdit: handlers.handleEdit, onDelete: handlers.handleDelete }),
+    [handlers.handleEdit, handlers.handleDelete]
   )
 
   const searchSlot = (
@@ -135,46 +69,44 @@ export default function FileGroupManagement() {
 
   const toolbarSlot = (
     <div className="flex gap-2">
-      <Button onClick={handleCreate}>{t('fileGroup.addGroup')}</Button>
-      {selectedRows.length > 0 && (
-        <Button variant="destructive" onClick={handleBatchDelete}>
-          {t('common.batchDelete')} ({selectedRows.length})
-        </Button>
-      )}
+      <Button onClick={handlers.handleCreate}>{t('fileGroup.addGroup')}</Button>
+      <Button variant="destructive" onClick={handlers.handleBatchDelete}>
+        {t('common.batchDelete')}
+      </Button>
     </div>
   )
 
   return (
-    <div className="space-y-4 p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('fileGroup.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('fileGroup.description')}</p>
-      </div>
-
-      <DataTable
-        columns={columns}
-        fetchData={fetchData}
-        searchSlot={searchSlot}
-        toolbarSlot={toolbarSlot}
-        onSelectedRowsChange={setSelectedRows}
-        refreshKey={dataVersion}
-      />
-
-      <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-        title={t('fileGroup.formTitle')}
-        submitting={submitting}
-        onConfirm={() => formRef.current?.requestSubmit()}
-      >
-        <FileGroupForm
-          mode={modalMode}
-          initialValues={editingRow ?? undefined}
-          onSubmit={handleFormSubmit}
-          formRef={formRef}
+    <CrudPageLayout
+      title={t('fileGroup.title')}
+      description={t('fileGroup.description')}
+      searchSlot={searchSlot}
+      toolbarSlot={toolbarSlot}
+      table={
+        <DataTable
+          columns={columns}
+          fetchData={tableProps.fetchData}
+          refreshKey={tableProps.refreshKey}
+          onSelectedRowsChange={tableProps.onSelectedRowsChange}
         />
-      </FormModal>
-    </div>
+      }
+      formModal={
+        <FormModal
+          open={modal.open}
+          onOpenChange={handlers.setOpen}
+          mode={modal.mode}
+          title={t('fileGroup.formTitle')}
+          submitting={modal.submitting}
+          onConfirm={() => modal.formRef.current?.requestSubmit()}
+        >
+          <FileGroupForm
+            mode={modal.mode}
+            initialValues={modal.editingItem ?? undefined}
+            onSubmit={handlers.handleFormSubmit}
+            formRef={modal.formRef}
+          />
+        </FormModal>
+      }
+    />
   )
 }
