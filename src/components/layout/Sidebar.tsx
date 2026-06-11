@@ -1,5 +1,26 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Settings, User, ChevronDown, ChevronRight } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Settings,
+  User,
+  Users,
+  Building2,
+  Wrench,
+  Shield,
+  Menu,
+  MapPin,
+  Globe,
+  Route,
+  KeyRound,
+  FileText,
+  ClipboardList,
+  File,
+  FolderOpen,
+  AppWindow,
+  Group,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
@@ -35,6 +56,21 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
   Settings,
   User,
+  Users,
+  Building2,
+  Wrench,
+  Shield,
+  Menu,
+  MapPin,
+  Globe,
+  Route,
+  KeyRound,
+  FileText,
+  ClipboardList,
+  File,
+  FolderOpen,
+  AppWindow,
+  Group,
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed, menus = defaultMenus }) => {

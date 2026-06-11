@@ -77,7 +77,7 @@ const sharedRoutes: SharedRoute[] = [
     element: OAuthClientManagement,
     allowedRoles: ['platform_admin', 'tenant_admin'],
   },
-  { path: 'profile', element: Profile, allowedRoles: ['tenant_admin'] },
+  { path: 'profile', element: Profile, allowedRoles: ['platform_admin', 'tenant_admin'] },
   { path: 'system/log', element: LogManagement, allowedRoles: ['platform_admin'] },
   { path: 'system/audit-log', element: AuditLogManagement, allowedRoles: ['platform_admin'] },
   { path: 'system/file', element: FileManagement, allowedRoles: ['platform_admin'] },

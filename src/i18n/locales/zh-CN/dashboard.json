@@ -1,6 +1,42 @@
 {
-  "platformTitle": "平台仪表盘",
-  "platformWelcome": "欢迎使用 Kava Admin 平台管理系统",
-  "tenantTitle": "租户仪表盘",
-  "tenantWelcome": "欢迎使用 Kava Admin 租户管理系统"
+  "greeting": "你好，{name}",
+  "platformSubtitle": "欢迎回到 Kava Admin 平台管理系统，祝你有高效的一天！",
+  "tenantSubtitle": "欢迎回到 Kava Admin 租户管理系统，祝你有高效的一天！",
+  "shortcuts": "快捷入口",
+  "platform": {
+    "users": {
+      "title": "用户管理",
+      "description": "管理平台用户账号、权限分配"
+    },
+    "tenant": {
+      "title": "租户管理",
+      "description": "管理租户信息、套餐与配置"
+    },
+    "app": {
+      "title": "应用管理",
+      "description": "管理应用注册与配置"
+    },
+    "role": {
+      "title": "角色管理",
+      "description": "管理角色与权限策略"
+    }
+  },
+  "tenant": {
+    "role": {
+      "title": "角色管理",
+      "description": "管理角色与权限策略"
+    },
+    "menu": {
+      "title": "菜单管理",
+      "description": "管理菜单结构与展示"
+    },
+    "oauthClient": {
+      "title": "OAuth 客户端",
+      "description": "管理 OAuth 应用与令牌"
+    },
+    "profile": {
+      "title": "个人设置",
+      "description": "查看和编辑个人信息"
+    }
+  }
 }
