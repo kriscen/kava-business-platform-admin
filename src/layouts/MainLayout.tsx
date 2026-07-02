@@ -26,18 +26,18 @@ const MainLayout: React.FC = () => {
   }, [buildMenus])
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-muted/30 text-foreground">
       <aside
-        className="flex h-screen flex-col border-r border-border bg-sidebar transition-all duration-200"
-        style={{ width: sidebarCollapsed ? '80px' : '200px' }}
+        className="sticky top-0 z-30 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200"
+        style={{ width: sidebarCollapsed ? '80px' : '232px' }}
       >
         <Sidebar collapsed={sidebarCollapsed} menus={menus} />
       </aside>
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="h-16 border-b border-border bg-white">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="sticky top-0 z-20 h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
           <Header />
         </header>
-        <main className="flex-1">
+        <main className="min-w-0 flex-1">
           <Content>
             <Outlet />
           </Content>

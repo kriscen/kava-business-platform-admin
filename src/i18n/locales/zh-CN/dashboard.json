@@ -1,42 +1,111 @@
 {
-  "greeting": "你好，{name}",
-  "platformSubtitle": "欢迎回到 Kava Admin 平台管理系统，祝你有高效的一天！",
-  "tenantSubtitle": "欢迎回到 Kava Admin 租户管理系统，祝你有高效的一天！",
+  "greeting": "{{name}}，欢迎回来",
+  "platformSubtitle": "聚焦平台级账号、租户、应用与审计链路，优先处理会影响权限边界和业务接入的事项。",
+  "tenantSubtitle": "聚焦当前租户的角色、菜单、OAuth 客户端与个人资料，保持组织权限和入口配置清晰可控。",
+  "overview": "运营概览",
+  "overviewDescription": "基于当前登录身份呈现管理范围、入口覆盖和运行模式。",
   "shortcuts": "快捷入口",
+  "shortcutsDescription": "常用管理入口按角色收敛，减少跨模块查找成本。",
+  "focus": "重点关注",
+  "identity": {
+    "platformAdmin": "平台管理员",
+    "tenantAdmin": "租户管理员",
+    "globalPlatform": "平台全局",
+    "currentTenant": "当前租户",
+    "scope": "管理范围",
+    "mode": "运行模式"
+  },
+  "environment": {
+    "mock": "Mock 数据",
+    "server": "服务端数据"
+  },
+  "metrics": {
+    "role": {
+      "label": "当前身份",
+      "note": "菜单与操作入口按角色自动收敛"
+    },
+    "scope": {
+      "label": "管理范围",
+      "platformNote": "覆盖平台侧租户、应用和审计配置",
+      "tenantNote": "限制在当前租户的组织与接入配置"
+    },
+    "entries": {
+      "label": "可用入口",
+      "unit": "项",
+      "note": "展示当前角色最高频工作路径"
+    },
+    "environment": {
+      "label": "数据来源",
+      "note": "开发模式下核心流程保持 mock-first"
+    }
+  },
+  "status": {
+    "baseline": "基线",
+    "attention": "关注",
+    "tracking": "跟踪"
+  },
+  "platformFocus": {
+    "permission": {
+      "title": "权限基线",
+      "description": "核对用户、角色与菜单关系，避免账号获得超出职责的访问范围。"
+    },
+    "tenant": {
+      "title": "租户接入",
+      "description": "关注租户资料、订阅应用和启用状态，保证业务空间可持续管理。"
+    },
+    "audit": {
+      "title": "审计链路",
+      "description": "保留关键操作记录，便于排查异常变更和权限调整。"
+    }
+  },
+  "tenantFocus": {
+    "permission": {
+      "title": "角色边界",
+      "description": "维护租户内角色与数据范围，减少跨岗位授权带来的管理风险。"
+    },
+    "navigation": {
+      "title": "菜单结构",
+      "description": "保持导航层级清晰，确保常用业务入口能被快速定位。"
+    },
+    "oauth": {
+      "title": "接入配置",
+      "description": "检查 OAuth 客户端基础信息，确保应用接入参数准确可控。"
+    }
+  },
   "platform": {
     "users": {
       "title": "用户管理",
-      "description": "管理平台用户账号、权限分配"
+      "description": "维护账号状态、基础资料和平台权限归属"
     },
     "tenant": {
       "title": "租户管理",
-      "description": "管理租户信息、套餐与配置"
+      "description": "治理租户资料、应用订阅和启用状态"
     },
     "app": {
       "title": "应用管理",
-      "description": "管理应用注册与配置"
+      "description": "维护平台应用注册信息和接入配置"
     },
     "role": {
       "title": "角色管理",
-      "description": "管理角色与权限策略"
+      "description": "配置角色能力边界和授权策略"
     }
   },
   "tenant": {
     "role": {
       "title": "角色管理",
-      "description": "管理角色与权限策略"
+      "description": "配置租户内角色、授权范围和岗位职责"
     },
     "menu": {
       "title": "菜单管理",
-      "description": "管理菜单结构与展示"
+      "description": "维护租户导航结构和页面入口"
     },
     "oauthClient": {
       "title": "OAuth 客户端",
-      "description": "管理 OAuth 应用与令牌"
+      "description": "维护客户端凭据、回调地址和接入状态"
     },
     "profile": {
       "title": "个人设置",
-      "description": "查看和编辑个人信息"
+      "description": "查看账号资料和当前登录身份信息"
     }
   }
 }

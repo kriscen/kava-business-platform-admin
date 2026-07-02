@@ -94,6 +94,7 @@ export function DataTable<T>({
       id: 'select',
       header: ({ table }) => (
         <Checkbox
+          aria-label={t('common.selectAllRows')}
           checked={table.getIsAllPageRowsSelected()}
           indeterminate={!table.getIsAllPageRowsSelected() && table.getIsSomePageRowsSelected()}
           onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
@@ -101,6 +102,7 @@ export function DataTable<T>({
       ),
       cell: ({ row }) => (
         <Checkbox
+          aria-label={t('common.selectRow')}
           checked={row.getIsSelected() || false}
           onCheckedChange={(v) => row.toggleSelected(!!v)}
         />
@@ -109,7 +111,7 @@ export function DataTable<T>({
       enableHiding: false,
     }
     return [selectCol, ...tanstackColumns]
-  }, [tanstackColumns, onSelectedRowsChange])
+  }, [tanstackColumns, onSelectedRowsChange, t])
 
   const table = useReactTable({
     data,
@@ -173,13 +175,15 @@ export function DataTable<T>({
 
   return (
     <div className="space-y-4">
-      {searchSlot && <div>{searchSlot}</div>}
-      <div className="flex items-center justify-between">
-        {toolbarSlot && <div>{toolbarSlot}</div>}
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
+      {searchSlot && <div className="rounded-lg border bg-card p-4 shadow-sm">{searchSlot}</div>}
+      {toolbarSlot && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">{toolbarSlot}</div>
+        </div>
+      )}
+      <div className="overflow-hidden rounded-lg border bg-card shadow-sm" aria-busy={loading}>
+        <Table className="min-w-[760px]">
+          <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>
                 {hg.headers.map((h) => (
@@ -194,7 +198,7 @@ export function DataTable<T>({
             {error ? (
               <TableRow>
                 <TableCell colSpan={allColumns.length} className="h-48 text-center">
-                  <div className="flex flex-col items-center gap-3">
+                  <div className="flex flex-col items-center gap-3" role="status">
                     <AlertCircle className="size-10 text-destructive" />
                     <p className="text-muted-foreground">{error}</p>
                     <Button
@@ -233,7 +237,7 @@ export function DataTable<T>({
             ) : (
               <TableRow>
                 <TableCell colSpan={allColumns.length} className="h-24 text-center">
-                  {t('common.noData')}
+                  <span className="text-muted-foreground">{t('common.noData')}</span>
                 </TableCell>
               </TableRow>
             )}
@@ -241,8 +245,8 @@ export function DataTable<T>({
         </Table>
       </div>
       {totalPages > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-3 rounded-lg border bg-card px-3 py-2 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <span>{t('common.perPage')}</span>
             <Select
               value={String(pageSize)}
@@ -264,10 +268,12 @@ export function DataTable<T>({
             </Select>
             <span>{t('common.totalCount', { count: total })}</span>
           </div>
-          <Pagination>
-            <PaginationContent>
+          <Pagination className="justify-start lg:justify-end">
+            <PaginationContent className="flex-wrap">
               <PaginationItem>
                 <PaginationPrevious
+                  text={t('common.previousPage')}
+                  aria-label={t('common.previousPage')}
                   onClick={() => setPageNo((p) => Math.max(1, p - 1))}
                   className={cn(pageNo <= 1 && 'pointer-events-none opacity-50')}
                 />
@@ -287,6 +293,8 @@ export function DataTable<T>({
               )}
               <PaginationItem>
                 <PaginationNext
+                  text={t('common.nextPage')}
+                  aria-label={t('common.nextPage')}
                   onClick={() => setPageNo((p) => Math.min(totalPages, p + 1))}
                   className={cn(pageNo >= totalPages && 'pointer-events-none opacity-50')}
                 />

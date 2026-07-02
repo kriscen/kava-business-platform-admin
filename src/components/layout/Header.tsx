@@ -24,28 +24,36 @@ const Header: React.FC = () => {
   }
 
   return (
-    <div className="flex h-16 items-center justify-between px-4">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+    <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('layout.toggleSidebar')}
+          title={t('layout.toggleSidebar')}
+          onClick={toggleSidebar}
+        >
           {sidebarCollapsed ? (
             <PanelLeft className="size-5" />
           ) : (
             <PanelLeftClose className="size-5" />
           )}
         </Button>
-        <h1 className="text-lg font-semibold">{pageTitle || t('layout.title')}</h1>
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold">{pageTitle || t('layout.title')}</h1>
+        </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex shrink-0 items-center">
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-accent">
-              <Avatar size="sm">
-                <AvatarFallback>
-                  <User className="size-4" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm">{userInfo?.username || t('common.admin')}</span>
-            </div>
+          <DropdownMenuTrigger className="flex h-10 cursor-pointer items-center gap-2 rounded-md px-2 text-sm transition-colors hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+            <Avatar size="sm">
+              <AvatarFallback>
+                <User className="size-4" />
+              </AvatarFallback>
+            </Avatar>
+            <span className="hidden max-w-36 truncate sm:inline">
+              {userInfo?.username || t('common.admin')}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={4}>
             <DropdownMenuItem>
