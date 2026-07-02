@@ -12,7 +12,7 @@
 - **HTTP 客户端**: Axios
 - **国际化**: i18next
 - **路由**: React Router DOM 7
-- **开发工具**: Claude Code + Speckit + Trae (GLM-5)
+- **开发工具**: Codex + OpenSpec + Trae (GLM-5)
 
 ## 环境要求
 
@@ -75,8 +75,10 @@ pnpm dev:prod
 
 ```
 .
-├── .claude/           # Claude Code 配置
-├── .specify/          # Speckit 配置
+├── AGENTS.md          # Codex 项目指令
+├── .agents/           # Codex skills 与项目规则
+├── .claude/           # 旧 Claude Code 配置（迁移后仅作参考）
+├── .specify/          # 旧 Speckit 配置
 ├── mock/              # Mock 数据
 ├── public/            # 静态资源
 ├── src/
@@ -100,13 +102,16 @@ pnpm dev:prod
 
 ## 开发规范
 
-项目使用 Speckit 工作流进行规范驱动开发：
+项目使用 Codex + OpenSpec 工作流进行规范驱动开发。Codex 配置入口为 `AGENTS.md`，可复用工作流在 `.agents/skills/` 下，项目规则在 `.agents/rules/` 下。
 
-1. `/speckit.specify` - 创建功能规范
-2. `/speckit.clarify` - 澄清需求
-3. `/speckit.plan` - 生成技术方案
-4. `/speckit.tasks` - 生成任务列表
-5. `/speckit.implement` - 执行实现
+常用工作流：
+
+1. `openspec-propose`（旧别名 `/opsx:propose`）- 创建新 change，生成 proposal/design/tasks
+2. `openspec-new-change`（旧别名 `/opsx:new`）- 逐步创建 change artifacts
+3. `openspec-apply-change`（旧别名 `/opsx:apply`）- 实现 tasks
+4. `openspec-verify-change`（旧别名 `/opsx:verify`）- 验证实现与 artifacts 是否一致
+5. `openspec-archive-change`（旧别名 `/opsx:archive`）- 归档已完成 change，并评估 specs/docs 同步
+6. `update-docs-map`（旧别名 `/update-docs-map`）- 同步 `docs/00-project-map.md`
 
 ## License
 
