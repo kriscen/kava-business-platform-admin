@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -66,10 +67,9 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize).map((r) => ({
+      return ok(
+        page(
+          list.slice(start, start + pageSize).map((r) => ({
             id: r.id,
             roleName: r.roleName,
             roleCode: r.roleCode,
@@ -78,13 +78,11 @@ export default [
             gmtCreate: r.gmtCreate,
             gmtModified: r.gmtModified,
           })),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+          list.length,
+          pageNo,
+          pageSize
+        )
+      )
     },
   },
   {
@@ -94,12 +92,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '角色不存在' }
-      return {
-        code: 0,
-        data: { ...r, menuNames: ['仪表盘', '用户管理'] },
-        message: 'success',
-      }
+      if (!r) return fail(-1, '角色不存在')
+      return ok({ ...r, menuNames: ['仪表盘', '用户管理'] })
     },
   },
   {
@@ -119,7 +113,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -127,7 +121,7 @@ export default [
     method: 'put',
     response: ({ body }: { body: Record<string, unknown> }) => {
       const id = body.id as number
-      if (!records[id]) return { code: -1, message: '角色不存在' }
+      if (!records[id]) return fail(-1, '角色不存在')
       records[id] = {
         ...records[id],
         roleName: (body.roleName as string) ?? records[id].roleName,
@@ -138,7 +132,7 @@ export default [
         menuIds: (body.menuIds as number[]) ?? records[id].menuIds,
         gmtModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
   {
@@ -146,20 +140,19 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
   {
     url: '/api/v1/sys/role/dropdown',
     method: 'get',
-    response: () => ({
-      code: 0,
-      data: Object.values(records).map((r) => ({
-        id: r.id,
-        roleName: r.roleName,
-        roleCode: r.roleCode,
-      })),
-      message: 'success',
-    }),
+    response: () =>
+      ok(
+        Object.values(records).map((r) => ({
+          id: r.id,
+          roleName: r.roleName,
+          roleCode: r.roleCode,
+        }))
+      ),
   },
 ] as MockMethod[]

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import type { SysGroupListResponse, SysGroupRequest } from '@/types'
+import type { SysGroupDetailResponse, SysGroupListResponse, SysGroupRequest } from '@/types'
 import { groupApi } from '@/api/modules/group'
 import { useTreeCrudPage } from '@/hooks'
 import { CrudPageLayout } from '@/components/crud-page-layout'
@@ -22,7 +22,7 @@ export default function GroupManagement() {
 
   const { modal, handlers, treeData, loading } = useTreeCrudPage<
     SysGroupListResponse,
-    SysGroupListResponse,
+    SysGroupDetailResponse & { children?: SysGroupListResponse[] },
     GroupFormValues
   >({
     api: groupApi,

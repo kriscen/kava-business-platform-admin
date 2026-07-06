@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import type { SysAreaListResponse, SysAreaRequest } from '@/types'
+import type { SysAreaDetailResponse, SysAreaListResponse, SysAreaRequest } from '@/types'
 import { areaApi } from '@/api/modules/area'
 import { useTreeCrudPage } from '@/hooks'
 import { CrudPageLayout } from '@/components/crud-page-layout'
@@ -35,7 +35,7 @@ export default function AreaManagement() {
 
   const { modal, handlers, treeData, loading } = useTreeCrudPage<
     SysAreaListResponse,
-    SysAreaListResponse & Partial<SysAreaListResponse>,
+    SysAreaDetailResponse & { children?: SysAreaListResponse[] },
     AreaFormValues
   >({
     api: areaApi,
@@ -103,7 +103,7 @@ export default function AreaManagement() {
         <span className="text-xs text-muted-foreground">{t('area.areaType')}</span>
         <Select
           value={searchAreaType}
-          onValueChange={(v) => setSearchAreaType(v === '__all__' ? '' : v)}
+          onValueChange={(v) => setSearchAreaType(!v || v === '__all__' ? '' : v)}
         >
           <SelectTrigger className="w-32">
             <SelectValue placeholder={t('area.areaTypePlaceholder')} />

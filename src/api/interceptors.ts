@@ -58,8 +58,8 @@ export const setupInterceptors = (instance: AxiosInstance): void => {
   instance.interceptors.response.use(
     (response) => {
       const data = response.data as ApiResponse
-      if (String(data.code) !== '0') {
-        toast.error(data.msg || i18n.t('common.requestFailed'))
+      if (data && typeof data === 'object' && 'success' in data && !data.success) {
+        toast.error(data.errorMessage || i18n.t('common.requestFailed'))
         return Promise.reject(data)
       }
       return response.data
@@ -118,7 +118,7 @@ export const setupInterceptors = (instance: AxiosInstance): void => {
             toast.error(i18n.t('common.serviceUnavailable'))
             break
           default:
-            toast.error(data?.msg || i18n.t('common.requestError', { status }))
+            toast.error(data?.errorMessage || i18n.t('common.requestError', { status }))
         }
       } else if (error.code === 'ECONNABORTED') {
         toast.error(i18n.t('common.requestTimeout'))

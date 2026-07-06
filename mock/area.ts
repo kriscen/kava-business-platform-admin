@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -153,17 +154,7 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
@@ -183,9 +174,9 @@ export default [
             })
             .filter(Boolean) as ReturnType<typeof buildTree>
         }
-        return { code: 0, data: filterTree(tree), message: 'success' }
+        return ok(filterTree(tree))
       }
-      return { code: 0, data: tree, message: 'success' }
+      return ok(tree)
     },
   },
   {
@@ -196,7 +187,7 @@ export default [
       const children = Object.values(records)
         .filter((r) => r.pid === pid)
         .map(toFlatItem)
-      return { code: 0, data: children, message: 'success' }
+      return ok(children)
     },
   },
   {
@@ -206,8 +197,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '区域不存在' }
-      return { code: 0, data: toFlatItem(r), message: 'success' }
+      if (!r) return fail(-1, '区域不存在')
+      return ok(toFlatItem(r))
     },
   },
   {
@@ -226,7 +217,7 @@ export default [
         cityCode: (body.cityCode as string) || '',
         gmtCreate: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -234,7 +225,7 @@ export default [
     method: 'put',
     response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
       const id = parseInt(url.split('/').pop()!)
-      if (!records[id]) return { code: -1, message: '区域不存在' }
+      if (!records[id]) return fail(-1, '区域不存在')
       records[id] = {
         ...records[id],
         name: (body.name as string) ?? records[id].name,
@@ -244,7 +235,7 @@ export default [
         areaStatus: (body.areaStatus as string) ?? records[id].areaStatus,
         cityCode: (body.cityCode as string) ?? records[id].cityCode,
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -252,7 +243,7 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
 ] as MockMethod[]

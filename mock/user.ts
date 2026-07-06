@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, page } from './_utils'
 
 const groupLookup: Record<number, string> = {
   1: '总部',
@@ -149,17 +150,7 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
@@ -169,8 +160,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const u = records[id]
-      if (!u) return { code: -1, message: '用户不存在' }
-      return { code: 0, data: { ...u }, message: 'success' }
+      if (!u) return fail(-1, '用户不存在')
+      return ok({ ...u })
     },
   },
   {
@@ -200,7 +191,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -208,7 +199,7 @@ export default [
     method: 'put',
     response: ({ body }: { body: Record<string, unknown> }) => {
       const id = body.id as number
-      if (!records[id]) return { code: -1, message: '用户不存在' }
+      if (!records[id]) return fail(-1, '用户不存在')
       records[id] = {
         ...records[id],
         username: (body.username as string) ?? records[id].username,
@@ -222,7 +213,7 @@ export default [
         roleIds: (body.roleIds as number[]) ?? records[id].roleIds,
         gmtModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
   {
@@ -230,7 +221,7 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
 ] as MockMethod[]

@@ -20,10 +20,12 @@ export interface RequestConfig {
  * 后端 API 统一响应格式，对齐后端 JsonResult<T>
  */
 export interface ApiResponse<T = unknown> {
-  /** 业务状态码，"0" 表示成功 */
-  code: string
-  /** 响应数据 */
-  data?: T
-  /** 响应消息 */
-  msg?: string
+  /** 业务是否成功 */
+  success: boolean
+  /** 响应数据，失败时为 null */
+  data: T | null
+  /** 错误码，成功时为 null */
+  errorCode: string | null
+  /** 错误描述，成功时为 null */
+  errorMessage: string | null
 }

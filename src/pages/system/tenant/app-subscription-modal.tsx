@@ -84,8 +84,9 @@ export function AppSubscriptionModal({ open, onOpenChange, tenantId }: AppSubscr
       toast.success(t('tenant.unsubscribeSuccess'))
       fetchSubscribedApps()
     } catch (error: unknown) {
-      const err = error as { code?: number }
-      if (err?.code === 10100002) {
+      const err = error as { errorCode?: string | number; code?: string | number }
+      const errorCode = err?.errorCode ?? err?.code
+      if (String(errorCode) === '10100002') {
         toast.error(t('tenant.systemAppNoUnsubscribe'))
       }
     }
@@ -140,7 +141,10 @@ export function AppSubscriptionModal({ open, onOpenChange, tenantId }: AppSubscr
           <div className="border-t pt-4">
             <h4 className="mb-2 text-sm font-medium">{t('tenant.subscribeNewApp')}</h4>
             <div className="flex items-center gap-2">
-              <Select value={selectedAppId} onValueChange={setSelectedAppId}>
+              <Select
+                value={selectedAppId}
+                onValueChange={(value) => setSelectedAppId(value ?? '')}
+              >
                 <SelectTrigger className="flex-1">
                   <SelectValue placeholder={t('tenant.selectApp')} />
                 </SelectTrigger>

@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, page } from './_utils'
 
 const records: Record<
   number,
@@ -60,12 +61,12 @@ const records: Record<
   },
   5: {
     id: 5,
-    auditName: '部门信息变更',
-    auditField: 'deptName',
-    beforeVal: '"技术部"',
-    afterVal: '"技术研发部"',
+    auditName: '分组信息变更',
+    auditField: 'groupName',
+    beforeVal: '"技术组"',
+    afterVal: '"技术研发组"',
     createBy: 'admin',
-    requestUri: '/api/v1/sys/dept',
+    requestUri: '/api/v1/sys/group',
     method: 'PUT',
     gmtCreate: '2025-06-03 08:00:00',
   },
@@ -83,10 +84,9 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize).map((r) => ({
+      return ok(
+        page(
+          list.slice(start, start + pageSize).map((r) => ({
             id: r.id,
             auditName: r.auditName,
             auditField: r.auditField,
@@ -94,13 +94,11 @@ export default [
             afterVal: r.afterVal,
             gmtCreate: r.gmtCreate,
           })),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+          list.length,
+          pageNo,
+          pageSize
+        )
+      )
     },
   },
   {
@@ -110,8 +108,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '审计日志不存在' }
-      return { code: 0, data: r, message: 'success' }
+      if (!r) return fail(-1, '审计日志不存在')
+      return ok(r)
     },
   },
 ] as MockMethod[]

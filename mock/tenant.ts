@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -111,29 +112,18 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
     url: '/api/v1/sys/tenant/dropdown',
     method: 'get',
-    response: () => ({
-      code: 0,
-      data: Object.values(records)
-        .filter((r) => r.status === '0')
-        .map((r) => ({ id: r.id, name: r.name, code: r.code, status: r.status })),
-      message: 'success',
-    }),
+    response: () =>
+      ok(
+        Object.values(records)
+          .filter((r) => r.status === '0')
+          .map((r) => ({ id: r.id, name: r.name, code: r.code, status: r.status }))
+      ),
   },
   {
     url: /\/api\/v1\/sys\/tenant\/\d+$/,
@@ -141,8 +131,8 @@ export default [
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop()!)
       const r = records[id]
-      if (!r) return { code: -1, message: '租户不存在' }
-      return { code: 0, data: toResponse(r), message: 'success' }
+      if (!r) return fail(-1, '租户不存在')
+      return ok(toResponse(r))
     },
   },
   {
@@ -165,7 +155,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -174,7 +164,7 @@ export default [
     response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
       const segments = url.split('/')
       const id = parseInt(segments.pop()!)
-      if (!records[id]) return { code: -1, message: '租户不存在' }
+      if (!records[id]) return fail(-1, '租户不存在')
       const now = new Date().toISOString().replace('T', ' ').slice(0, 19)
       records[id] = {
         ...records[id],
@@ -189,7 +179,7 @@ export default [
         status: (body.status as string) ?? records[id].status,
         gmtModified: now,
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -198,9 +188,9 @@ export default [
     response: ({ url }: { url: string }) => {
       const parts = url.split('/')
       const id = parseInt(parts[parts.length - 2])
-      if (!records[id]) return { code: -1, message: '租户不存在' }
+      if (!records[id]) return fail(-1, '租户不存在')
       records[id].status = '0'
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -209,9 +199,9 @@ export default [
     response: ({ url }: { url: string }) => {
       const parts = url.split('/')
       const id = parseInt(parts[parts.length - 2])
-      if (!records[id]) return { code: -1, message: '租户不存在' }
+      if (!records[id]) return fail(-1, '租户不存在')
       records[id].status = '9'
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -222,7 +212,7 @@ export default [
         delete records[id]
         delete tenantApps[id]
       })
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -248,7 +238,7 @@ export default [
           }
         })
         .filter(Boolean)
-      return { code: 0, data, message: 'success' }
+      return ok(data)
     },
   },
   {
@@ -260,13 +250,13 @@ export default [
       const appId = body.appId as number
       if (!tenantApps[tenantId]) tenantApps[tenantId] = []
       if (tenantApps[tenantId].some((s) => s.appId === appId)) {
-        return { code: 10100001, msg: '该应用已订阅' }
+        return fail(10100001, '该应用已订阅')
       }
       tenantApps[tenantId].push({
         appId,
         gmtCreate: new Date().toISOString().replace('T', ' ').slice(0, 19),
       })
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -277,12 +267,12 @@ export default [
       const appId = parseInt(parts.pop()!)
       const tenantId = parseInt(parts[parts.length - 2])
       if (appId === 1) {
-        return { code: 10100002, msg: '系统应用不可退订' }
+        return fail(10100002, '系统应用不可退订')
       }
       if (tenantApps[tenantId]) {
         tenantApps[tenantId] = tenantApps[tenantId].filter((s) => s.appId !== appId)
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
 ] as MockMethod[]

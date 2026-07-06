@@ -71,7 +71,7 @@ export default function LogManagement() {
       </div>
       <div className="space-y-1">
         <span className="text-xs text-muted-foreground">{t('log.logType')}</span>
-        <Select value={searchLogType} onValueChange={setSearchLogType}>
+        <Select value={searchLogType} onValueChange={(value) => setSearchLogType(value ?? '')}>
           <SelectTrigger className="w-32">
             <SelectValue placeholder={t('common.all')} />
           </SelectTrigger>

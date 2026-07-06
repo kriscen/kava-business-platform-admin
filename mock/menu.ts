@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -134,11 +135,11 @@ const records: Record<
   },
   8: {
     id: 8,
-    name: '部门管理',
-    permission: 'sys:dept:list',
+    name: '分组管理',
+    permission: 'sys:group:list',
     pid: 1,
-    path: '/system/dept',
-    component: 'system/dept/index',
+    path: '/system/group',
+    component: 'system/group/index',
     icon: 'Building2',
     sortOrder: 4,
     menuType: '0',
@@ -235,27 +236,13 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
     url: '/api/v1/sys/menu/tree',
     method: 'get',
-    response: () => ({
-      code: 0,
-      data: buildTree(0),
-      message: 'success',
-    }),
+    response: () => ok(buildTree(0)),
   },
   {
     url: /\/api\/v1\/sys\/menu\/\d+$/,
@@ -264,8 +251,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '菜单不存在' }
-      return { code: 0, data: toFlatItem(r), message: 'success' }
+      if (!r) return fail(-1, '菜单不存在')
+      return ok(toFlatItem(r))
     },
   },
   {
@@ -290,7 +277,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -298,7 +285,7 @@ export default [
     method: 'put',
     response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
       const id = parseInt(url.split('/').pop()!)
-      if (!records[id]) return { code: -1, message: '菜单不存在' }
+      if (!records[id]) return fail(-1, '菜单不存在')
       records[id] = {
         ...records[id],
         name: (body.name as string) ?? records[id].name,
@@ -314,7 +301,7 @@ export default [
         embedded: (body.embedded as string) ?? records[id].embedded,
         gmtModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -322,9 +309,9 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       const hasChildren = body.some((id) => Object.values(records).some((r) => r.pid === id))
-      if (hasChildren) return { code: -1, message: '存在子菜单，无法删除' }
+      if (hasChildren) return fail(-1, '存在子菜单，无法删除')
       body.forEach((id) => delete records[id])
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
 ] as MockMethod[]

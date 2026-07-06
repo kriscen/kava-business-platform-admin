@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -67,10 +68,9 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize).map((r) => ({
+      return ok(
+        page(
+          list.slice(start, start + pageSize).map((r) => ({
             id: r.id,
             fileName: r.fileName,
             original: r.original,
@@ -80,13 +80,11 @@ export default [
             fileSize: r.fileSize,
             gmtCreate: r.gmtCreate,
           })),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+          list.length,
+          pageNo,
+          pageSize
+        )
+      )
     },
   },
   {
@@ -96,8 +94,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '文件不存在' }
-      return { code: 0, data: r, message: 'success' }
+      if (!r) return fail(-1, '文件不存在')
+      return ok(r)
     },
   },
   {
@@ -118,7 +116,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -126,7 +124,7 @@ export default [
     method: 'put',
     response: ({ body }: { body: Record<string, unknown> }) => {
       const id = body.id as number
-      if (!records[id]) return { code: -1, message: '文件不存在' }
+      if (!records[id]) return fail(-1, '文件不存在')
       records[id] = {
         ...records[id],
         fileName: (body.fileName as string) ?? records[id].fileName,
@@ -138,7 +136,7 @@ export default [
         fileSize: (body.fileSize as number) ?? records[id].fileSize,
         gmtModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
   {
@@ -146,7 +144,7 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, data: true, message: 'success' }
+      return ok(true)
     },
   },
 ] as MockMethod[]

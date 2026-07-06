@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid, page } from './_utils'
 
 let nextId = 100
 const records: Record<
@@ -110,17 +111,7 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
@@ -130,8 +121,8 @@ export default [
       const urlParts = query.url?.split('/') || []
       const id = parseInt(urlParts[urlParts.length - 1])
       const r = records[id]
-      if (!r) return { code: -1, message: '翻译不存在' }
-      return { code: 0, data: r, message: 'success' }
+      if (!r) return fail(-1, '翻译不存在')
+      return ok(r)
     },
   },
   {
@@ -141,7 +132,7 @@ export default [
       const existing = Object.values(records).find(
         (r) => r.code === body.code && r.language === body.language
       )
-      if (existing) return { code: -1, message: '该编码和语言的翻译已存在' }
+      if (existing) return fail(-1, '该编码和语言的翻译已存在')
       const id = nextId++
       const now = new Date().toISOString().replace('T', ' ').slice(0, 19)
       records[id] = {
@@ -152,7 +143,7 @@ export default [
         gmtCreate: now,
         gmtModified: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -160,13 +151,13 @@ export default [
     method: 'put',
     response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
       const id = parseInt(url.split('/').pop()!)
-      if (!records[id]) return { code: -1, message: '翻译不存在' }
+      if (!records[id]) return fail(-1, '翻译不存在')
       records[id] = {
         ...records[id],
         content: (body.content as string) ?? records[id].content,
         gmtModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -174,7 +165,7 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
 ] as MockMethod[]

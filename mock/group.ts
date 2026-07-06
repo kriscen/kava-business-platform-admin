@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid, page } from './_utils'
 
 let nextId = 100
 
@@ -119,24 +120,14 @@ export default [
       const pageNo = parseInt(query.pageNo || '1')
       const pageSize = parseInt(query.pageSize || '10')
       const start = (pageNo - 1) * pageSize
-      return {
-        code: 0,
-        data: {
-          records: list.slice(start, start + pageSize),
-          total: list.length,
-          size: pageSize,
-          current: pageNo,
-          pages: Math.ceil(list.length / pageSize),
-        },
-        message: 'success',
-      }
+      return ok(page(list.slice(start, start + pageSize), list.length, pageNo, pageSize))
     },
   },
   {
     url: '/api/v1/sys/group/tree',
     method: 'get',
     response: () => {
-      return { code: 0, data: buildTree(0), message: 'success' }
+      return ok(buildTree(0))
     },
   },
   {
@@ -145,8 +136,8 @@ export default [
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop()!)
       const r = records[id]
-      if (!r) return { code: -1, message: '分组不存在' }
-      return { code: 0, data: toFlatItem(r), message: 'success' }
+      if (!r) return fail(-1, '分组不存在')
+      return ok(toFlatItem(r))
     },
   },
   {
@@ -162,7 +153,7 @@ export default [
         sortOrder: (body.sortOrder as number) || 0,
         gmtCreate: now,
       }
-      return { code: 0, data: id, message: 'success' }
+      return ok(id)
     },
   },
   {
@@ -170,14 +161,14 @@ export default [
     method: 'put',
     response: ({ body, url }: { body: Record<string, unknown>; url: string }) => {
       const id = parseInt(url.split('/').pop()!)
-      if (!records[id]) return { code: -1, message: '分组不存在' }
+      if (!records[id]) return fail(-1, '分组不存在')
       records[id] = {
         ...records[id],
         name: (body.name as string) ?? records[id].name,
         pid: (body.pid as number) ?? records[id].pid,
         sortOrder: (body.sortOrder as number) ?? records[id].sortOrder,
       }
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
   {
@@ -185,7 +176,7 @@ export default [
     method: 'delete',
     response: ({ body }: { body: number[] }) => {
       body.forEach((id) => delete records[id])
-      return { code: 0, message: 'success' }
+      return okVoid()
     },
   },
 ] as MockMethod[]

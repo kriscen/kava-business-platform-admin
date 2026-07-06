@@ -1,4 +1,5 @@
 import type { MockMethod } from 'vite-plugin-mock'
+import { fail, ok, okVoid } from './_utils'
 
 interface MockAccount {
   password: string
@@ -47,15 +48,15 @@ export default [
       const account = MOCK_ACCOUNTS[username]
 
       if (!account || account.password !== password) {
-        return { code: -1, message: '账号或密码错误' }
+        return fail(-1, '账号或密码错误')
       }
 
       if (account.userInfo.role !== role) {
-        return { code: -1, message: '账号或密码错误' }
+        return fail(-1, '账号或密码错误')
       }
 
       if (role === 'tenant_admin' && tenantCode !== 'DEMO') {
-        return { code: -1, message: '租户编码错误' }
+        return fail(-1, '租户编码错误')
       }
 
       const isPlatform = role === 'platform_admin'
@@ -70,24 +71,17 @@ export default [
         dataScope: '0',
       }
 
-      return {
-        code: 0,
-        data: {
-          userInfo: account.userInfo,
-          accessToken: generateMockJWT(jwtPayload),
-          refreshToken: generateRefreshToken(),
-        },
-        message: 'success',
-      }
+      return ok({
+        userInfo: account.userInfo,
+        accessToken: generateMockJWT(jwtPayload),
+        refreshToken: generateRefreshToken(),
+      })
     },
   },
   {
     url: '/api/auth/logout',
     method: 'post',
-    response: () => ({
-      code: 0,
-      message: 'success',
-    }),
+    response: () => okVoid(),
   },
   {
     url: '/api/auth/refresh',
@@ -95,24 +89,20 @@ export default [
     response: ({ body }: { body: Record<string, string> }) => {
       const { refreshToken } = body
       if (!refreshToken || !refreshToken.startsWith('refresh_')) {
-        return { code: -1, message: 'Invalid refresh token' }
+        return fail(-1, 'Invalid refresh token')
       }
-      return {
-        code: 0,
-        data: {
-          accessToken: generateMockJWT({
-            sub: 'refreshed',
-            username: 'admin',
-            tenantId: '1000001',
-            userType: '1',
-            userId: '1',
-            roles: ['ROLE_ADMIN'],
-            dataScope: '0',
-          }),
-          refreshToken: generateRefreshToken(),
-        },
-        message: 'success',
-      }
+      return ok({
+        accessToken: generateMockJWT({
+          sub: 'refreshed',
+          username: 'admin',
+          tenantId: '1000001',
+          userType: '1',
+          userId: '1',
+          roles: ['ROLE_ADMIN'],
+          dataScope: '0',
+        }),
+        refreshToken: generateRefreshToken(),
+      })
     },
   },
 ] as MockMethod[]

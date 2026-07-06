@@ -6,14 +6,18 @@ import { confirm } from '@/components/confirm-dialog'
 import type { ApiResponse } from '@/types'
 import type { CrudApi, ModalState, CrudHandlers } from './useCrudPage'
 
+type FormSubmitHandler<TFormValues> = {
+  bivarianceHack(values: TFormValues, mode: 'create' | 'edit'): Promise<void>
+}['bivarianceHack']
+
 export interface TreeCrudApi<TList, TDetail = TList> extends CrudApi<TList, TDetail> {
   getTree: (params?: Record<string, unknown>) => Promise<ApiResponse<TList[]>>
 }
 
 export interface TreeCrudPageConfig<TList, TDetail, TFormValues> {
-  api: TreeCrudApi<TList>
+  api: TreeCrudApi<TList, TDetail>
   searchParams: Record<string, unknown>
-  onFormSubmit: (values: TFormValues, mode: 'create' | 'edit') => Promise<void>
+  onFormSubmit: FormSubmitHandler<TFormValues>
   confirmDeleteText: (row: TList) => string
   /** Frontend filter function for tree data. Return true to keep a node. */
   filterNode?: (node: TList, searchParams: Record<string, unknown>) => boolean
@@ -39,14 +43,14 @@ export interface TreeCrudPageReturn<TList, TDetail = TList> {
 }
 
 /** Recursively filter tree, keeping ancestors of matching nodes */
-function filterTree<T extends Record<string, unknown>>(
+function filterTree<T extends object>(
   nodes: T[],
   predicate: (node: T) => boolean,
   childrenField = 'children'
 ): T[] {
   return nodes
     .map((node) => {
-      const children = (node[childrenField] as T[] | undefined) ?? []
+      const children = ((node as Record<string, unknown>)[childrenField] as T[] | undefined) ?? []
       const filteredChildren = filterTree(children, predicate, childrenField)
       if (predicate(node) || filteredChildren.length > 0) {
         return { ...node, [childrenField]: filteredChildren }
@@ -57,7 +61,7 @@ function filterTree<T extends Record<string, unknown>>(
 }
 
 export function useTreeCrudPage<
-  TList extends { id: number } & Record<string, unknown>,
+  TList extends { id: number },
   TDetail = TList,
   TFormValues = unknown,
 >(config: TreeCrudPageConfig<TList, TDetail, TFormValues>): TreeCrudPageReturn<TList, TDetail> {

@@ -5,6 +5,10 @@ import { toast } from 'sonner'
 import { confirm } from '@/components/confirm-dialog'
 import type { ApiResponse, PagingInfo } from '@/types'
 
+type FormSubmitHandler<TFormValues> = {
+  bivarianceHack(values: TFormValues, mode: 'create' | 'edit'): Promise<void>
+}['bivarianceHack']
+
 /** API module shape expected by useCrudPage */
 export interface CrudApi<TList, TDetail = TList> {
   getPage: (params: Record<string, unknown>) => Promise<ApiResponse<PagingInfo<TList>>>
@@ -16,7 +20,7 @@ export interface CrudPageConfig<TList, TFormValues> {
   api: CrudApi<TList>
   searchParams: Record<string, unknown>
   /** Called on form submit. Receives form values and mode. Page handles API call. */
-  onFormSubmit: (values: TFormValues, mode: 'create' | 'edit') => Promise<void>
+  onFormSubmit: FormSubmitHandler<TFormValues>
   /** Generate delete confirmation text for a single row */
   confirmDeleteText: (row: TList) => string
   /** Generate batch delete confirmation text */
@@ -92,7 +96,7 @@ export function useCrudPage<TList extends { id: number }, TDetail = TList, TForm
     async (params: { pageNo: number; pageSize: number }) => {
       const res = await api.getPage({ ...searchParams, ...params })
       return {
-        records: (res.data?.records ?? []) as TList[],
+        records: (res.data?.list ?? []) as TList[],
         total: res.data?.total ?? 0,
       }
     },

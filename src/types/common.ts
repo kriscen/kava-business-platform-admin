@@ -10,11 +10,10 @@ export interface PageQuery {
 
 /** 后端分页响应结构 */
 export interface PagingInfo<T> {
-  records: T[]
+  list: T[]
   total: number
-  size: number
-  current: number
-  pages: number
+  pageNo: number
+  pageSize: number
 }
 
 /** 下拉选项 */

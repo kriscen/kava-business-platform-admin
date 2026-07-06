@@ -25,7 +25,15 @@ export default function AuditLogManagement() {
   )
 
   const { modal, handlers, tableProps } = useCrudPage<SysAuditLogListResponse>({
-    api: { ...auditLogApi, remove: async () => {} } as CrudApi<SysAuditLogListResponse>,
+    api: {
+      ...auditLogApi,
+      remove: async () => ({
+        success: true,
+        data: null,
+        errorCode: null,
+        errorMessage: null,
+      }),
+    } as CrudApi<SysAuditLogListResponse>,
     searchParams,
     onFormSubmit: async () => {},
     confirmDeleteText: () => '',

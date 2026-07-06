@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import type { SysMenuListResponse, SysMenuRequest } from '@/types'
+import type { SysMenuDetailResponse, SysMenuListResponse, SysMenuRequest } from '@/types'
 import { menuApi } from '@/api/modules/menu'
 import { useTreeCrudPage } from '@/hooks'
 import { CrudPageLayout } from '@/components/crud-page-layout'
@@ -36,7 +36,7 @@ export default function MenuManagement() {
 
   const { modal, handlers, treeData, loading } = useTreeCrudPage<
     SysMenuListResponse,
-    SysMenuListResponse & Partial<SysMenuListResponse>,
+    SysMenuDetailResponse & { children?: SysMenuListResponse[] },
     MenuFormValues
   >({
     api: menuApi,
