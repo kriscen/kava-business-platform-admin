@@ -134,12 +134,12 @@ The menu store SHALL provide a `buildMenus()` method that reads the current user
 
 ### Requirement: 路由元数据配置
 
-系统 SHALL 提供集中的路由配置文件 `src/routes/config.ts`，包含所有已注册路由的标题 i18n key 和面包屑层级，包括 dept、tenant、public-param 条目。
+系统 SHALL 提供集中的路由配置文件 `src/routes/config.ts`，包含所有已注册路由的标题 i18n key 和面包屑层级，包括 group、tenant、public-param 条目。
 
 #### Scenario: 配置文件包含所有路由元数据
 
 - **WHEN** 应用启动
-- **THEN** `routeConfig` 导出包含所有主要路由的配置对象，包括 `/platform/system/dept`、`/platform/system/tenant`、`/platform/system/public-param`，每个配置包含 `path`、`titleKey`、`parentPath` 属性
+- **THEN** `routeConfig` 导出包含所有主要路由的配置对象，包括 `/platform/system/group`、`/platform/system/tenant`、`/platform/system/public-param`，每个配置包含 `path`、`titleKey`、`parentPath` 属性
 
 #### Scenario: 路由配置与布局 i18n key 一致
 
@@ -296,10 +296,10 @@ Content 组件 SHALL 使用 `useBreadcrumbs()` 自动渲染面包屑。
 
 系统 SHALL 在 platform 路由下注册管理页面路由，使用 React.lazy 懒加载，并添加对应的菜单项。
 
-#### Scenario: Access dept management
+#### Scenario: Access group management
 
-- **WHEN** platform_admin 访问 `/platform/system/dept`
-- **THEN** 渲染 DeptManagement 页面，侧边栏显示"部门管理"菜单项
+- **WHEN** platform_admin 访问 `/platform/system/group`
+- **THEN** 渲染 GroupManagement 页面，侧边栏显示"分组管理"菜单项
 
 #### Scenario: Access tenant management
 

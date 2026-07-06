@@ -8,7 +8,7 @@
 | `promise`    | 未捕获的 Promise rejection     |
 | `render`     | React 渲染错误 (ErrorBoundary) |
 | `network`    | 网络请求错误                   |
-| `business`   | 业务逻辑错误 (`code !== '0'`)  |
+| `business`   | 业务逻辑错误 (`success=false`) |
 
 ## HTTP 错误
 
@@ -25,9 +25,9 @@
 
 ## 业务错误
 
-业务错误由后端返回，`code !== '0'` 时触发。错误消息通过 `ApiResponse.msg` 传递（对齐后端 `JsonResult`，`code` 类型为 `string`，`"0"` 表示成功）。
+业务错误由后端返回，`success === false` 时触发。错误消息通过 `ApiResponse.errorMessage` 传递，错误码通过 `ApiResponse.errorCode` 传递。
 
-拦截器自动调用 `toast.error(msg || '请求失败')` 向用户展示通知。
+拦截器自动调用 `toast.error(errorMessage || '请求失败')` 向用户展示通知。
 
 ## 错误处理流程
 
@@ -35,7 +35,7 @@
 2. **Promise rejection** → `window.onunhandledrejection` → `handleError()`
 3. **React 渲染错误** → ErrorBoundary → `formatError('render', ...)`
 4. **Axios HTTP 错误** → 响应拦截器 → toast 通知 + reject
-5. **业务错误** (`code !== '0'`) → 响应拦截器 → toast.error + reject
+5. **业务错误** (`success=false`) → 响应拦截器 → toast.error + reject
 6. **401 Token 过期** → raw fetch 刷新 token → 成功则重试原请求；失败则 `toast.info`（使用 i18n key `common.tokenExpired`）提示用户，所有排队的 401 请求被 reject，然后跳转登录页
 
 ## 用户通知

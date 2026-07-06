@@ -1,4 +1,10 @@
-## ADDED Requirements
+# Group Management Spec
+
+## Purpose
+
+定义前端分组管理能力，包括 API module、类型定义、树形管理页面、父级选择器、mock 数据和路由导航注册。
+
+## Requirements
 
 ### Requirement: Group API module
 

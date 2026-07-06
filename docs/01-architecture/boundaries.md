@@ -11,7 +11,7 @@ Axios 实例封装，统一处理请求/响应。
 
 ### 响应拦截器
 
-- 业务错误：`code !== '0'` 时通过 `toast.error(msg)` 展示通知并 reject
+- 业务错误：`success === false` 时通过 `toast.error(errorMessage)` 展示通知并 reject
 - HTTP 错误：按状态码 (401/403/404/500/502/503) 分类展示 toast 并 reject
 - Token 刷新：401 时使用 raw fetch（不经 Axios）刷新 token，并发请求排队等待；刷新失败时所有排队的 `refreshSubscribers` 回调被 **reject**（不会悬挂），数组清空
 
@@ -19,17 +19,17 @@ Axios 实例封装，统一处理请求/响应。
 
 按后端资源模块组织，每个文件导出同名 API 对象：
 
-- `userApi`、`roleApi`、`menuApi`、`deptApi`、`tenantApi`
+- `userApi`、`roleApi`、`menuApi`、`groupApi`、`tenantApi`、`appApi`
 - 标准方法：`getPage`、`getById`、`create`、`update`、`remove`
-- 特殊方法：`getDropdown`（角色/租户）、`getTree`（菜单/部门）、`enable/disable`（租户）
+- 特殊方法：`getDropdown`（角色/租户/应用）、`getTree`（菜单/分组/地区）、`enable/disable`（租户）
 
 认证端点在 `src/api/auth.ts`（`refreshToken`、`exchangeCode`），使用 raw fetch 避免 401 拦截器循环。
 
 ### 类型系统 (`src/types/`)
 
-- `api.ts`：`ApiResponse<T>` — 对齐后端 `JsonResult<T>`（`code: string`、`msg`、`data`）
+- `api.ts`：`ApiResponse<T>` — 对齐后端 `JsonResult<T>`（`success`、`data`、`errorCode`、`errorMessage`）
 - `common.ts`：`PageQuery`、`PagingInfo<T>`、`DropdownItem`、`IdParam` 等通用类型
-- 按实体分文件：`user.ts`、`role.ts`、`menu.ts`、`dept.ts`、`tenant.ts`，各含 Query/Request/Response 类型
+- 按实体分文件：`user.ts`、`role.ts`、`menu.ts`、`group.ts`、`tenant.ts`、`app.ts` 等，各含 Query/Request/Response 类型
 - `index.ts` 统一重新导出，外部通过 `@/types` 引用
 
 ## 状态层 (`src/stores/`)
@@ -85,4 +85,4 @@ Zustand store，使用 `persist` + `devtools` 中间件。
 | `promise`    | unhandledrejection |
 | `render`     | ErrorBoundary      |
 | `network`    | Axios 网络错误     |
-| `business`   | API code !== '0'   |
+| `business`   | API success=false  |

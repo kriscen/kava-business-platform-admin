@@ -1,4 +1,10 @@
-## ADDED Requirements
+# I18n Convention Spec
+
+## Purpose
+
+定义前端用户可见字符串、翻译文件组织和翻译 key 命名约定，确保页面、表单、提示和错误消息统一通过 i18n 维护。
+
+## Requirements
 
 ### Requirement: 禁止组件内硬编码用户可见字符串
 
@@ -49,12 +55,12 @@
 
 ### Requirement: i18n translation files per module
 
-系统 SHALL 为每个业务模块维护独立的翻译文件。新增 `dept.json`、`tenant.json`、`publicParam.json` 到 `src/i18n/locales/zh-CN/` 目录。
+系统 SHALL 为每个业务模块维护独立的翻译文件。新增或维护 `group.json`、`tenant.json`、`publicParam.json` 到 `src/i18n/locales/zh-CN/` 目录。
 
 #### Scenario: Dept translation keys
 
-- **WHEN** 部门页面渲染
-- **THEN** 所有字符串通过 `t('dept.xxx')` 引用，翻译定义在 `dept.json` 中
+- **WHEN** 分组页面渲染
+- **THEN** 所有字符串通过 `t('group.xxx')` 引用，翻译定义在 `group.json` 中
 
 #### Scenario: Tenant translation keys
 

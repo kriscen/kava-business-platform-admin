@@ -12,7 +12,7 @@ API 层约定：按后端资源模块组织 API 调用文件，定义与后端 J
 
 #### Scenario: 模块文件结构
 
-- **THEN** 存在 `src/api/modules/user.ts`、`role.ts`、`menu.ts`、`dept.ts`、`tenant.ts`，以及 `src/api/auth.ts`（OAuth2 token 端点）
+- **THEN** 存在 `src/api/modules/user.ts`、`role.ts`、`menu.ts`、`group.ts`、`tenant.ts`、`app.ts`，以及 `src/api/auth.ts`（OAuth2 token 端点）
 
 #### Scenario: 每个模块导出 API 对象
 
@@ -60,9 +60,9 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 - **THEN** `menuApi.getTree()` 返回 `Promise<ApiResponse<SysMenuListResponse[]>>`（含嵌套 children）
 
-#### Scenario: 部门树接口
+#### Scenario: 分组树接口
 
-- **THEN** `deptApi.getTree()` 返回 `Promise<ApiResponse<SysDeptListResponse[]>>`
+- **THEN** `groupApi.getTree()` 返回 `Promise<ApiResponse<SysGroupListResponse[]>>`
 
 #### Scenario: 租户启停接口
 
@@ -86,22 +86,26 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 ### Requirement: ApiResponse 与后端 JsonResult 对齐
 
-`ApiResponse<T>` 类型 SHALL 与后端 `JsonResult<T>` 完全对齐：`code` 类型为 `string`（非 `number`），消息字段名为 `msg`（非 `message`）。成功时 `code` 值为 `"0"`。
+`ApiResponse<T>` 类型 SHALL 与后端 `JsonResult<T>` 完全对齐：字段为 `success`、`data`、`errorCode`、`errorMessage`。前端 SHALL NOT 使用 `code/msg` 作为普通业务接口的统一响应结构。
 
 #### Scenario: 业务成功响应
 
-- **WHEN** 后端返回 `{ "code": "0", "msg": "success", "data": { "id": 1 } }`
-- **THEN** `ApiResponse<{id: number}>` 的 `code` 类型为 `string`，`msg` 字段值为 `"success"`
+- **WHEN** 后端返回 `{ "success": true, "data": { "id": "1" }, "errorCode": null, "errorMessage": null }`
+- **THEN** `ApiResponse<{id: string}>` 的 `success` 为 `true`
+- **AND** `data` 包含业务数据
+- **AND** 请求 Promise SHALL resolve 原始 `JsonResult` 包装对象
 
 #### Scenario: 业务失败响应
 
-- **WHEN** 后端返回 `{ "code": "A00403", "msg": "租户已停用", "data": null }`
-- **THEN** `ApiResponse` 的 `code` 为 `"A00403"`，`msg` 为 `"租户已停用"`
+- **WHEN** 后端返回 `{ "success": false, "data": null, "errorCode": "10040003", "errorMessage": "租户状态流转不合法" }`
+- **THEN** `ApiResponse` 的 `success` 为 `false`
+- **AND** `errorCode` 为 `"10040003"`
+- **AND** `errorMessage` 为 `"租户状态流转不合法"`
 
 #### Scenario: 拦截器判断业务成功
 
 - **WHEN** 响应拦截器检查业务码
-- **THEN** 使用 `data.code !== '0'` 判断失败（字符串比较）
+- **THEN** 使用 `result.success !== true` 判断业务失败
 
 ### Requirement: 分页类型定义
 
@@ -115,7 +119,7 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 #### Scenario: PagingInfo 包含后端分页响应结构
 
 - **WHEN** 后端返回分页数据
-- **THEN** `PagingInfo<T>` 类型包含 `records: T[]`、`total: number`、`size: number`、`current: number`、`pages: number`
+- **THEN** `PagingInfo<T>` 类型包含 `list: T[]`、`total: number`、`pageNo: number`、`pageSize: number`
 
 ### Requirement: 核心实体类型定义
 
@@ -123,7 +127,9 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 #### Scenario: 用户实体类型完整
 
-- **THEN** 存在 `SysUserRequest`（username, password, phone, deptId, tenantId, roleIds 等字段）、`SysUserListResponse`（含 deptName, tenantName 富化字段）、`SysUserDetailResponse`（额外含 roleNames）
+- **THEN** 存在 `SysUserRequest`（username, password, phone, groupId, tenantId, roleIds 等字段）、`SysUserListResponse`（含 groupName, tenantName 富化字段）、`SysUserDetailResponse`（额外含 roleNames）
+- **AND** 字段 SHALL 使用 `groupId`、`groupName`
+- **AND** 不 SHALL 要求 `deptId`、`deptName` 或 `deptApi`
 
 #### Scenario: 角色实体类型完整
 
@@ -133,9 +139,9 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 - **THEN** 存在 `SysMenuRequest`（name, permission, path, component, menuType 等字段）、`SysMenuListResponse`（含 children 递归结构和 parentName）、`SysMenuDetailResponse`
 
-#### Scenario: 部门实体类型完整
+#### Scenario: 分组实体类型完整
 
-- **THEN** 存在 `SysDeptRequest`（name, pid, sortOrder）、`SysDeptListResponse`（含 children 递归结构和 parentName）
+- **THEN** 存在 `SysGroupRequest`（name, pid, sortOrder）、`SysGroupListResponse`（含 children 递归结构和 parentName）
 
 #### Scenario: 租户实体类型完整
 
@@ -147,7 +153,7 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 #### Scenario: 类型文件结构
 
-- **THEN** `src/types/common.ts` 导出 `PageQuery`、`PagingInfo<T>`、`IdParam` 等通用类型；`src/types/user.ts`、`role.ts`、`menu.ts`、`dept.ts`、`tenant.ts` 各导出对应资源的类型
+- **THEN** `src/types/common.ts` 导出 `PageQuery`、`PagingInfo<T>`、`IdParam` 等通用类型；`src/types/user.ts`、`role.ts`、`menu.ts`、`group.ts`、`tenant.ts` 各导出对应资源的类型
 
 #### Scenario: 类型统一导出
 
@@ -176,16 +182,16 @@ API 模块 SHALL 支持后端定义的非标准 CRUD 接口（下拉列表、树
 
 ### Requirement: 响应拦截器展示业务错误 toast
 
-响应拦截器检测到业务错误（`code !== '0'`）时 SHALL 展示 toast 错误通知。
+响应拦截器检测到业务错误（`success === false`）时 SHALL 展示 toast 错误通知。
 
 #### Scenario: 业务错误展示错误消息
 
-- **WHEN** 后端返回 `{ "code": "A00403", "msg": "租户已停用" }`
-- **THEN** 拦截器调用 `toast.error('租户已停用')`，用户看到错误 toast
+- **WHEN** 后端返回 `{ "success": false, "errorCode": "10040003", "errorMessage": "租户状态流转不合法", "data": null }`
+- **THEN** 拦截器调用 `toast.error('租户状态流转不合法')`，用户看到错误 toast
 
-#### Scenario: 业务错误无 msg 字段
+#### Scenario: 业务错误无 errorMessage 字段
 
-- **WHEN** 后端返回 `{ "code": "99999", "msg": "" }` 且 msg 为空
+- **WHEN** 后端返回 `{ "success": false, "errorCode": "99999", "errorMessage": "" }` 且 errorMessage 为空
 - **THEN** 拦截器展示默认消息 `toast.error('请求失败')`
 
 ### Requirement: HTTP 错误分类展示 toast

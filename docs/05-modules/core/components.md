@@ -22,7 +22,7 @@ shadcn/ui 基础组件集合（Button、Input、Dialog、Table 等），通过 `
 - **文件**: `src/components/data-table.tsx`
 - **用途**: 通用数据表格组件，封装 @tanstack/react-table
 - **特性**: 服务端分页、列定义、行选择、排序
-- **使用场景**: 所有列表页（用户、角色、部门、租户等）
+- **使用场景**: 所有列表页（用户、角色、分组、租户、应用等）
 
 ### TreeTable
 

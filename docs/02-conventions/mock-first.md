@@ -71,14 +71,15 @@ const exampleMocks: MockMethod[] = [
     method: 'get',
     response: ({ query }) => {
       return {
-        code: '0',
-        message: 'success',
+        success: true,
         data: {
-          records: [],
+          list: [],
           total: 0,
-          page: Number(query.page) || 1,
-          size: Number(query.size) || 10,
+          pageNo: Number(query.pageNo) || 1,
+          pageSize: Number(query.pageSize) || 10,
         },
+        errorCode: null,
+        errorMessage: null,
       }
     },
   },
@@ -116,5 +117,5 @@ const mocks: MockMethod[] = [
 - `/api/v1/sys/user` — 用户管理
 - `/api/v1/sys/role` — 角色管理
 - `/api/v1/sys/tenant` — 租户管理
-- `/api/v1/sys/dept` — 部门管理
+- `/api/v1/sys/group` — 分组管理
 - `/api/v1/sys/menu` — 菜单管理

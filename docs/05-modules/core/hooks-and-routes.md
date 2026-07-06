@@ -13,7 +13,7 @@
 | `/platform/login`               | `PlatformLoginPage`             | 登录页       |
 | `/platform/dashboard`           | `PlatformDashboard`             | 仪表盘       |
 | `/platform/system/users`        | `PlatformUserManagement`        | 用户管理     |
-| `/platform/system/dept`         | `PlatformDeptManagement`        | 部门管理     |
+| `/platform/system/group`        | `GroupManagement`               | 分组管理     |
 | `/platform/system/tenant`       | `PlatformTenantManagement`      | 租户管理     |
 | `/platform/system/public-param` | `PlatformPublicParamManagement` | 公共参数管理 |
 

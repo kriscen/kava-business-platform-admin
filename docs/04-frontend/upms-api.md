@@ -47,6 +47,8 @@
 }
 ```
 
+字段类型表中的 `Long` 表示后端 Java 类型；当前响应 JSON 会把 Long/BigInteger 序列化为字符串。前端展示、比较和 Select value 应按字符串消费 ID，提交请求和路径参数仍由 API 模块按后端入参组装。
+
 ---
 
 ## HTTP REST 接口

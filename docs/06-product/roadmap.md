@@ -11,7 +11,7 @@
 | 用户管理   | `/api/v1/sys/user/`   | ○ 待开发 |
 | 角色管理   | `/api/v1/sys/role/`   | ○ 待开发 |
 | 菜单管理   | `/api/v1/sys/menu/`   | ○ 待开发 |
-| 部门管理   | `/api/v1/sys/dept/`   | ○ 待开发 |
+| 分组管理   | `/api/v1/sys/group/`  | ✓ 已实现 |
 | 日志管理   | `/api/v1/sys/log/`    | ○ 待开发 |
 | 文件管理   | `/api/v1/sys/file/`   | ○ 待开发 |
 | 公共参数   | `/api/v1/sys/config/` | ○ 待开发 |

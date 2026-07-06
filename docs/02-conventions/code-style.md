@@ -19,9 +19,10 @@
 
 ```typescript
 interface ApiResponse<T = unknown> {
-  code: number // 0 = 成功
-  data?: T
-  message?: string
+  success: boolean
+  data: T | null
+  errorCode: string | null
+  errorMessage: string | null
 }
 ```
 

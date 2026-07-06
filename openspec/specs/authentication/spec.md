@@ -196,17 +196,17 @@ The mock system SHALL provide `/api/auth/login` endpoint that validates credenti
 #### Scenario: Platform admin mock login
 
 - **WHEN** a POST request to `/api/auth/login` with `{ username: "admin", password: "123456", role: "platform_admin" }`
-- **THEN** the mock returns `{ code: 0, data: { userInfo: { role: "platform_admin", username: "admin" }, accessToken: "...", refreshToken: "..." } }`
+- **THEN** the mock returns `{ success: true, data: { userInfo: { role: "platform_admin", username: "admin" }, accessToken: "...", refreshToken: "..." }, errorCode: null, errorMessage: null }`
 
 #### Scenario: Tenant admin mock login
 
 - **WHEN** a POST request to `/api/auth/login` with `{ username: "tenant", password: "123456", role: "tenant_admin", tenantCode: "DEMO" }`
-- **THEN** the mock returns `{ code: 0, data: { userInfo: { role: "tenant_admin", username: "tenant", tenantCode: "DEMO" }, accessToken: "...", refreshToken: "..." } }`
+- **THEN** the mock returns `{ success: true, data: { userInfo: { role: "tenant_admin", username: "tenant", tenantCode: "DEMO" }, accessToken: "...", refreshToken: "..." }, errorCode: null, errorMessage: null }`
 
 #### Scenario: Invalid credentials mock login
 
 - **WHEN** a POST request to `/api/auth/login` with invalid credentials
-- **THEN** the mock returns `{ code: -1, message: "Invalid credentials" }`
+- **THEN** the mock returns `{ success: false, data: null, errorCode: "-1", errorMessage: "Invalid credentials" }`
 
 ### Requirement: Auth mock provides logout endpoint
 
@@ -215,7 +215,7 @@ The mock system SHALL provide `/api/auth/logout` endpoint.
 #### Scenario: Mock logout
 
 - **WHEN** a POST request to `/api/auth/logout`
-- **THEN** the mock returns `{ code: 0, message: "success" }`
+- **THEN** the mock returns `{ success: true, data: null, errorCode: null, errorMessage: null }`
 
 ### Requirement: Auth mock provides refresh token endpoint
 
